@@ -1,4 +1,4 @@
-# MyAnimeList Bot [![CodeFactor](https://www.codefactor.io/repository/github/thomasaunvik/MyAnimeList/badge)](https://www.codefactor.io/repository/github/thomasaunvik/MyAnimeList)
+# MyAnimeList Bot [![CodeFactor](https://www.codefactor.io/repository/github/thomasaunvik/maldiscordbot/badge)](https://www.codefactor.io/repository/github/thomasaunvik/maldiscordbot)
 This bot is made in C#, and is built in dotnet core.
 
 You can invite my bot to your discord server by clicking: [here](https://discordapp.com/api/oauth2/authorize?client_id=377558188826034216&permissions=0&scope=bot)!

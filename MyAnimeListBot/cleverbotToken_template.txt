@@ -1,0 +1,1 @@
+<Remove this line and insert the cleverbot token here, rename this to 'cleverbotToken.txt'>

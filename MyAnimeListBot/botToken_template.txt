@@ -1,0 +1,1 @@
+<Remove this line and insert the bot token here, rename this to 'botToken.txt'>

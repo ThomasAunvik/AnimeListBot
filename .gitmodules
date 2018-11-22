@@ -1,0 +1,3 @@
+[submodule "jikan.net"]
+	path = jikan.net
+	url = https://github.com/Ervie/jikan.net

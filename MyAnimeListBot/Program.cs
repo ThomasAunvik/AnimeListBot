@@ -9,23 +9,26 @@ using Discord.Commands;
 using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
 
+using JikanDotNet;
+
 using MALBot.Handler;
 
 namespace MALBot
 {
     public class Program
     {
-        public const ulong botID = 0;
-        public const char botPrefix = '!';
+        public const ulong botID = 515269277553655823;
+        public const char botPrefix = '.';
         public static readonly string inviteURL = "https://discordapp.com/api/oauth2/authorize?client_id=" + botID + "&permissions=0&scope=bot";
         
         public static Color embedColor = new Color(114, 137, 218);
+        public const string EMPTY_EMBED_SPACE = "\u200b";
 
         public static DiscordSocketClient _client;
-
         public static CommandService _commands;
-
         public static IServiceProvider _services;
+
+        public static IJikan _jikan;
 
         public static List<DiscordServer> discordServers;
         public static List<GlobalUser> globalUsers;
@@ -101,6 +104,8 @@ namespace MALBot
                 .AddSingleton(_client)
                 .AddSingleton(_commands)
                 .BuildServiceProvider();
+
+            _jikan = new Jikan(true);
 
             _client.Log += Log;
 

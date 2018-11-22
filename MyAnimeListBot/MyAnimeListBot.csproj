@@ -23,6 +23,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\jikan.net\JikanDotNet\JikanDotNet\JikanDotNet.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Update="botToken.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

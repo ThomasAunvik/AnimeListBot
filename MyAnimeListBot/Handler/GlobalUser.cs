@@ -1,4 +1,6 @@
-﻿using Discord.WebSocket;
+﻿using Discord;
+using Discord.WebSocket;
+using JikanDotNet;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
@@ -14,13 +16,25 @@ namespace MALBot.Handler
 
         public ulong UserID;
 
-        public GlobalUser(SocketUser user)
+        public string MAL_Username;
+
+        public string imageURL;
+        public decimal? daysWatchedAnime = 0;
+
+        public GlobalUser(IUser user)
         {
             Username = user.Username;
             UserID = user.Id;
 
             LoadData();
             SaveData();
+        }
+
+        public async Task UpdateMALInfo()
+        {
+            UserProfile profile = await Program._jikan.GetUserProfile(MAL_Username);
+            daysWatchedAnime = profile.AnimeStatistics.DaysWatched;
+            imageURL = profile.ImageURL;
         }
 
         public SaveDiscordUser LoadData()
@@ -33,13 +47,14 @@ namespace MALBot.Handler
                 {
                     Username = save.Username;
                     UserID = save.UserID;
+                    MAL_Username = save.MAL_Username;
                     return save;
                 }
             }
             return null;
         }
 
-        public async Task SaveData()
+        public void SaveData()
         {
             savedUser = new SaveDiscordUser(this);
 
@@ -70,7 +85,10 @@ namespace MALBot.Handler
         public string Username;
         public ulong UserID;
 
-        public string email;
+        public string MAL_Username;
+
+        public string imageURL;
+        public decimal? daysWatchedAnime = 0;
 
         public SaveDiscordUser(GlobalUser user)
         {
@@ -78,6 +96,10 @@ namespace MALBot.Handler
             {
                 UserID = user.UserID;
                 Username = user.Username;
+                MAL_Username = user.MAL_Username;
+
+                imageURL = user.imageURL;
+                daysWatchedAnime = user.daysWatchedAnime;
             }
         }
     }

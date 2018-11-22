@@ -145,7 +145,7 @@ namespace MALBot.Modules
         [Summary("Gets the GitHub link of the project")]
         public async Task GithubLink()
         {
-            await ReplyAsync("Hifumi Project: https://github.com/ThomasAunvik/DiscordTemplateBot");
+            await ReplyAsync("MyAnimeList Bot Project: https://github.com/ThomasAunvik/MALDiscordBot");
         }
     }
 }

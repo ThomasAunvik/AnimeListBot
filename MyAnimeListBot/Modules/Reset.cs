@@ -26,7 +26,8 @@ namespace MALBot.Modules
                 foreach(SocketGuildUser user in server.Guild.Users)
                     if(server.Users.Find(x => x.userID == user.Id) == null)
                         server.Users.Add(new ServerUser(user));
-            }else await message.ModifyAsync(x => x.Content = "Server Resetted.");
+            }
+            else await message.ModifyAsync(x => x.Content = "Server Resetted.");
 
             server.SaveData();
                 server.LoadData();

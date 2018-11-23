@@ -17,6 +17,10 @@ namespace MALBot.Handler
         //Savings
         public List<ServerUser> Users = new List<ServerUser>();
 
+        public ulong animeListChannelId = 0;
+
+        public List<(ulong roleId, decimal days)> animeRoles;
+
         public DiscordServer(SocketGuild guild)
         {
             _guild = guild;
@@ -29,6 +33,8 @@ namespace MALBot.Handler
                     Users.Add(new ServerUser(user));
                 else
                     Users.Find(x => x.userID == user.Id).UpdateInfo(user);
+
+            animeRoles = new List<(ulong roleId, decimal days)>();
 
             SaveData();
         }
@@ -85,6 +91,8 @@ namespace MALBot.Handler
     {
         public string serverName;
         public ulong serverId;
+        public List<(ulong roleId, decimal days)> animeRoles;
+
         public List<ServerUser> users;
 
         public SaveDiscordServer(DiscordServer server)
@@ -96,6 +104,9 @@ namespace MALBot.Handler
                     serverName = server.Guild.Name;
                     serverId = server.Guild.Id;
                 }
+
+                if (server.animeRoles != null)
+                    animeRoles = server.animeRoles;
 
                 if (server.Users != null)
                     users = server.Users;

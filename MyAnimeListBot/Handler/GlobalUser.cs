@@ -35,13 +35,15 @@ namespace MALBot.Handler
             UserProfile profile = await Program._jikan.GetUserProfile(MAL_Username);
             daysWatchedAnime = profile.AnimeStatistics.DaysWatched;
             imageURL = profile.ImageURL;
+
+            SaveData();
         }
 
         public SaveDiscordUser LoadData()
         {
             if(File.Exists("DiscordUserFiles/" + UserID + ".json"))
             {
-                String JSONstring = File.ReadAllText("DiscordUserFiles/" + UserID + ".json");
+                string JSONstring = File.ReadAllText("DiscordUserFiles/" + UserID + ".json");
                 SaveDiscordUser save = JsonConvert.DeserializeObject<SaveDiscordUser>(JSONstring);
                 if(save != null)
                 {

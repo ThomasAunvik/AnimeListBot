@@ -12,6 +12,8 @@ using Microsoft.Extensions.DependencyInjection;
 using JikanDotNet;
 
 using MALBot.Handler;
+using MALBot.Modules;
+using System.Threading;
 
 namespace MALBot
 {
@@ -114,7 +116,7 @@ namespace MALBot
             _client.JoinedGuild += OnJoinedGuild;
             _client.UserJoined += OnUserJoined;
 
-            _client.MessageReceived += async (arg)=>
+            _client.MessageReceived += async (arg) =>
             {
                 if (globalUsers == null)
                     return;
@@ -124,13 +126,28 @@ namespace MALBot
 
                 GlobalUser user = globalUsers.FirstOrDefault(x => x.UserID == arg.Author.Id);
                 if (user == default(GlobalUser)) globalUsers.Add(new GlobalUser(arg.Author));
+
+                ulong guildId = ((IGuildChannel)arg.Channel).Guild.Id;
+                DiscordServer server = DiscordServer.GetServerFromID(guildId);
+                if(arg.Channel.Id == server.animeListChannelId)
+                {
+                    await AutoAdder.AddUser(arg);
+                }
             };
+
+            _client.Ready += async () =>
+            {
+                Ranks.SetupTimer();
+            };
+            
 
             await RegisterCommandsAsync();
             
             await _client.LoginAsync(TokenType.Bot, botToken);
 
             await _client.StartAsync();
+            
+            //Ranks.SetupTimer();
 
             await Task.Delay(-1);
         }

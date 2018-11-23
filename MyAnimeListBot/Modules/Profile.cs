@@ -16,6 +16,11 @@ namespace MALBot.Modules
         public async Task SetupProfile(string option, string username)
         {
             UserProfile profile = await Program._jikan.GetUserProfile(username);
+            if(profile == null)
+            {
+                await ReplyAsync("Invalid Username.");
+                return;
+            }
 
             if(option == "mal" || option == "myanimelist")
             {

@@ -49,7 +49,7 @@ namespace MALBot.Modules
                 UserProfile profile = await Program._jikan.GetUserProfile(usernamePart);
                 if (profile != null)
                 {
-                    GlobalUser user = Program.globalUsers.Find(y => y.UserID == message.Author.Id);
+                    GlobalUser user = Program.globalUsers.Find(y => y.userID == message.Author.Id);
                     if (user == null)
                     {
                         user = new GlobalUser(message.Author);

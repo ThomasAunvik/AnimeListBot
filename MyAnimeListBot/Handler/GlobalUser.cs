@@ -4,6 +4,7 @@ using JikanDotNet;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 
@@ -14,7 +15,8 @@ namespace MALBot.Handler
         public SaveDiscordUser savedUser;
         public string Username;
 
-        public ulong UserID;
+        public ulong userID;
+        public List<ServerUser> serverUsers = new List<ServerUser>();
 
         public string MAL_Username;
 
@@ -24,7 +26,7 @@ namespace MALBot.Handler
         public GlobalUser(IUser user)
         {
             Username = user.Username;
-            UserID = user.Id;
+            userID = user.Id;
 
             LoadData();
             SaveData();
@@ -33,22 +35,25 @@ namespace MALBot.Handler
         public async Task UpdateMALInfo()
         {
             UserProfile profile = await Program._jikan.GetUserProfile(MAL_Username);
-            daysWatchedAnime = profile.AnimeStatistics.DaysWatched;
-            imageURL = profile.ImageURL;
+            if (profile != null)
+            {
+                daysWatchedAnime = profile.AnimeStatistics.DaysWatched;
+                imageURL = profile.ImageURL;
+            }
 
             SaveData();
         }
 
         public SaveDiscordUser LoadData()
         {
-            if(File.Exists("DiscordUserFiles/" + UserID + ".json"))
+            if(File.Exists("DiscordUserFiles/" + userID + ".json"))
             {
-                string JSONstring = File.ReadAllText("DiscordUserFiles/" + UserID + ".json");
+                string JSONstring = File.ReadAllText("DiscordUserFiles/" + userID + ".json");
                 SaveDiscordUser save = JsonConvert.DeserializeObject<SaveDiscordUser>(JSONstring);
                 if(save != null)
                 {
                     Username = save.Username;
-                    UserID = save.UserID;
+                    userID = save.UserID;
                     MAL_Username = save.MAL_Username;
                     return save;
                 }
@@ -67,12 +72,12 @@ namespace MALBot.Handler
             FileStream stream = null;
             if (!Directory.Exists("DiscordUserFiles/"))
                 Directory.CreateDirectory("DiscordUserFiles/");
-            if (!File.Exists("DiscordUserFiles/" + UserID + ".json"))
-                stream = File.Create("DiscordUserFiles/" + UserID + ".json");
+            if (!File.Exists("DiscordUserFiles/" + userID + ".json"))
+                stream = File.Create("DiscordUserFiles/" + userID + ".json");
 
             if(stream != null)
                 stream.Close();
-            File.WriteAllText("DiscordUserFiles/" + UserID + ".json", jsonFormatted);
+            File.WriteAllText("DiscordUserFiles/" + userID + ".json", jsonFormatted);
         }
 
         public static void DeleteServerFile(SocketUser user)
@@ -91,12 +96,13 @@ namespace MALBot.Handler
 
         public string imageURL;
         public decimal? daysWatchedAnime = 0;
+        public ulong currentRankId = 0;
 
         public SaveDiscordUser(GlobalUser user)
         {
             if(user != null)
             {
-                UserID = user.UserID;
+                UserID = user.userID;
                 Username = user.Username;
                 MAL_Username = user.MAL_Username;
 

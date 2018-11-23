@@ -52,20 +52,22 @@ namespace MALBot
             return Task.CompletedTask;
         }
 
-        public Task OnReady()
+        public async Task OnReadyAsync()
         {
+            globalUsers = new List<GlobalUser>();
             discordServers = new List<DiscordServer>();
             foreach (SocketGuild guild in _client.Guilds)
-                discordServers.Add(new DiscordServer(guild));
+            {
+                DiscordServer newServer = new DiscordServer(guild);
+                discordServers.Add(newServer);
 
-            globalUsers = new List<GlobalUser>();
-            foreach (DiscordServer server in discordServers)
-                foreach (SocketUser user in server.Guild.Users)
+                foreach (SocketUser user in newServer.Guild.Users)
                     if (!user.IsBot)
-                        if (globalUsers.Find(x => x.UserID == user.Id) == null)
+                        if (globalUsers.Find(x => x.userID == user.Id) == null)
                             globalUsers.Add(new GlobalUser(user));
 
-            return Task.CompletedTask;
+                await Ranks.UpdateUserRoles(newServer);
+            }
         }
 
         public Task OnUserJoined(SocketGuildUser user)
@@ -111,7 +113,7 @@ namespace MALBot
 
             _client.Log += Log;
 
-            _client.Ready += OnReady;
+            _client.Ready += OnReadyAsync;
             _client.LeftGuild += OnLeftGuild;
             _client.JoinedGuild += OnJoinedGuild;
             _client.UserJoined += OnUserJoined;
@@ -124,7 +126,7 @@ namespace MALBot
                 if (arg is null || arg.Author.IsBot)
                     return;
 
-                GlobalUser user = globalUsers.FirstOrDefault(x => x.UserID == arg.Author.Id);
+                GlobalUser user = globalUsers.FirstOrDefault(x => x.userID == arg.Author.Id);
                 if (user == default(GlobalUser)) globalUsers.Add(new GlobalUser(arg.Author));
 
                 ulong guildId = ((IGuildChannel)arg.Channel).Guild.Id;
@@ -134,12 +136,6 @@ namespace MALBot
                     await AutoAdder.AddUser(arg);
                 }
             };
-
-            _client.Ready += async () =>
-            {
-                Ranks.SetupTimer();
-            };
-            
 
             await RegisterCommandsAsync();
             
@@ -157,11 +153,11 @@ namespace MALBot
         private async Task HandleCommandAsync(SocketMessage arg)
         {
             var message = arg as SocketUserMessage;
-
             if (message is null || message.Author.IsBot) return;
 
+            
             DiscordServer server = discordServers.Find(x => x.Guild.GetChannel(message.Channel.Id) == message.Channel);
-            ServerUser user = server.Users.Find(x => x.userID == message.Author.Id);
+            ServerUser user = server.GetUserFromId(message.Author.Id);
 
             int argPos = 0;
             if (message.HasStringPrefix(botPrefix.ToString(), ref argPos))

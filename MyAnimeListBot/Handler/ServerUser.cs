@@ -1,5 +1,6 @@
 ﻿using Discord.WebSocket;
 using System;
+using Newtonsoft.Json;
 
 namespace MALBot.Handler
 {
@@ -9,6 +10,11 @@ namespace MALBot.Handler
         public string username;
         public ulong userID;
         public bool isBot;
+
+        public ulong currentRankId = 0;
+
+        [JsonIgnore]
+        public GlobalUser globalUser;
 
         public ServerUser(SocketGuildUser user)
         {
@@ -27,6 +33,12 @@ namespace MALBot.Handler
                 username = user.Username;
                 userID = user.Id;
                 isBot = user.IsBot;
+
+                globalUser = Program.globalUsers.Find(x => x.userID == userID);
+                if(globalUser != null)
+                {
+                    globalUser.serverUsers.Add(this);
+                }
             }
         }
     }

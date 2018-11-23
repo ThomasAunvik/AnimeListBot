@@ -19,56 +19,127 @@ namespace MALBot.Modules
         public async Task AddRank(IRole role, decimal days)
         {
             DiscordServer server = DiscordServer.GetServerFromID(Context.Guild.Id);
+            
+            if(server.animeRoles.Contains((role.Id, days))) {
+                await ReplyAsync("Already added " + role.Name + " with " + days + " days.");
+                return;
+            }
             server.animeRoles.Add((role.Id, days));
+            server.SaveData();
+
+            await ReplyAsync("Added " + role.Name + " as the rank for having " + days + " of watching/reading anime/manga");
+        }
+
+        [Command("updateranks")]
+        [RequireBotPermission(GuildPermission.ManageRoles)]
+        [RequireUserPermission(GuildPermission.ManageRoles)]
+        public async Task UpdateRanks()
+        {
+            DiscordServer server = DiscordServer.GetServerFromID(Context.Guild.Id);
             await UpdateUserRoles(server);
+            await ReplyAsync("Updated all ranks.");
+        }
+
+        [Command("updaterank")]
+        public async Task UpdateRank(IGuildUser user = null)
+        {
+            if (user == null) user = Context.User as IGuildUser;
+
+            if (await UpdateUserRole(user))
+            {
+                await ReplyAsync("Updated " + user.Username + " rank.");
+            }
+            else await ReplyAsync("Failed to update rank.");
+        }
+
+        public static async Task<bool> UpdateUserRole(IGuildUser user)
+        {
+            DiscordServer server = DiscordServer.GetServerFromID(user.Guild.Id);
+            if (server != null)
+            {
+                ServerUser sUser = server.GetUserFromId(user.Id);
+                GlobalUser gUser = Program.globalUsers.Find(x => x.userID == user.Id);
+                if (sUser != null && gUser != null)
+                {
+                    await UpdateUserRole(server, sUser, gUser);
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public static async Task UpdateUserRole(DiscordServer server, ServerUser sUser, GlobalUser gUser)
+        {
+            await gUser.UpdateMALInfo();
+
+            decimal? days = gUser.daysWatchedAnime;
+            ulong roleId = 0;
+            decimal currentDays = 0;
+            server.animeRoles.ForEach(role => { if (role.days < days) { currentDays = role.days; roleId = role.roleId; } });
+
+            Console.WriteLine("Getting userid: " + gUser.userID + " from: " + gUser.Username);
+            IGuildUser guildUser = server.Guild.GetUser(gUser.userID);
+
+            var deletedRoles = server.animeRoles.ToList();
+            deletedRoles.Remove((roleId, currentDays));
+            deletedRoles.ToList().ForEach(x => { if (!guildUser.RoleIds.Contains(x.roleId)) deletedRoles.Remove(x); });
+
+            var iRoles = deletedRoles.Select(z => server.Guild.GetRole(z.roleId)).ToList();
+            iRoles.ForEach(x => { Console.WriteLine(gUser.Username + " lost rank " + x.Name); });
+            await guildUser.RemoveRolesAsync(iRoles);
+
+            if (roleId != 0 && roleId != sUser.currentRankId)
+            {
+                
+                if (!guildUser.RoleIds.Contains(roleId))
+                {
+                    IRole role = server.Guild.GetRole(roleId);
+                    await guildUser.AddRoleAsync(role);
+                    Console.WriteLine(gUser.Username + " got rank " + role.Name);
+                }
+                sUser.currentRankId = roleId;
+            }
+            gUser.SaveData();
         }
 
         public static async Task UpdateUserRoles(DiscordServer server)
         {
-            server.Users.ForEach(async x => {
-                GlobalUser gUser = Program.globalUsers.Find(y => y.UserID == x.userID);
+            Console.WriteLine("Updating...");
+            foreach(ServerUser sUser in server.Users) {
+                GlobalUser gUser = Program.globalUsers.Find(x => x.userID == sUser.userID);
                 if (gUser != null)
                 {
-                    decimal? days = gUser.daysWatchedAnime;
-                    ulong roleId = 0;
-                    decimal currentDays = 0;
-                    server.animeRoles.ForEach(role => { if (role.days > currentDays) { currentDays = role.days; roleId = role.roleId; } });
-
-                    if(roleId != 0)
-                    {
-                        IGuildUser guildUser = server.Guild.GetUser(x.userID);
-                        if (!guildUser.RoleIds.Contains(roleId))
-                        {
-                            IRole role = server.Guild.GetRole(roleId);
-                            await guildUser.AddRoleAsync(role);
-
-                            var deletedRoles = server.animeRoles.ToList();
-                            deletedRoles.Remove((roleId, currentDays));
-
-                            var iRoles = deletedRoles.Select(z => server.Guild.GetRole(z.roleId));
-
-                            await guildUser.RemoveRolesAsync(iRoles);
-                        }
-                    }
+                    await UpdateUserRole(server, sUser, gUser);
                 }
-            });
+            }
         }
 
-        static TimeSpan startTimeSpan = TimeSpan.Zero;
-        static TimeSpan periodTimeSpan = TimeSpan.FromSeconds(1);
-
-        public static void SetupTimer()
+        [Command("Ranks")]
+        public async Task ListRanks()
         {
-            var timer = new Timer((e) =>
+            DiscordServer server = DiscordServer.GetServerFromID(Context.Guild.Id);
+
+            EmbedBuilder embed = new EmbedBuilder() {
+                Color = Program.embedColor
+            };
+
+            (ulong roleId, decimal days) rank = server.animeRoles[0];
+            IRole role = Context.Guild.GetRole(rank.roleId);
+
+            string listString = role.Name + " for " + rank.days + " days";
+            for(int i = 1; i < server.animeRoles.Count; i++)
             {
-                if (Program.discordServers != null)
-                {
-                    Program.discordServers.ForEach(async x =>
-                    {
-                        await UpdateUserRoles(x);
-                    });
-                }
-            }, null, startTimeSpan, periodTimeSpan);
+                rank = server.animeRoles[i];
+                role = Context.Guild.GetRole(rank.roleId);
+                listString += "\n" + role.Name + " for " + rank.days + " days";
+            }
+            embed.AddField(new EmbedFieldBuilder()
+            {
+                Name = "List of Ranks",
+                Value = listString
+            });
+
+            await ReplyAsync("", false, embed.Build());
         }
     }
 }

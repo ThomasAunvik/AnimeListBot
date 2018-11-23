@@ -24,7 +24,7 @@ namespace MALBot.Modules
 
             if(option == "mal" || option == "myanimelist")
             {
-                GlobalUser user = Program.globalUsers.Find(x => x.UserID == Context.User.Id);
+                GlobalUser user = Program.globalUsers.Find(x => x.userID == Context.User.Id);
                 if (user == null)
                 {
                     user = new GlobalUser(Context.User);
@@ -80,7 +80,7 @@ namespace MALBot.Modules
         {
             GlobalUser gUser = null;
             ulong targetId = user == null ? Context.User.Id : user.Id;
-            gUser = Program.globalUsers.Find(x => x.UserID == targetId);
+            gUser = Program.globalUsers.Find(x => x.userID == targetId);
 
             if (gUser != null && !string.IsNullOrWhiteSpace(gUser.MAL_Username))
             {

@@ -90,7 +90,6 @@ namespace MALBot.Modules
 
             if (roleId != 0 && roleId != sUser.currentRankId)
             {
-                
                 if (!guildUser.RoleIds.Contains(roleId))
                 {
                     IRole role = server.Guild.GetRole(roleId);

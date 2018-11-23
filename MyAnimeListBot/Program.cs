@@ -152,7 +152,6 @@ namespace MALBot
         {
             var message = arg as SocketUserMessage;
             if (message is null || message.Author.IsBot) return;
-
             
             DiscordServer server = discordServers.Find(x => x.Guild.GetChannel(message.Channel.Id) == message.Channel);
             ServerUser user = server.GetUserFromId(message.Author.Id);

@@ -85,6 +85,21 @@ namespace MALBot.Modules
         {
             var foo = await Context.Client.GetApplicationInfoAsync();
 
+            var builder = GetHelpEmbed();
+
+            await ReplyAsync("", false, builder.Build());
+        }
+
+        public async Task ContextlessHelpAsync(string command, ISocketMessageChannel channel)
+        {
+            var result = _service.Search(Context, command);
+
+            var builder = GetHelpEmbed();
+
+            await channel.SendMessageAsync("", false, builder.Build());
+        }
+        
+        public EmbedBuilder GetHelpEmbed(){
             var builder = new EmbedBuilder()
             {
                 Color = Program.embedColor,
@@ -111,34 +126,7 @@ namespace MALBot.Modules
                     });
                 }
             }
-
-            await ReplyAsync("", false, builder.Build());
-        }
-
-        public async Task ContextlessHelpAsync(string command, ISocketMessageChannel channel)
-        {
-            var result = _service.Search(Context, command);
-
-            var builder = new EmbedBuilder()
-            {
-                Color = Program.embedColor,
-                Title = $"Command: **{command}**",
-                Description = $"{result.Commands.FirstOrDefault().Command.Summary}"
-            };
-
-            foreach (var match in result.Commands)
-            {
-                var cmd = match.Command;
-                builder.AddField(x =>
-                {
-                    x.Name = string.Join(", ", cmd.Aliases);
-                    x.Value = $"**Usage:** {cmd.Aliases.First()} {string.Join(" ", cmd.Parameters.Select(p => p.IsOptional ? $"[{p.Name}]" : $"<{p.Name}>"))}\n" +
-                             $"{cmd.Remarks}";
-                    x.IsInline = false;
-                });
-            }
-
-            await channel.SendMessageAsync("", false, builder.Build());
+            return builder;
         }
 
         [Command("github")]

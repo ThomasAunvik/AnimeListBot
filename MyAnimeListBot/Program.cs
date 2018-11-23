@@ -136,14 +136,12 @@ namespace MALBot
                     await AutoAdder.AddUser(arg);
                 }
             };
-
+            
             await RegisterCommandsAsync();
             
             await _client.LoginAsync(TokenType.Bot, botToken);
 
             await _client.StartAsync();
-            
-            //Ranks.SetupTimer();
 
             await Task.Delay(-1);
         }

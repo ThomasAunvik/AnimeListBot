@@ -140,7 +140,6 @@ namespace MALBot
                 Ranks.SetupTimer();
             };
             
-
             await RegisterCommandsAsync();
             
             await _client.LoginAsync(TokenType.Bot, botToken);

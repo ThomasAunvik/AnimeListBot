@@ -14,6 +14,8 @@ namespace MALBot.Handler
 
         public string imageURL;
         public decimal? daysWatchedAnime = 0;
+        public decimal? daysReadManga = 0;
+
         public ulong currentRankId = 0;
 
         public SaveDiscordUser(GlobalUser user)
@@ -26,6 +28,7 @@ namespace MALBot.Handler
 
                 imageURL = user.imageURL;
                 daysWatchedAnime = user.daysWatchedAnime;
+                daysReadManga = user.daysReadManga;
             }
         }
     }

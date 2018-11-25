@@ -10,6 +10,7 @@ namespace MALBot.Handler
         public string serverName;
         public ulong serverId;
         public List<(ulong roleId, decimal days)> animeRoles;
+        public List<(ulong roleId, decimal days)> mangaRoles;
 
         public List<ServerUser> users;
 
@@ -25,6 +26,9 @@ namespace MALBot.Handler
 
                 if (server.animeRoles != null)
                     animeRoles = server.animeRoles;
+
+                if (server.mangaRoles != null)
+                    mangaRoles = server.mangaRoles;
 
                 if (server.Users != null)
                     users = server.Users;

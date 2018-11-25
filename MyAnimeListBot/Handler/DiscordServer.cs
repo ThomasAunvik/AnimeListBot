@@ -20,6 +20,7 @@ namespace MALBot.Handler
         public ulong animeListChannelId = 0;
 
         public List<(ulong roleId, decimal days)> animeRoles = new List<(ulong roleId, decimal days)>();
+        public List<(ulong roleId, decimal days)> mangaRoles = new List<(ulong roleId, decimal days)>();
 
         public DiscordServer(SocketGuild guild)
         {
@@ -51,6 +52,9 @@ namespace MALBot.Handler
 
                     if(save.animeRoles != null)
                         animeRoles = save.animeRoles;
+
+                    if (save.mangaRoles != null)
+                        mangaRoles = save.mangaRoles;
 
                     return save;
                 }

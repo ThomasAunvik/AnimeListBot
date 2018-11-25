@@ -18,10 +18,14 @@ namespace MALBot.Handler
         public ulong userID;
         public List<ServerUser> serverUsers = new List<ServerUser>();
 
+        [JsonIgnore]
+        public UserProfile profile;
+
         public string MAL_Username;
 
         public string imageURL;
         public decimal? daysWatchedAnime = 0;
+        public decimal? daysReadManga = 0;
 
         public GlobalUser(IUser user)
         {
@@ -37,7 +41,9 @@ namespace MALBot.Handler
             UserProfile profile = await Program._jikan.GetUserProfile(MAL_Username);
             if (profile != null)
             {
+                this.profile = profile;
                 daysWatchedAnime = profile.AnimeStatistics.DaysWatched;
+                daysReadManga = profile.MangaStatistics.DaysRead;
                 imageURL = profile.ImageURL;
             }
 
@@ -55,6 +61,9 @@ namespace MALBot.Handler
                     Username = save.Username;
                     userID = save.UserID;
                     MAL_Username = save.MAL_Username;
+
+                    daysWatchedAnime = save.daysWatchedAnime;
+                    daysReadManga = save.daysReadManga;
                     return save;
                 }
             }

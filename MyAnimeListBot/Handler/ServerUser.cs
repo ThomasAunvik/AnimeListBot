@@ -11,7 +11,8 @@ namespace MALBot.Handler
         public ulong userID;
         public bool isBot;
 
-        public ulong currentRankId = 0;
+        public ulong currentAnimeRankId = 0;
+        public ulong currentMangaRankId = 0;
 
         [JsonIgnore]
         public GlobalUser globalUser;

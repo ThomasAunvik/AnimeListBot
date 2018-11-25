@@ -7,6 +7,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MyAnimeListBot", "MyAnimeLi
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JikanDotNet", "jikan.net\JikanDotNet\JikanDotNet\JikanDotNet.csproj", "{D50E9247-503E-4B93-B3F2-5DFEDC9638BA}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GraphQL", "graphql-dotnet\src\GraphQL\GraphQL.csproj", "{645EB743-B4E9-4D21-A3D8-BB2C30A89012}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{D50E9247-503E-4B93-B3F2-5DFEDC9638BA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D50E9247-503E-4B93-B3F2-5DFEDC9638BA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D50E9247-503E-4B93-B3F2-5DFEDC9638BA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{645EB743-B4E9-4D21-A3D8-BB2C30A89012}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{645EB743-B4E9-4D21-A3D8-BB2C30A89012}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{645EB743-B4E9-4D21-A3D8-BB2C30A89012}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{645EB743-B4E9-4D21-A3D8-BB2C30A89012}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
+using System.Linq;
 
 using MALBot.Handler;
 using Discord;
@@ -17,8 +18,7 @@ namespace MALBot.Modules
         {
             Uri link = null;
             bool isValidLink = Uri.TryCreate(username, UriKind.Absolute, out link);
-            bool containsMAL = username.Contains("myanimelist");
-            if (isValidLink && containsMAL)
+            if (isValidLink && username.Contains("myanimelist"))
             {
                 string usernamePart = link.Segments[link.Segments.Length - 1];
                 username = usernamePart;
@@ -84,6 +84,10 @@ namespace MALBot.Modules
                 await Ranks.UpdateUserRole((IGuildUser)Context.User);
 
                 user.SaveData();
+            }
+            else
+            {
+                await ReplyAsync("Incorrect mode (Must be MAL)");
             }
         }
 
@@ -190,6 +194,79 @@ namespace MALBot.Modules
         public async Task GetMangaProfile(IUser user = null)
         {
             await GetProfile(user, "manga");
+        }
+
+        [Command("Leaderboard")]
+        public async Task Leaderboard()
+        {
+            GlobalUser gUser = Program.globalUsers.Find(x => x.userID == Context.User.Id);
+            DiscordServer server = DiscordServer.GetServerFromID(Context.Guild.Id);
+
+            List<GlobalUser> globalServerUsers = Program.globalUsers.FindAll(x => server.Users.Exists(y => x.userID == y.userID));
+            
+            List<GlobalUser> animeLeaderboard = globalServerUsers.OrderByDescending(x => x.daysWatchedAnime).ToList();
+            animeLeaderboard.RemoveAll(x => x.daysWatchedAnime == 0);
+
+            List<GlobalUser> mangaLeaderboard = globalServerUsers.OrderByDescending(x => x.daysReadManga).ToList();
+            mangaLeaderboard.RemoveAll(x => x.daysReadManga == 0);
+
+            if (animeLeaderboard.Count <= 0 && mangaLeaderboard.Count <= 0)
+            {
+                await ReplyAsync("There is no lead to view.");
+                return;
+            }
+
+            EmbedBuilder embed = new EmbedBuilder();
+            embed.Title = "Leaderboard";
+
+            if (animeLeaderboard.Count > 0)
+            {
+                GlobalUser animeLeadUser = animeLeaderboard[0];
+
+                EmbedFieldBuilder animeBoardField = new EmbedFieldBuilder();
+                animeBoardField.Name = "Anime Leaderboard";
+                animeBoardField.IsInline = true;
+
+                // TOP
+                animeBoardField.Value = "#1: " + animeLeadUser.MAL_Username + " - " + animeLeadUser.daysWatchedAnime;
+
+                // THE REST
+                for (int i = 1; i < (animeLeaderboard.Count >= 10 ? 10 : animeLeaderboard.Count); i++)
+                {
+                    animeLeadUser = animeLeaderboard[i];
+                    animeBoardField.Value += "\n#" + (i + 1) + ": " + animeLeadUser.MAL_Username + " - " + animeLeadUser.daysWatchedAnime + " days";
+                }
+
+                // YOURS
+                int yourIndex = animeLeaderboard.FindIndex(x => x.daysWatchedAnime == gUser.daysWatchedAnime);
+                animeBoardField.Value += "\n\nYour Spot #" + yourIndex + ": " + gUser.MAL_Username +" - " + gUser.daysWatchedAnime + " days.";
+                embed.AddField(animeBoardField);
+            }
+
+            if(mangaLeaderboard.Count > 0)
+            {
+                GlobalUser mangaLeadUser = mangaLeaderboard[0];
+
+                EmbedFieldBuilder mangaBoardField = new EmbedFieldBuilder();
+                mangaBoardField.Name = "Manga Leaderboard";
+                mangaBoardField.IsInline = true;
+
+                // TOP
+                mangaBoardField.Value = "#1: " + mangaLeadUser.MAL_Username + " - " + mangaLeadUser.daysWatchedAnime;
+
+                // THE REST
+                for (int i = 1; i < (mangaLeaderboard.Count >= 10 ? 10 : mangaLeaderboard.Count); i++)
+                {
+                    mangaLeadUser = mangaLeaderboard[i];
+                    mangaBoardField.Value += "\n#" + (i + 1) + ": " + mangaLeadUser.MAL_Username + " - " + mangaLeadUser.daysReadManga + " days";
+                }
+
+                // YOURS
+                int yourIndex = mangaLeaderboard.FindIndex(x => x.daysReadManga == gUser.daysReadManga);
+                mangaBoardField.Value += "\n\n**Your Spot #" + yourIndex + ":** " + gUser.MAL_Username + " - " + gUser.daysReadManga + " days.";
+                embed.AddField(mangaBoardField);
+            }
+            await ReplyAsync("", false, embed.Build());
         }
     }
 }

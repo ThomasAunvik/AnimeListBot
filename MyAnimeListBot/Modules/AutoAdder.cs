@@ -19,6 +19,8 @@ namespace MALBot.Modules
         {
             DiscordServer server = DiscordServer.GetServerFromID(Context.Guild.Id);
             server.animeListChannelId = channel.Id;
+            await ReplyAsync("Added " + channel.Mention + " to automal.");
+
             await Update();
         }
 
@@ -26,6 +28,8 @@ namespace MALBot.Modules
         [RequireUserPermission(GuildPermission.Administrator)]
         public async Task Update()
         {
+            IUserMessage message = await ReplyAsync("Now updating all users ranks.");
+
             DiscordServer server = DiscordServer.GetServerFromID(Context.Guild.Id);
             ITextChannel channel = await Context.Guild.GetChannelAsync(server.animeListChannelId) as ITextChannel;
 
@@ -36,6 +40,8 @@ namespace MALBot.Modules
             {
                 await AddUser(x);
             });
+
+            await message.DeleteAsync();
         }
 
         public static async Task AddUser(IMessage message)

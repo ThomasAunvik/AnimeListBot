@@ -23,6 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\graphql-dotnet\src\GraphQL\GraphQL.csproj" />
     <ProjectReference Include="..\jikan.net\JikanDotNet\JikanDotNet\JikanDotNet.csproj" />
   </ItemGroup>
 

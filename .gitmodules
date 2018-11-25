@@ -2,3 +2,6 @@
 	path = jikan.net
 	url = https://github.com/Ervie/jikan.net
 	ignore = dirty
+[submodule "graphql-dotnet"]
+	path = graphql-dotnet
+	url = https://github.com/graphql-dotnet/graphql-dotnet

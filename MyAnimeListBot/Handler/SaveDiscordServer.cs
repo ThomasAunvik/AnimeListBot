@@ -9,6 +9,8 @@ namespace MALBot.Handler
     {
         public string serverName;
         public ulong serverId;
+        public ulong animeListChannelId = 0;
+
         public List<(ulong roleId, decimal days)> animeRoles;
         public List<(ulong roleId, decimal days)> mangaRoles;
 
@@ -32,6 +34,8 @@ namespace MALBot.Handler
 
                 if (server.Users != null)
                     users = server.Users;
+
+                animeListChannelId = server.animeListChannelId;
             }
         }
     }

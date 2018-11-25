@@ -56,6 +56,8 @@ namespace MALBot.Handler
                     if (save.mangaRoles != null)
                         mangaRoles = save.mangaRoles;
 
+                    animeListChannelId = save.animeListChannelId;
+
                     return save;
                 }
             }

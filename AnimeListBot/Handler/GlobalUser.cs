@@ -68,13 +68,13 @@ namespace AnimeListBot.Handler
 
         public decimal GetAnimeMeanScore()
         {
-            return toggleAnilist ? anilistProfile.Stats.animeListScores.meanScore / (decimal)10.0 : malProfile.AnimeStatistics.MeanScore.GetValueOrDefault();
+            return toggleAnilist ? (anilistProfile?.Stats?.animeListScores?.meanScore).GetValueOrDefault() / (decimal)10.0 : malProfile.AnimeStatistics.MeanScore.GetValueOrDefault();
         }
 
         public int GetAnimeTotalEntries()
         {
             int totalEntries = 0;
-            anilistProfile.Stats.animeStatusDistribution.ForEach(x => totalEntries += x.amount);
+            anilistProfile?.Stats?.animeStatusDistribution?.ForEach(x => totalEntries += x.amount);
             return toggleAnilist ? totalEntries : malProfile.AnimeStatistics.TotalEntries.GetValueOrDefault();
         }
 
@@ -85,32 +85,32 @@ namespace AnimeListBot.Handler
 
         public int GetAnimeRewatched()
         {
-            return toggleAnilist ? (anilistProfile.Stats.animeStatusDistribution.Find(x => x.status == AnilistMediaListStatus.REPEATING)?.amount).GetValueOrDefault() : malProfile.AnimeStatistics.Rewatched.GetValueOrDefault();
+            return toggleAnilist ? (anilistProfile?.Stats?.animeStatusDistribution?.Find(x => x.status == AnilistMediaListStatus.REPEATING)?.amount).GetValueOrDefault() : malProfile.AnimeStatistics.Rewatched.GetValueOrDefault();
         }
 
         public int GetAnimeWatching()
         {
-            return toggleAnilist ? (anilistProfile.Stats.animeStatusDistribution.Find(x => x.status == AnilistMediaListStatus.CURRENT)?.amount).GetValueOrDefault() : malProfile.AnimeStatistics.Watching.GetValueOrDefault();
+            return toggleAnilist ? (anilistProfile?.Stats?.animeStatusDistribution?.Find(x => x.status == AnilistMediaListStatus.CURRENT)?.amount).GetValueOrDefault() : malProfile.AnimeStatistics.Watching.GetValueOrDefault();
         }
 
         public int GetAnimeCompleted()
         {
-            return toggleAnilist ? (anilistProfile.Stats.animeStatusDistribution.Find(x => x.status == AnilistMediaListStatus.COMPLETED)?.amount).GetValueOrDefault() : malProfile.AnimeStatistics.Completed.GetValueOrDefault();
+            return toggleAnilist ? (anilistProfile?.Stats?.animeStatusDistribution?.Find(x => x.status == AnilistMediaListStatus.COMPLETED)?.amount).GetValueOrDefault() : malProfile.AnimeStatistics.Completed.GetValueOrDefault();
         }
 
         public int GetAnimeOnHold()
         {
-            return toggleAnilist ? (anilistProfile.Stats.animeStatusDistribution.Find(x => x.status == AnilistMediaListStatus.PAUSED)?.amount).GetValueOrDefault() : malProfile.AnimeStatistics.OnHold.GetValueOrDefault();
+            return toggleAnilist ? (anilistProfile?.Stats?.animeStatusDistribution?.Find(x => x.status == AnilistMediaListStatus.PAUSED)?.amount).GetValueOrDefault() : malProfile.AnimeStatistics.OnHold.GetValueOrDefault();
         }
 
         public int GetAnimeDropped()
         {
-            return toggleAnilist ? (anilistProfile.Stats.animeStatusDistribution.Find(x => x.status == AnilistMediaListStatus.DROPPED)?.amount).GetValueOrDefault() : malProfile.AnimeStatistics.Dropped.GetValueOrDefault();
+            return toggleAnilist ? (anilistProfile?.Stats?.animeStatusDistribution?.Find(x => x.status == AnilistMediaListStatus.DROPPED)?.amount).GetValueOrDefault() : malProfile.AnimeStatistics.Dropped.GetValueOrDefault();
         }
 
         public int GetAnimePlanToWatch()
         {
-            return toggleAnilist ? (anilistProfile.Stats.animeStatusDistribution.Find(x => x.status == AnilistMediaListStatus.PLANNING)?.amount).GetValueOrDefault() : malProfile.AnimeStatistics.PlanToWatch.GetValueOrDefault();
+            return toggleAnilist ? (anilistProfile?.Stats?.animeStatusDistribution?.Find(x => x.status == AnilistMediaListStatus.PLANNING)?.amount).GetValueOrDefault() : malProfile.AnimeStatistics.PlanToWatch.GetValueOrDefault();
         }
 
         #endregion
@@ -124,7 +124,7 @@ namespace AnimeListBot.Handler
 
         public decimal GetMangaMeanScore()
         {
-            return toggleAnilist ? anilistProfile.Stats.mangaListScores.meanScore / (decimal)10.0 : malProfile.MangaStatistics.MeanScore.GetValueOrDefault();
+            return toggleAnilist ? (anilistProfile?.Stats?.mangaListScores?.meanScore).GetValueOrDefault() / (decimal)10.0 : malProfile.MangaStatistics.MeanScore.GetValueOrDefault();
         }
 
         public int GetMangaTotalEntries()
@@ -136,7 +136,7 @@ namespace AnimeListBot.Handler
 
         public int GetMangaChaptersRead()
         {
-            return toggleAnilist ? anilistProfile.Stats.chaptersRead : malProfile.MangaStatistics.ChaptersRead.GetValueOrDefault();
+            return toggleAnilist ? (anilistProfile?.Stats?.chaptersRead).GetValueOrDefault() : malProfile.MangaStatistics.ChaptersRead.GetValueOrDefault();
         }
 
         public int GetMangaVolumesRead()
@@ -146,32 +146,32 @@ namespace AnimeListBot.Handler
 
         public int GetMangaReread()
         {
-            return toggleAnilist ? (anilistProfile.Stats.mangaStatusDistribution.Find(x => x.status == AnilistMediaListStatus.REPEATING)?.amount).GetValueOrDefault() : malProfile.MangaStatistics.Reread.GetValueOrDefault();
+            return toggleAnilist ? (anilistProfile?.Stats?.mangaStatusDistribution?.Find(x => x.status == AnilistMediaListStatus.REPEATING)?.amount).GetValueOrDefault() : malProfile.MangaStatistics.Reread.GetValueOrDefault();
         }
 
         public int GetMangaReading()
         {
-            return toggleAnilist ? (anilistProfile.Stats.mangaStatusDistribution.Find(x => x.status == AnilistMediaListStatus.CURRENT)?.amount).GetValueOrDefault() : malProfile.MangaStatistics.Reading.GetValueOrDefault();
+            return toggleAnilist ? (anilistProfile?.Stats?.mangaStatusDistribution?.Find(x => x.status == AnilistMediaListStatus.CURRENT)?.amount).GetValueOrDefault() : malProfile.MangaStatistics.Reading.GetValueOrDefault();
         }
 
         public int GetMangaCompleted()
         {
-            return toggleAnilist ? (anilistProfile.Stats.mangaStatusDistribution.Find(x => x.status == AnilistMediaListStatus.COMPLETED)?.amount).GetValueOrDefault() : malProfile.MangaStatistics.Completed.GetValueOrDefault();
+            return toggleAnilist ? (anilistProfile?.Stats?.mangaStatusDistribution?.Find(x => x.status == AnilistMediaListStatus.COMPLETED)?.amount).GetValueOrDefault() : malProfile.MangaStatistics.Completed.GetValueOrDefault();
         }
 
         public int GetMangaOnHold()
         {
-            return toggleAnilist ? (anilistProfile.Stats.mangaStatusDistribution.Find(x => x.status == AnilistMediaListStatus.PAUSED)?.amount).GetValueOrDefault() : malProfile.MangaStatistics.OnHold.GetValueOrDefault();
+            return toggleAnilist ? (anilistProfile?.Stats?.mangaStatusDistribution?.Find(x => x.status == AnilistMediaListStatus.PAUSED)?.amount).GetValueOrDefault() : malProfile.MangaStatistics.OnHold.GetValueOrDefault();
         }
 
         public int GetMangaDropped()
         {
-            return toggleAnilist ? (anilistProfile.Stats.mangaStatusDistribution.Find(x => x.status == AnilistMediaListStatus.DROPPED)?.amount).GetValueOrDefault() : malProfile.MangaStatistics.Dropped.GetValueOrDefault();
+            return toggleAnilist ? (anilistProfile?.Stats?.mangaStatusDistribution?.Find(x => x.status == AnilistMediaListStatus.DROPPED)?.amount).GetValueOrDefault() : malProfile.MangaStatistics.Dropped.GetValueOrDefault();
         }
 
         public int GetMangaPlanToRead()
         {
-            return toggleAnilist ? (anilistProfile.Stats.mangaStatusDistribution.Find(x => x.status == AnilistMediaListStatus.PLANNING)?.amount).GetValueOrDefault() : malProfile.MangaStatistics.PlanToRead.GetValueOrDefault();
+            return toggleAnilist ? (anilistProfile?.Stats?.mangaStatusDistribution?.Find(x => x.status == AnilistMediaListStatus.PLANNING)?.amount).GetValueOrDefault() : malProfile.MangaStatistics.PlanToRead.GetValueOrDefault();
         }
 
         #endregion
@@ -201,9 +201,9 @@ namespace AnimeListBot.Handler
                 anilistProfile = anilistUser;
                 Anilist_Username = anilistUser.name;
                 
-                Anilist_minutesWatchedAnime = anilistUser.Stats.watchedTime;
-                Anilist_daysChaptersRead = decimal.Multiply(anilistUser.Stats.chaptersRead, (decimal)0.00556);
-                Anilist_imageURL = anilistUser.Avatar.large;
+                Anilist_minutesWatchedAnime = (anilistUser?.Stats?.watchedTime).GetValueOrDefault();
+                Anilist_daysChaptersRead = decimal.Multiply((anilistUser?.Stats?.chaptersRead).GetValueOrDefault(), (decimal)0.00556);
+                Anilist_imageURL = anilistUser?.Avatar?.large;
             }
         }
 

@@ -178,14 +178,27 @@ namespace AnimeListBot.Modules
             if (user == null) return;
 
             option = option.ToLower();
- 
+            
             if (option == "mal" || option == "myanimelist")
             {
+                await user.UpdateMALInfo();
+                if (user.malProfile == null)
+                {
+                    await ReplyAsync("There is no MAL profile set.");
+                    return;
+                }
+
                 user.toggleAnilist = false;
                 await ReplyAsync("List set to MAL");
             }
             else if(option == "ani" || option == "anilist")
             {
+                await user.UpdateAnilistInfo();
+                if (user.anilistProfile == null)
+                {
+                    await ReplyAsync("There is no Anilist profile set.");
+                    return;
+                }
                 user.toggleAnilist = true;
                 await ReplyAsync("List set to Anilist");
             }

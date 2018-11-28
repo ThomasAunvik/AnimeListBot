@@ -15,7 +15,7 @@ namespace AnimeListBot.Modules
     public class AutoAdder : ModuleBase<ICommandContext>
     {
         [Command("automal")]
-        [RequireUserPermission(GuildPermission.Administrator)]
+        [RequireUserPermission(GuildPermission.ManageRoles)]
         public async Task SetChannel(ITextChannel channel)
         {
             DiscordServer server = DiscordServer.GetServerFromID(Context.Guild.Id);
@@ -26,7 +26,7 @@ namespace AnimeListBot.Modules
         }
 
         [Command("automalupdate")]
-        [RequireUserPermission(GuildPermission.Administrator)]
+        [RequireUserPermission(GuildPermission.ManageRoles)]
         public async Task Update()
         {
             IUserMessage message = await ReplyAsync("Now updating all users ranks.");
@@ -43,6 +43,21 @@ namespace AnimeListBot.Modules
             });
 
             await message.DeleteAsync();
+        }
+
+        [Command("automalchannel")]
+        public async Task GetAutoMalChannel()
+        {
+            DiscordServer server = DiscordServer.GetServerFromID(Context.Guild.Id);
+            if (server.animeListChannelId != 0)
+            {
+                IGuildChannel channel = Program._client.GetChannel(server.animeListChannelId) as IGuildChannel;
+                await ReplyAsync("AutoMAL is set to channel: <#" + channel.Id + ">");
+            }
+            else
+            {
+                await ReplyAsync("AutoMAL channel is not set.");
+            }
         }
 
         public static async Task AddUser(IMessage message)

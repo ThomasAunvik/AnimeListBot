@@ -180,13 +180,13 @@ namespace AnimeListBot.Modules
             decimal? animeDays = gUser.GetAnimeWatchDays();
             ulong animeRoleId = 0;
             decimal currentAnimeDays = 0;
-            server.animeRoles.ForEach(role => { if (role.days < animeDays) { currentAnimeDays = role.days; animeRoleId = role.roleId; } });
+            server.animeRoles.ForEach(role => { if (role.days <= animeDays) { currentAnimeDays = role.days; animeRoleId = role.roleId; } });
 
             // MANGA
             decimal? mangaDays = gUser.GetMangaReadDays();
             ulong mangaRoleId = 0;
             decimal currentMangaDays = 0;
-            server.mangaRoles.ForEach(role => { if (role.days < mangaDays) { currentMangaDays = role.days; mangaRoleId = role.roleId; } });
+            server.mangaRoles.ForEach(role => { if (role.days <= mangaDays) { currentMangaDays = role.days; mangaRoleId = role.roleId; } });
 
             // GETTING USER INFO
 

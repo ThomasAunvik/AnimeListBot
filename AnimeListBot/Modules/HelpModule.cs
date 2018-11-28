@@ -121,7 +121,7 @@ namespace AnimeListBot.Modules
                 if (!string.IsNullOrWhiteSpace(description))
                 {
                     var name = module.Name.Contains("Module") ? module.Name.Substring(0, module.Name.Length - "Module".Length) : module.Name;
-                    if (name == "Administrator" && !Program.botOwners.Contains(Context.User.Id.ToString())) continue;
+                    if (name == typeof(Administrator).Name && !Program.botOwners.Contains(Context.User.Id.ToString())) continue;
                     builder.AddField(x =>
                     {
                         x.Name = name;

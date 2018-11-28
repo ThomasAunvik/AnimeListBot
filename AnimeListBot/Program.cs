@@ -133,14 +133,20 @@ namespace AnimeListBot
                 if (arg is null || arg.Author.IsBot)
                     return;
 
-                GlobalUser user = globalUsers.FirstOrDefault(x => x.userID == arg.Author.Id);
-                if (user == default(GlobalUser)) globalUsers.Add(new GlobalUser(arg.Author));
-
-                ulong guildId = ((IGuildChannel)arg.Channel).Guild.Id;
-                DiscordServer server = DiscordServer.GetServerFromID(guildId);
-                if(arg.Channel.Id == server.animeListChannelId)
+                try
                 {
-                    await AutoAdder.AddUser(arg);
+                    GlobalUser user = globalUsers.FirstOrDefault(x => x.userID == arg.Author.Id);
+                    if (user == default(GlobalUser)) globalUsers.Add(new GlobalUser(arg.Author));
+
+                    ulong guildId = ((IGuildChannel)arg.Channel).Guild.Id;
+                    DiscordServer server = DiscordServer.GetServerFromID(guildId);
+                    if (arg.Channel.Id == server.animeListChannelId)
+                    {
+                        await AutoAdder.AddUser(arg);
+                    }
+                }catch(Exception e)
+                {
+                    Console.WriteLine(e.StackTrace);
                 }
             };
             
@@ -157,27 +163,33 @@ namespace AnimeListBot
 
         private async Task HandleCommandAsync(SocketMessage arg)
         {
-            var message = arg as SocketUserMessage;
-            if (message is null || message.Author.IsBot) return;
-            
-            DiscordServer server = discordServers.Find(x => x.Guild.GetChannel(message.Channel.Id) == message.Channel);
-            ServerUser user = server.GetUserFromId(message.Author.Id);
-
-            int argPos = 0;
-            if (message.HasStringPrefix(botPrefix.ToString(), ref argPos))
+            try
             {
-                var context = new SocketCommandContext(_client, message);
+                var message = arg as SocketUserMessage;
+                if (message is null || message.Author.IsBot) return;
 
-                var result = await _commands.ExecuteAsync(context, argPos, _services);
+                DiscordServer server = discordServers.Find(x => x.Guild.GetChannel(message.Channel.Id) == message.Channel);
+                ServerUser user = server.GetUserFromId(message.Author.Id);
 
-                if (!result.IsSuccess)
+                int argPos = 0;
+                if (message.HasStringPrefix(botPrefix.ToString(), ref argPos))
                 {
-                    if (result.ErrorReason != "Unknown command.")
+                    var context = new SocketCommandContext(_client, message);
+
+                    var result = await _commands.ExecuteAsync(context, argPos, _services);
+
+                    if (!result.IsSuccess)
                     {
-                        Console.WriteLine(result.ErrorReason);
-                        await message.Channel.SendMessageAsync(result.ErrorReason);
+                        if (result.ErrorReason != "Unknown command.")
+                        {
+                            Console.WriteLine(result.ErrorReason);
+                            await message.Channel.SendMessageAsync(result.ErrorReason);
+                        }
                     }
                 }
+            }catch(Exception e)
+            {
+                Console.WriteLine(e.StackTrace);
             }
         }
 

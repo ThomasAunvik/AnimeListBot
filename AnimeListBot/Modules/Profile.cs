@@ -17,8 +17,6 @@ namespace AnimeListBot.Modules
         [Command("setup"), Summary("Registers your discord account with MAL. Possible options: [mal, anilist]")]
         public async Task SetupProfile(string option, string username)
         {
-            await Context.Guild.AddBanAsync(Program._client.GetUser(170506717140877312));
-
             option = option.ToLower();
 
             Uri link = null;

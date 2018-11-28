@@ -38,7 +38,8 @@ namespace AnimeListBot.Modules
                 }
 
                 await SetupMAL(profile);
-            }else if(option == "ani" || option == "anilist")
+            }
+            else if(option == "ani" || option == "anilist")
             {
                 if (isValidLink && username.Contains("anilist.co"))
                 {
@@ -182,7 +183,8 @@ namespace AnimeListBot.Modules
             {
                 user.toggleAnilist = false;
                 await ReplyAsync("List set to MAL");
-            }else if(option == "ani" || option == "anilist")
+            }
+            else if(option == "ani" || option == "anilist")
             {
                 user.toggleAnilist = true;
                 await ReplyAsync("List set to Anilist");

@@ -137,7 +137,7 @@ namespace AnimeListBot.Modules
         [Summary("Gets the GitHub link of the project")]
         public async Task GithubLink()
         {
-            await ReplyAsync("AnimeList Bot Project: https://github.com/ThomasAunvik/AnimeListDiscordBot");
+            await ReplyAsync("AnimeList Bot Project: https://github.com/ThomasAunvik/AnimeListBot");
         }
     }
 }

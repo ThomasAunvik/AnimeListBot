@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
+using System.Linq;
+
 using GraphQL.Client;
 using GraphQL.Client.Http;
 using GraphQL.Common.Request;
@@ -60,24 +62,31 @@ namespace AnimeListBot.Handler.Anilist
 
         public static async Task<IAnilistUser> GetUser(string username)
         {
-            var heroRequest = new GraphQLRequest
+            try
             {
-                Query = query,
-                Variables = new
+                var heroRequest = new GraphQLRequest
                 {
-                    name = username
-                }
-            };
-            var graphQLClient = new GraphQLHttpClient("https://graphql.anilist.co");
-            var response = await graphQLClient.SendQueryAsync(heroRequest);
-            graphQLClient.Dispose();
+                    Query = query,
+                    Variables = new
+                    {
+                        name = username
+                    }
+                };
+                var graphQLClient = new GraphQLHttpClient("https://graphql.anilist.co");
+                var response = await graphQLClient.SendQueryAsync(heroRequest);
+                graphQLClient.Dispose();
 
-            if(response.Errors != null && response.Errors.Length > 0)
+                if (response.Errors != null && response.Errors.Length > 0)
+                {
+                    throw new Exception(string.Join("\n", response.Errors.Select(x => x.Message)));
+                }
+                var userType = response.GetDataFieldAs<AnilistUser>("User");
+                return userType;
+            }catch(Exception e)
             {
-                throw new Exception(response.Errors[0].Message);
+                await Program._logger.LogError("ERROR: Username: " + username + "\n" + e);
+                return null;
             }
-            var userType = response.GetDataFieldAs<AnilistUser>("User");
-            return userType;
         }
     }
 }

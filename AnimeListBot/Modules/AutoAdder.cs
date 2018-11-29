@@ -4,6 +4,7 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 using AnimeListBot.Handler;
@@ -21,7 +22,7 @@ namespace AnimeListBot.Modules
             DiscordServer server = DiscordServer.GetServerFromID(Context.Guild.Id);
             server.animeListChannelId = channel.Id;
             await ReplyAsync("Added " + channel.Mention + " to automal.");
-
+            server.SaveData();
             await Update();
         }
 
@@ -51,8 +52,7 @@ namespace AnimeListBot.Modules
             DiscordServer server = DiscordServer.GetServerFromID(Context.Guild.Id);
             if (server.animeListChannelId != 0)
             {
-                IGuildChannel channel = Program._client.GetChannel(server.animeListChannelId) as IGuildChannel;
-                await ReplyAsync("AutoMAL is set to channel: <#" + channel.Id + ">");
+                await ReplyAsync("AutoMAL is set to channel: <#" + server.animeListChannelId + ">");
             }
             else
             {
@@ -62,60 +62,78 @@ namespace AnimeListBot.Modules
 
         public static async Task AddUser(IMessage message)
         {
-            Uri link = null;
-            bool isValidLink = Uri.TryCreate(message.Content, UriKind.Absolute, out link);
-            bool containsMAL = message.Content.Contains("myanimelist.net");
-            bool containsAnilist = message.Content.Contains("anilist.co");
-            if (isValidLink && containsMAL)
+            if (string.IsNullOrWhiteSpace(message.Content)) return;
+
+            try
             {
-                string usernamePart = link.Segments[link.Segments.Length - 1];
-                UserProfile profile = await Program._jikan.GetUserProfile(usernamePart);
-                if (profile != null)
+                GlobalUser user = Program.globalUsers.Find(y => y.userID == message.Author.Id);
+                if(user == null)
                 {
-                    GlobalUser user = Program.globalUsers.Find(y => y.userID == message.Author.Id);
-                    if (user == null)
+                    user = new GlobalUser(message.Author);
+                    Program.globalUsers.Add(user);
+                }
+
+                string currentLink = message.Content;
+
+                Uri link = null;
+                bool isValidLink = Uri.TryCreate(currentLink, UriKind.Absolute, out link);
+                if (!isValidLink)
+                {
+                    Match rxMatch = Regex.Match(message.Content, @"#\bhttps?://[^,\s()<>]+(?:\([\w\d]+\)|([^,[:punct:]\s]|/))#");
+                    if (rxMatch.Success && rxMatch.Length > 0)
                     {
-                        user = new GlobalUser(message.Author);
+                        currentLink = rxMatch.Captures[0].Value;
+                        isValidLink = Uri.TryCreate(currentLink, UriKind.Absolute, out link);
+                    }
+                }
+
+                bool containsMAL = false;
+                bool containsAnilist = false;
+
+                if (isValidLink)
+                {
+                    containsMAL = link.AbsolutePath.Contains("myanimelist.net");
+                    containsAnilist = link.AbsolutePath.Contains("anilist.co");
+                }
+
+                string usernamePart = string.Empty;
+                if(link != null)
+                {
+                    usernamePart = link.Segments[link.Segments.Length - 1];
+                    if (usernamePart[usernamePart.Length - 1] == '/' || usernamePart[usernamePart.Length - 1] == '\\')
+                    {
+                        usernamePart = usernamePart.Substring(0, usernamePart.Length - 1);
+                    }
+                }
+                else
+                {
+                    await Program._logger.LogError("Invalid Link: \n    Message: " + message.Content + "\n    Link: " + currentLink);
+                    return;
+                }
+
+                if (isValidLink && containsMAL && string.IsNullOrWhiteSpace(user.MAL_Username))
+                {
+                    UserProfile profile = await Program._jikan.GetUserProfile(usernamePart);
+                    if (profile != null)
+                    {
                         user.MAL_Username = usernamePart;
-                        Program.globalUsers.Add(user);
                         user.toggleAnilist = false;
                         await user.UpdateMALInfo();
                     }
-                    else
-                    {
-                        if (string.IsNullOrWhiteSpace(user.MAL_Username))
-                        {
-                            user.MAL_Username = usernamePart;
-                            user.toggleAnilist = false;
-                            await user.UpdateMALInfo();
-                        }
-                    }
                 }
-            }else if(isValidLink && containsAnilist)
-            {
-                string usernamePart = link.Segments[link.Segments.Length - 1];
-                IAnilistUser profile = await UserQuery.GetUser(usernamePart);
-                if (profile != null)
+                else if (isValidLink && containsAnilist && string.IsNullOrWhiteSpace(user?.Anilist_Username))
                 {
-                    GlobalUser user = Program.globalUsers.Find(y => y.userID == message.Author.Id);
-                    if (user == null)
+                    IAnilistUser profile = await UserQuery.GetUser(usernamePart);
+                    if (profile != null)
                     {
-                        user = new GlobalUser(message.Author);
                         user.Anilist_Username = usernamePart;
                         user.toggleAnilist = true;
-                        Program.globalUsers.Add(user);
                         await user.UpdateAnilistInfo();
                     }
-                    else
-                    {
-                        if (string.IsNullOrWhiteSpace(user.Anilist_Username))
-                        {
-                            user.Anilist_Username = usernamePart;
-                            user.toggleAnilist = true;
-                            await user.UpdateAnilistInfo();
-                        }
-                    }
                 }
+            }catch(Exception e)
+            {
+                await Program._logger.LogError("Message: " + message.Content + "\n" + e);
             }
         }
     }

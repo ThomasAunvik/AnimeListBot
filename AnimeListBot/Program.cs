@@ -30,6 +30,8 @@ namespace AnimeListBot
         public static CommandService _commands;
         public static IServiceProvider _services;
 
+        public static Logger _logger;
+
         public static IJikan _jikan;
 
         public static List<DiscordServer> discordServers;
@@ -91,6 +93,8 @@ namespace AnimeListBot
 
         public async Task RunBotAsync()
         {
+            _logger = new Logger();
+
             string botToken = "";
             // Get bot token
             if (File.Exists("botToken.txt"))
@@ -99,7 +103,7 @@ namespace AnimeListBot
             }
             if (string.IsNullOrEmpty(botToken))
             {
-                Console.WriteLine("Bot Token does not exist, make sure its correct in the botToken.txt file");
+                await _logger.LogError("Bot Token does not exist, make sure its correct in the botToken.txt file");
                 return;
             }
 
@@ -146,7 +150,7 @@ namespace AnimeListBot
                     }
                 }catch(Exception e)
                 {
-                    Console.WriteLine(e.StackTrace);
+                    await _logger.LogError(e.StackTrace);
                 }
             };
             
@@ -182,25 +186,24 @@ namespace AnimeListBot
                     {
                         if (result.ErrorReason != "Unknown command.")
                         {
-                            Console.WriteLine(result.ErrorReason);
+                            await _logger.LogError(result.ErrorReason);
                             await message.Channel.SendMessageAsync(result.ErrorReason);
                         }
                     }
                 }
             }catch(Exception e)
             {
-                Console.WriteLine(e.StackTrace);
+                await _logger.Log(e.StackTrace);
             }
         }
 
-        private Task Log(LogMessage arg)
+        private async Task Log(LogMessage arg)
         {
-            Console.WriteLine(arg);
+            await _logger.Log(arg.Message);
             if (arg.Exception != null)
             {
-                Console.WriteLine(arg.Exception.StackTrace);
+                await _logger.LogError(arg.Exception.StackTrace);
             }
-            return Task.CompletedTask;
         }
     }
 }

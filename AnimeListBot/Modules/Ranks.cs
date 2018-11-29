@@ -190,7 +190,7 @@ namespace AnimeListBot.Modules
 
             // GETTING USER INFO
 
-            Console.WriteLine("Getting userid: " + gUser.userID + " from: " + gUser.Username);
+            await Program._logger.Log("Getting userid: " + gUser.userID + " from: " + gUser.Username);
             IGuildUser guildUser = server.Guild.GetUser(gUser.userID);
 
             // DELETING ROLES
@@ -206,7 +206,7 @@ namespace AnimeListBot.Modules
             var rolesToDelete = delAnimeRoles.Select(z => server.Guild.GetRole(z.roleId)).ToList();
             delMangaRoles.ForEach(x => { rolesToDelete.Add(server.Guild.GetRole(x.roleId)); });
 
-            rolesToDelete.ForEach(x => { Console.WriteLine(gUser.Username + " lost rank " + x.Name); });
+            rolesToDelete.ForEach(async x => { await Program._logger.Log(gUser.Username + " lost rank " + x.Name); });
             await guildUser.RemoveRolesAsync(rolesToDelete);
 
             // ADDING ROLES
@@ -217,7 +217,7 @@ namespace AnimeListBot.Modules
                 {
                     IRole role = server.Guild.GetRole(animeRoleId);
                     await guildUser.AddRoleAsync(role);
-                    Console.WriteLine(gUser.Username + " got anime rank " + role.Name + " in server " + server.Guild.Name);
+                    await Program._logger.Log(gUser.Username + " got anime rank " + role.Name + " in server " + server.Guild.Name);
                 }
                 sUser.currentAnimeRankId = animeRoleId;
             }
@@ -228,7 +228,7 @@ namespace AnimeListBot.Modules
                 {
                     IRole role = server.Guild.GetRole(mangaRoleId);
                     await guildUser.AddRoleAsync(role);
-                    Console.WriteLine(gUser.Username + " got manga rank " + role.Name + " in server " + server.Guild.Name);
+                    await Program._logger.Log(gUser.Username + " got manga rank " + role.Name + " in server " + server.Guild.Name);
                 }
                 sUser.currentMangaRankId = mangaRoleId;
             }
@@ -237,7 +237,7 @@ namespace AnimeListBot.Modules
 
         public static async Task UpdateUserRoles(DiscordServer server)
         {
-            Console.WriteLine("Updating...");
+            await Program._logger.Log("Updating...");
             foreach(ServerUser sUser in server.Users) {
                 GlobalUser gUser = Program.globalUsers.Find(x => x.userID == sUser.userID);
                 if (gUser != null)

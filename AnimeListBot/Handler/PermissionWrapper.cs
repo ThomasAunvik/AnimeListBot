@@ -6,7 +6,7 @@ namespace AnimeListBot.Handler
 {
     public static class PermissionWrapper
     {
-        public static async Task DeleteMessage(IMessage message)
+        public static async Task DeleteMessage(IUserMessage message)
         {
             try
             {
@@ -15,7 +15,8 @@ namespace AnimeListBot.Handler
             }
             catch(Exception)
             {
-                Console.WriteLine("Bot does not have permission to delete message");
+                IGuild guild = Program._client.GetGuild(((IGuildUser)message.Author).Guild.Id);
+                await Program._logger.LogError("Bot does not have permission to delete message in server: (" + guild.Id + ", " + guild.Name + ")");
                 return;
             }
         }

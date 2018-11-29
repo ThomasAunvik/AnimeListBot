@@ -22,5 +22,18 @@ namespace AnimeListBot.Modules
                 await ReplyAsync("You dont have permission to do this command.");
             }
         }
+
+        [Command("fakeerror")]
+        public async Task SendFakeError([Remainder]string message)
+        {
+            if (Program.botOwners.Contains(Context.User.Id.ToString()))
+            {
+                await Program._logger.LogError("Fake Error: " + message);
+            }
+            else
+            {
+                await ReplyAsync("You dont have permission to do this command.");
+            }
+        }
     }
 }

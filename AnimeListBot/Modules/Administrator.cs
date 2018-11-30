@@ -20,8 +20,8 @@ namespace AnimeListBot.Modules
                 embed.Title = "Stopping Bot.";
                 await embed.SendMessage(Context.Channel);
 
-                await Program._client.StopAsync();
                 Program.stop = true;
+                await Program._client.StopAsync();
             }
             else{
                 embed.Title = "You dont have permission to do this command.";

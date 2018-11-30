@@ -19,6 +19,9 @@ namespace AnimeListBot.Modules
         {
             option = option.ToLower();
 
+            EmbedHandler embed = new EmbedHandler(Context.User, "Setting up profile...");
+            await embed.SendMessage(Context.Channel);
+
             Uri link = null;
             bool isValidLink = Uri.TryCreate(username, UriKind.Absolute, out link);
 
@@ -33,11 +36,12 @@ namespace AnimeListBot.Modules
                 UserProfile profile = await Program._jikan.GetUserProfile(username);
                 if (profile == null)
                 {
-                    await ReplyAsync("Invalid Username.");
+                    embed.Title = "Invalid Username.";
+                    await embed.UpdateEmbed();
                     return;
                 }
 
-                await SetupMAL(profile);
+                await SetupMAL(profile, embed);
             }
             else if(option == "ani" || option == "anilist")
             {
@@ -50,74 +54,58 @@ namespace AnimeListBot.Modules
                 IAnilistUser profile = await UserQuery.GetUser(username);
                 if (profile == null)
                 {
-                    await ReplyAsync("Invalid Username.");
+                    embed.Title = "Invalid Username.";
+                    await embed.UpdateEmbed();
                     return;
                 }
 
-                await SetupAnilist(profile);
+                await SetupAnilist(profile, embed);
             }
             else
             {
-                await ReplyAsync("Incorrect mode (Must be MAL)");
+                embed.Title = "Incorrect mode (Must be MAL or Anilist)";
+                await embed.UpdateEmbed();
             }
 
             await Ranks.UpdateUserRole((IGuildUser)Context.User);
         }
 
-        public async Task SetupMAL(UserProfile profile)
+        public async Task SetupMAL(UserProfile profile, EmbedHandler embed)
         {
             GlobalUser user = Program.globalUsers.Find(x => x.userID == Context.User.Id);
             if (user == null)
             {
                 user = new GlobalUser(Context.User);
                 user.MAL_Username = profile.Username;
-
                 Program.globalUsers.Add(user);
 
-                EmbedBuilder embed = new EmbedBuilder()
+                embed.Title = "";
+                embed.Description = "";
+                embed.AddField(new EmbedFieldBuilder()
                 {
-                    Title = "",
-                    Description = "",
-                    Fields = new List<EmbedFieldBuilder>()
-                        {
-                            new EmbedFieldBuilder()
-                            {
-                                Name = "MAL Account Setup",
-                                Value = "User registered " + profile.Username
-                            }
-                        },
-
-                    Color = Program.embedColor
-                };
-                await ReplyAsync("", false, embed.Build());
+                    Name = "MAL Account Setup",
+                    Value = "User registered " + profile.Username
+                });
             }
             else
             {
                 user.MAL_Username = profile.Username;
 
-                EmbedBuilder embed = new EmbedBuilder()
+                embed.Title = "";
+                embed.Description = "";
+                embed.AddField(new EmbedFieldBuilder()
                 {
-                    Title = "",
-                    Description = "",
-                    Fields = new List<EmbedFieldBuilder>()
-                        {
-                            new EmbedFieldBuilder()
-                            {
-                                Name = "MAL Profile Updated",
-                                Value = "Username updated to: " + profile.Username
-                            }
-                        },
-
-                    Color = Program.embedColor
-                };
-                await ReplyAsync("", false, embed.Build());
+                    Name = "MAL Profile Updated",
+                    Value = "Username updated to: " + profile.Username
+                });
             }
+            await embed.UpdateEmbed();
             await user.UpdateMALInfo();
             user.toggleAnilist = false;
             user.SaveData();
         }
 
-        public async Task SetupAnilist(IAnilistUser profile)
+        public async Task SetupAnilist(IAnilistUser profile, EmbedHandler embed)
         {
             GlobalUser user = Program.globalUsers.Find(x => x.userID == Context.User.Id);
             if (user == null)
@@ -127,44 +115,27 @@ namespace AnimeListBot.Modules
 
                 Program.globalUsers.Add(user);
 
-                EmbedBuilder embed = new EmbedBuilder()
+                embed.Title = "";
+                embed.Description = "";
+                embed.AddField(new EmbedFieldBuilder()
                 {
-                    Title = "",
-                    Description = "",
-                    Fields = new List<EmbedFieldBuilder>()
-                        {
-                            new EmbedFieldBuilder()
-                            {
-                                Name = "Anilist Account Setup",
-                                Value = "User registered " + profile.name
-                            }
-                        },
-
-                    Color = Program.embedColor
-                };
-                await ReplyAsync("", false, embed.Build());
+                    Name = "Anilist Account Setup",
+                    Value = "User registered: " + profile.name
+                });
             }
             else
             {
                 user.Anilist_Username = profile.name;
 
-                EmbedBuilder embed = new EmbedBuilder()
+                embed.Title = "";
+                embed.Description = "";
+                embed.AddField(new EmbedFieldBuilder()
                 {
-                    Title = "",
-                    Description = "",
-                    Fields = new List<EmbedFieldBuilder>()
-                        {
-                            new EmbedFieldBuilder()
-                            {
-                                Name = "Anilist Profile Updated",
-                                Value = "Username updated to: " + profile.name
-                            }
-                        },
-
-                    Color = Program.embedColor
-                };
-                await ReplyAsync("", false, embed.Build());
+                    Name = "Anilist Profile Updated",
+                    Value = "Username updated to: " + profile.name
+                });
             }
+            await embed.UpdateEmbed();
             await user.UpdateAnilistInfo();
             user.toggleAnilist = true;
             user.SaveData();
@@ -177,6 +148,9 @@ namespace AnimeListBot.Modules
             GlobalUser user = Program.globalUsers.Find(x => x.userID == Context.User.Id);
             if (user == null) return;
 
+            EmbedHandler embed = new EmbedHandler(Context.User, "Setting List...");
+            await embed.SendMessage(Context.Channel);
+
             option = option.ToLower();
             
             if (option == "mal" || option == "myanimelist")
@@ -184,29 +158,32 @@ namespace AnimeListBot.Modules
                 await user.UpdateMALInfo();
                 if (user.malProfile == null)
                 {
-                    await ReplyAsync("There is no MAL profile set.");
+                    embed.Title = "There is no MAL profile set";
+                    await embed.UpdateEmbed();
                     return;
                 }
 
                 user.toggleAnilist = false;
-                await ReplyAsync("List set to MAL");
+                embed.Title = "List set to MAL";
             }
             else if(option == "ani" || option == "anilist")
             {
                 await user.UpdateAnilistInfo();
                 if (user.anilistProfile == null)
                 {
-                    await ReplyAsync("There is no Anilist profile set.");
+                    embed.Title = "There is no Anilist profile set";
                     return;
                 }
                 user.toggleAnilist = true;
-                await ReplyAsync("List set to Anilist");
+                embed.Title = "List set to Anilist";
             }
             else
             {
                 await ReplyAsync("Incorrect mode, only MAL and Anilist");
+                embed.Title = "Incorrect mode, only MAL and Anilist";
                 return;
             }
+            await embed.UpdateEmbed();
             await Ranks.UpdateUserRole((IGuildUser)Context.User);
             user.SaveData();
         }
@@ -216,6 +193,8 @@ namespace AnimeListBot.Modules
         public async Task GetProfile(IUser user, string option = "")
         {
             if (user == null) user = Context.User;
+            EmbedHandler embed = new EmbedHandler(user, "Loading Profile Info...");
+            await embed.SendMessage(Context.Channel);
 
             GlobalUser gUser = Program.globalUsers.Find(x => x.userID == user.Id);
 
@@ -229,14 +208,8 @@ namespace AnimeListBot.Modules
                 if(!gUser.toggleAnilist) await gUser.UpdateMALInfo();
                 else await gUser.UpdateAnilistInfo();
 
-                EmbedBuilder embed = new EmbedBuilder()
-                {
-                    ThumbnailUrl = gUser.GetAnimelistThumbnail(),
-                    Url = gUser.GetAnimelistLink(),
-
-                    Author = new EmbedAuthorBuilder() { Name = user.Username, IconUrl = user.GetAvatarUrl() },
-                    Color = Program.embedColor,
-                };
+                embed.ThumbnailUrl = gUser.GetAnimelistThumbnail();
+                embed.Url = gUser.GetAnimelistLink();
 
                 string mangaRank = Context.Guild.GetRole(sUser.currentMangaRankId)?.Name;
                 string animeRank = Context.Guild.GetRole(sUser.currentAnimeRankId)?.Name;
@@ -289,14 +262,13 @@ namespace AnimeListBot.Modules
                     embed.AddField("Manga:", (string.IsNullOrWhiteSpace(mangaRank) ? "" : "**Rank:** " + mangaRank) +
                                              "\n**Days:** " + gUser.GetMangaReadDays());
                 }
-
-                await ReplyAsync("", false, embed.Build());
             }
             else
             {
                 string username = user == null ? Context.User.Username : user.Username;
-                await ReplyAsync(username + " has not registered a MAL or Anilist account to his discord user.");
+                embed.Title = username + " has not registered a MAL or Anilist account to his discord user.";
             }
+            await embed.UpdateEmbed();
         }
 
         [Command("profile")]
@@ -320,6 +292,10 @@ namespace AnimeListBot.Modules
         [Command("Leaderboard")]
         public async Task Leaderboard()
         {
+            EmbedHandler embed = new EmbedHandler(Context.User, "Getting Leaderboard...");
+            await embed.SendMessage(Context.Channel);
+            embed.Title = "Leaderboard";
+
             GlobalUser gUser = Program.globalUsers.Find(x => x.userID == Context.User.Id);
             DiscordServer server = DiscordServer.GetServerFromID(Context.Guild.Id);
 
@@ -336,9 +312,6 @@ namespace AnimeListBot.Modules
                 await ReplyAsync("There is no lead to view.");
                 return;
             }
-
-            EmbedBuilder embed = new EmbedBuilder();
-            embed.Title = "Leaderboard";
 
             if (animeLeaderboard.Count > 0)
             {
@@ -393,7 +366,7 @@ namespace AnimeListBot.Modules
                 }
                 embed.AddField(mangaBoardField);
             }
-            await ReplyAsync("", false, embed.Build());
+            await embed.UpdateEmbed();
         }
     }
 }

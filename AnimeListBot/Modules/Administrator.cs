@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 
+using AnimeListBot.Handler;
+
 namespace AnimeListBot.Modules
 {
     public class Administrator : ModuleBase<ICommandContext>
@@ -12,28 +14,35 @@ namespace AnimeListBot.Modules
         [Command("stop")]
         public async Task StopBot()
         {
+            EmbedHandler embed = new EmbedHandler(Context.User);
             if(Program.botOwners.Contains(Context.User.Id.ToString()))
             {
-                await ReplyAsync("Stopping Bot.");
+                embed.Title = "Stopping Bot.";
+                await embed.SendMessage(Context.Channel);
+
                 await Program._client.StopAsync();
-                Environment.Exit(0);
+                Program.stop = true;
             }
             else{
-                await ReplyAsync("You dont have permission to do this command.");
+                embed.Title = "You dont have permission to do this command.";
+                await embed.SendMessage(Context.Channel);
             }
         }
 
         [Command("fakeerror")]
         public async Task SendFakeError([Remainder]string message)
         {
+            EmbedHandler embed = new EmbedHandler(Context.User);
             if (Program.botOwners.Contains(Context.User.Id.ToString()))
             {
                 await Program._logger.LogError("Fake Error: " + message);
+                embed.Title = "Sent fake error.";
             }
             else
             {
-                await ReplyAsync("You dont have permission to do this command.");
+                embed.Title = "You dont have permission to do this command.";
             }
+            await embed.SendMessage(Context.Channel);
         }
     }
 }

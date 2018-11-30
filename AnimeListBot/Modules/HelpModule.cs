@@ -1,4 +1,5 @@
-﻿using Discord;
+﻿using AnimeListBot.Handler;
+using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
 using System;
@@ -65,6 +66,8 @@ namespace AnimeListBot.Modules
         [Summary("Send a message directly to the developer")]
         public async Task Contact([Remainder] string message = null)
         {
+            EmbedHandler embed = new EmbedHandler(Context.User);
+
             const ulong ownerId = 96580514021912576;
             IUser owner = await Context.Client.GetUserAsync(ownerId);
             var dmOwner = await owner?.GetOrCreateDMChannelAsync();
@@ -72,12 +75,18 @@ namespace AnimeListBot.Modules
 
             if (string.IsNullOrWhiteSpace(message))
             {
-                await dmRequestor.SendMessageAsync("Welcome, This is the contact service to message the developer.\n" +
-                    "To directly contact the developer use the command as following `.contact whatever you want the developer to know` And he will contact you as soon as possible.\n"
-                );
+                embed.AddField("Bot Contacter", "Welcome, This is the contact service to message the developer.\n" +
+                    "To directly contact the developer use the command as following `.contact whatever you want the developer to know` And he will contact you as soon as possible.\n");
+
+                await dmRequestor.SendMessageAsync("", false, embed.Build());
             }
+            embed.Fields.Clear();
             message = string.IsNullOrWhiteSpace(message) ? "Just a false alarm" : message;
-            await dmOwner.SendMessageAsync($"{Context.Guild.Name}:{Context.User.Mention} ({Context.User.Username}#{Context.User.Discriminator} {Context.User.Id}) ({Context.Guild.Id}) {message}");
+            embed.Title = "Bot Contactor";
+            embed.AddField("Message", message);
+            embed.AddField("Info", $"Guild: {Context.Guild.Name} ({Context.Guild.Id})\nUser: {Context.User.Mention} ({Context.User.Username}#{Context.User.Discriminator} {Context.User.Id})");
+
+            await dmOwner.SendMessageAsync("", false, embed.Build());
         }
 
         [Command("invite")]

@@ -18,7 +18,9 @@ namespace AnimeListBot.Modules
         [RequireUserPermission(GuildPermission.Administrator)]
         public async Task ResetServer()
         {
-            IUserMessage message = await ReplyAsync("Reseting...");
+            EmbedHandler embed = new EmbedHandler(Context.User, "Resetting Server Data...");
+            await embed.SendMessage(Context.Channel);
+
             DiscordServer server = DiscordServer.GetServerFromID(Context.Guild.Id);
             if (server != null)
             {
@@ -26,18 +28,21 @@ namespace AnimeListBot.Modules
                 foreach(SocketGuildUser user in server.Guild.Users)
                     if(server.GetUserFromId(user.Id) == null)
                         server.Users.Add(new ServerUser(user));
-            }
-            else await message.ModifyAsync(x => x.Content = "Server Resetted.");
 
-            server.SaveData();
+                server.SaveData();
                 server.LoadData();
-            await message.ModifyAsync(x => x.Content = "L-Like this?");
+                embed.Title = "Server Data resetted.";
+            }
+            else
+            {
+                embed.Title = "Server Data never existed in this bot.";
+            }
         }
 
         [Command("save")]
         [Summary("Saves the server and reloads it. (Admin)")]
         [RequireUserPermission(GuildPermission.Administrator)]
-        public void SaveAndLoad()
+        public async Task SaveAndLoad()
         {
             DiscordServer server = DiscordServer.GetServerFromID(Context.Guild.Id);
             if (server != null)
@@ -49,6 +54,9 @@ namespace AnimeListBot.Modules
             {
                 Program.discordServers.Add(new DiscordServer(Context.Guild));
             }
+
+            EmbedHandler embed = new EmbedHandler(Context.User, "Server Saved...");
+            await embed.SendMessage(Context.Channel);
         }
     }
 }

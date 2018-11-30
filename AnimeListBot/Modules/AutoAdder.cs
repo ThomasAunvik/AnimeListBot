@@ -21,8 +21,9 @@ namespace AnimeListBot.Modules
         {
             DiscordServer server = DiscordServer.GetServerFromID(Context.Guild.Id);
             server.animeListChannelId = channel.Id;
-            await ReplyAsync("Added " + channel.Mention + " to automal.");
-            server.SaveData();
+
+            EmbedHandler embed = new EmbedHandler(Context.User, "Set automal channel to <# " + channel.Id + ">...");
+            await embed.SendMessage(Context.Channel);
             await Update();
         }
 
@@ -30,12 +31,13 @@ namespace AnimeListBot.Modules
         [RequireUserPermission(GuildPermission.ManageRoles)]
         public async Task Update()
         {
-            IUserMessage message = await ReplyAsync("Now updating all users ranks.");
-
             DiscordServer server = DiscordServer.GetServerFromID(Context.Guild.Id);
             ITextChannel channel = await Context.Guild.GetChannelAsync(server.animeListChannelId) as ITextChannel;
 
-            IEnumerable<IMessage> messages = await channel.GetMessagesAsync(100).FlattenAsync();
+            EmbedHandler embed = new EmbedHandler(Context.User, "Updating Anime Lists from <# " + channel.Id + ">...");
+            await embed.SendMessage(Context.Channel);
+
+            IEnumerable<IMessage> messages = await channel.GetMessagesAsync().FlattenAsync();
             List<IMessage> listMessages = messages.ToList();
 
             listMessages.ForEach(async x =>
@@ -43,21 +45,25 @@ namespace AnimeListBot.Modules
                 await AddUser(x);
             });
 
-            await message.DeleteAsync();
+            embed.Title = "Anime Lists Updated.";
+            await embed.UpdateEmbed();
+            server.SaveData();
         }
 
         [Command("automalchannel")]
         public async Task GetAutoMalChannel()
         {
             DiscordServer server = DiscordServer.GetServerFromID(Context.Guild.Id);
+            EmbedHandler embed = new EmbedHandler(Context.User);
             if (server.animeListChannelId != 0)
             {
-                await ReplyAsync("AutoMAL is set to channel: <#" + server.animeListChannelId + ">");
+                embed.Title = "AutoMAL is set to channel: <#" + server.animeListChannelId + ">";
             }
             else
             {
-                await ReplyAsync("AutoMAL channel is not set.");
+                embed.Title = "AutoMAL channel is not set.";
             }
+            await embed.SendMessage(Context.Channel);
         }
 
         public static async Task AddUser(IMessage message)

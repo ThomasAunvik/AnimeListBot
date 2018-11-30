@@ -39,6 +39,8 @@ namespace AnimeListBot
 
         public static string[] botOwners;
 
+        public static bool stop = false;
+
         public Task OnJoinedGuild(SocketGuild guild)
         {
             discordServers.Add(new DiscordServer(guild));
@@ -70,7 +72,7 @@ namespace AnimeListBot
                         if (globalUsers.Find(x => x.userID == user.Id) == null)
                             globalUsers.Add(new GlobalUser(user));
 
-                await Ranks.UpdateUserRoles(newServer);
+                await Ranks.UpdateUserRoles(newServer, null);
             }
         }
 
@@ -160,7 +162,12 @@ namespace AnimeListBot
 
             await _client.StartAsync();
 
-            await Task.Delay(-1);
+            while (!stop)
+            {
+                await Task.Delay(20);
+            }
+            //await Task.Delay(-1);
+            return;
         }
 
         private static void Main(string[] args) => new Program().RunBotAsync().GetAwaiter().GetResult();
@@ -187,7 +194,9 @@ namespace AnimeListBot
                         if (result.ErrorReason != "Unknown command.")
                         {
                             await _logger.LogError(result.ErrorReason);
-                            await message.Channel.SendMessageAsync(result.ErrorReason);
+
+                            EmbedHandler embed = new EmbedHandler(message.Author, result.ErrorReason);
+                            await embed.SendMessage(message.Channel);
                         }
                     }
                 }
@@ -202,7 +211,7 @@ namespace AnimeListBot
             await _logger.Log(arg.Message);
             if (arg.Exception != null)
             {
-                await _logger.LogError(arg.Exception.StackTrace);
+                await _logger.LogError(arg.Exception.Message + "\n" + arg.Exception.Message);
             }
         }
     }

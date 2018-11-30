@@ -20,31 +20,36 @@ namespace AnimeListBot.Modules
         public async Task AddRank(string option, IRole role, decimal days)
         {
             DiscordServer server = DiscordServer.GetServerFromID(Context.Guild.Id);
+            EmbedHandler embed = new EmbedHandler(Context.User, "Adding rank " + role.Name + " (" + days +")...");
+            await embed.SendMessage(Context.Channel);
 
             if (option == "anime")
             {
                 if (server.animeRoles.Contains((role.Id, days)))
                 {
-                    await ReplyAsync("Already added animerole " + role.Name + " with " + days + " days.");
+                    embed.Title = "Already added animerole " + role.Name + " with " + days + " days.";
+                    await embed.UpdateEmbed();
                     return;
                 }
                 server.animeRoles.Add((role.Id, days));
-                await ReplyAsync("Added " + role.Name + " as the rank for having " + days + " of watching anime");
+                embed.Title = "Added " + role.Name + " as the rank for having " + days + " of watching anime";
             }
             else if(option == "manga")
             {
                 if (server.mangaRoles.Contains((role.Id, days)))
                 {
-                    await ReplyAsync("Already added mangarole " + role.Name + " with " + days + " days.");
+                    embed.Title = "Already added mangarole " + role.Name + " with " + days + " days.";
+                    await embed.UpdateEmbed();
                     return;
                 }
                 server.mangaRoles.Add((role.Id, days));
-                await ReplyAsync("Added " + role.Name + " as the rank for having " + days + " of reading manga");
+                embed.Title = "Added " + role.Name + " as the rank for having " + days + " of reading manga";
             }
             else
             {
-                await ReplyAsync("Incorrect use of modes, the modes are: `anime` and `manga`");
+                embed.Title = "Incorrect use of modes, the modes are: `anime` and `manga`";
             }
+            await embed.UpdateEmbed();
             server.SaveData();
             
         }
@@ -54,6 +59,9 @@ namespace AnimeListBot.Modules
         [RequireUserPermission(GuildPermission.ManageRoles)]
         public async Task EditRank(string option, IRole role, decimal newDays)
         {
+            EmbedHandler embed = new EmbedHandler(Context.User, "Editing rank " + role.Name + " to " + newDays + "...");
+            await embed.SendMessage(Context.Channel);
+
             DiscordServer server = DiscordServer.GetServerFromID(Context.Guild.Id);
 
             if (option == "anime")
@@ -61,11 +69,11 @@ namespace AnimeListBot.Modules
                 int animeRoleIndex = server.animeRoles.FindIndex(x => x.roleId == role.Id);
                 if (animeRoleIndex >= 0) {
                     server.animeRoles[animeRoleIndex] = (role.Id, newDays);
+                    embed.Title = "Anime rank: " + role.Name + " was set to " + newDays + " days.";
                 }
                 else
                 {
-                    await ReplyAsync("Failed to change rank, the role is not set from before.");
-                    return;
+                    embed.Title = "Failed to change rank, the role is not set from before.";
                 }
             }
             else if (option == "manga")
@@ -74,18 +82,18 @@ namespace AnimeListBot.Modules
                 if (mangaRoleIndex >= 0)
                 {
                     server.mangaRoles[mangaRoleIndex] = (role.Id, newDays);
+                    embed.Title = "Manga rank: " + role.Name + " was set to " + newDays + " days.";
                 }
                 else
                 {
-                    await ReplyAsync("Failed to change rank, the role is not set from before.");
-                    return;
+                    embed.Title = "Failed to change rank, the role is not set from before.";
                 }
             }
             else
             {
-                await ReplyAsync("Incorrect use of modes, the modes are: `anime` and `manga`");
-                return;
+                embed.Title = "Incorrect use of modes, the modes are: `anime` and `manga`";
             }
+            await embed.UpdateEmbed();
             server.SaveData();
         }
 
@@ -95,6 +103,9 @@ namespace AnimeListBot.Modules
         [RequireUserPermission(GuildPermission.ManageRoles)]
         public async Task RemoveRank(string option, IRole role)
         {
+            EmbedHandler embed = new EmbedHandler(Context.User, "Removing role " + role.Name + " from ranks...");
+            await embed.SendMessage(Context.Channel);
+
             DiscordServer server = DiscordServer.GetServerFromID(Context.Guild.Id);
 
             if (option == "anime")
@@ -103,11 +114,11 @@ namespace AnimeListBot.Modules
                 if (animeRoleIndex >= 0)
                 {
                     server.animeRoles.RemoveAt(animeRoleIndex);
+                    embed.Title = "Anime Role " + role.Name + " was removed from the ranks.";
                 }
                 else
                 {
-                    await ReplyAsync("Failed to change rank, the role is not set from before.");
-                    return;
+                    embed.Title = "Failed to remove rank, the role is not set from before.";
                 }
             }
             else if (option == "manga")
@@ -116,18 +127,19 @@ namespace AnimeListBot.Modules
                 if (mangaRoleIndex >= 0)
                 {
                     server.mangaRoles.RemoveAt(mangaRoleIndex);
+                    embed.Title = "Manga Role " + role.Name + " was removed from the ranks.";
                 }
                 else
                 {
-                    await ReplyAsync("Failed to remove rank, the role is not set from before.");
-                    return;
+                    embed.Title = "Failed to remove rank, the role is not set from before.";
                 }
             }
             else
             {
-                await ReplyAsync("Incorrect use of modes, the modes are: `anime` and `manga`");
+                embed.Title = "Incorrect use of options, the modes are: `anime` and `manga`";
                 return;
             }
+            await embed.UpdateEmbed();
             server.SaveData();
         }
 
@@ -136,9 +148,14 @@ namespace AnimeListBot.Modules
         [RequireUserPermission(GuildPermission.ManageRoles)]
         public async Task UpdateRanks()
         {
+            EmbedHandler embed = new EmbedHandler(Context.User, "Updating user ranks on this server...");
+            await embed.SendMessage(Context.Channel);
+
             DiscordServer server = DiscordServer.GetServerFromID(Context.Guild.Id);
-            await UpdateUserRoles(server);
-            await ReplyAsync("Updated all ranks.");
+            await UpdateUserRoles(server, embed);
+
+            embed.Title = "Updated all user ranks.";
+            await embed.UpdateEmbed();
         }
 
         [Command("updaterank")]
@@ -146,14 +163,18 @@ namespace AnimeListBot.Modules
         {
             if (user == null) user = Context.User as IGuildUser;
 
-            if (await UpdateUserRole(user))
+            EmbedHandler embed = new EmbedHandler(Context.User, "Updating rank for " + user.Username);
+            await embed.SendMessage(Context.Channel);
+
+            if (await UpdateUserRole(user, embed))
             {
-                await ReplyAsync("Updated " + user.Username + " rank.");
+                embed.Title = "Updated " + user.Username + " rank.";
             }
-            else await ReplyAsync("Failed to update rank.");
+            else embed.Title = "Failed to update rank.";
+            await embed.UpdateEmbed();
         }
 
-        public static async Task<bool> UpdateUserRole(IGuildUser user)
+        public static async Task<bool> UpdateUserRole(IGuildUser user, EmbedBuilder embed)
         {
             DiscordServer server = DiscordServer.GetServerFromID(user.Guild.Id);
             if (server != null)
@@ -162,14 +183,14 @@ namespace AnimeListBot.Modules
                 GlobalUser gUser = Program.globalUsers.Find(x => x.userID == user.Id);
                 if (sUser != null && gUser != null)
                 {
-                    await UpdateUserRole(server, sUser, gUser);
+                    await UpdateUserRole(server, sUser, gUser, embed);
                     return true;
                 }
             }
             return false;
         }
 
-        public static async Task UpdateUserRole(DiscordServer server, ServerUser sUser, GlobalUser gUser)
+        public static async Task UpdateUserRole(DiscordServer server, ServerUser sUser, GlobalUser gUser, EmbedBuilder embed)
         {
             // CALCULATING USER INFO
 
@@ -235,14 +256,14 @@ namespace AnimeListBot.Modules
             gUser.SaveData();
         }
 
-        public static async Task UpdateUserRoles(DiscordServer server)
+        public static async Task UpdateUserRoles(DiscordServer server, EmbedBuilder embed)
         {
             await Program._logger.Log("Updating...");
             foreach(ServerUser sUser in server.Users) {
                 GlobalUser gUser = Program.globalUsers.Find(x => x.userID == sUser.userID);
                 if (gUser != null)
                 {
-                    await UpdateUserRole(server, sUser, gUser);
+                    await UpdateUserRole(server, sUser, gUser, embed);
                 }
             }
         }
@@ -250,17 +271,17 @@ namespace AnimeListBot.Modules
         [Command("Ranks")]
         public async Task ListRanks()
         {
+            EmbedHandler embed = new EmbedHandler(Context.User, "Geting all user ranks...");
+            await embed.SendMessage(Context.Channel);
+            embed.Title = "List of Ranks";
+
             DiscordServer server = DiscordServer.GetServerFromID(Context.Guild.Id);
             if(server.animeRoles.Count <= 0 && server.mangaRoles.Count <= 0)
             {
-                await ReplyAsync("This server does not have any anime and manga ranks. (For administrators: Use `" + Program.botPrefix + "addrank`");
+                embed.Title = "This server does not have any anime and manga ranks. (For administrators: Use `" + Program.botPrefix + "addrank`";
+                await embed.UpdateEmbed();
                 return;
             }
-
-            EmbedBuilder embed = new EmbedBuilder() {
-                Title = "List of Ranks",
-                Color = Program.embedColor
-            };
 
             // ANIME
 
@@ -304,7 +325,7 @@ namespace AnimeListBot.Modules
                 });
             }
 
-            await ReplyAsync("", false, embed.Build());
+            await embed.UpdateEmbed();
         }
     }
 }

@@ -51,8 +51,8 @@ namespace AnimeListBot.Modules
             }
             await embed.UpdateEmbed();
             server.SaveData();
-            
         }
+
         [Command("editrank")]
         [Summary("Edits a rank for how many days you have spent with anime/manga (Options: [anime, manga])")]
         [RequireBotPermission(GuildPermission.ManageRoles)]

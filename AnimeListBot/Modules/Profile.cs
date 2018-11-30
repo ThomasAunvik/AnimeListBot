@@ -67,7 +67,7 @@ namespace AnimeListBot.Modules
                 await embed.UpdateEmbed();
             }
 
-            await Ranks.UpdateUserRole((IGuildUser)Context.User);
+            await Ranks.UpdateUserRole((IGuildUser)Context.User, embed);
         }
 
         public async Task SetupMAL(UserProfile profile, EmbedHandler embed)
@@ -184,7 +184,7 @@ namespace AnimeListBot.Modules
                 return;
             }
             await embed.UpdateEmbed();
-            await Ranks.UpdateUserRole((IGuildUser)Context.User);
+            await Ranks.UpdateUserRole((IGuildUser)Context.User, embed);
             user.SaveData();
         }
 

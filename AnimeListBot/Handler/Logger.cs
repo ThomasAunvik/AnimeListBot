@@ -38,15 +38,21 @@ namespace AnimeListBot.Handler
             logLines++;
         }
 
-        public async Task LogError(string error)
+        public async Task LogError(string errorMessage)
         {
             const ulong ownerId = 96580514021912576;
             IUser owner = Program._client.GetUser(ownerId);
             var dmOwner = await owner?.GetOrCreateDMChannelAsync();
 
-            await owner.SendMessageAsync(error);
+            await owner.SendMessageAsync("```" + errorMessage + "```");
 
-            await Log(error);
+            await Log(errorMessage);
+        }
+
+        public async Task LogError(Exception exception)
+        {
+            string errorMessage = exception.Message + "\n" + exception.StackTrace;
+            await LogError(errorMessage);
         }
     }
 }

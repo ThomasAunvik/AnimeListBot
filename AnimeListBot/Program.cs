@@ -152,7 +152,7 @@ namespace AnimeListBot
                     }
                 }catch(Exception e)
                 {
-                    await _logger.LogError(e.StackTrace);
+                    await _logger.LogError(e);
                 }
             };
             
@@ -193,16 +193,16 @@ namespace AnimeListBot
                     {
                         if (result.ErrorReason != "Unknown command.")
                         {
-                            await _logger.LogError(result.ErrorReason);
-
-                            EmbedHandler embed = new EmbedHandler(message.Author, result.ErrorReason);
+                            string errorMessage = "Command Error: " + result.ErrorReason;
+                            EmbedHandler embed = new EmbedHandler(message.Author, errorMessage);
                             await embed.SendMessage(message.Channel);
+                            await _logger.LogError(errorMessage);
                         }
                     }
                 }
             }catch(Exception e)
             {
-                await _logger.Log(e.StackTrace);
+                await _logger.LogError(e);
             }
         }
 
@@ -211,7 +211,7 @@ namespace AnimeListBot
             await _logger.Log(arg.Message);
             if (arg.Exception != null)
             {
-                await _logger.LogError(arg.Exception.Message + "\n" + arg.Exception.Message);
+                await _logger.LogError(arg.Exception);
             }
         }
     }

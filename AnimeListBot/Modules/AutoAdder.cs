@@ -139,7 +139,7 @@ namespace AnimeListBot.Modules
                 }
             }catch(Exception e)
             {
-                await Program._logger.LogError("Message: " + message.Content + "\n" + e);
+                await Program._logger.LogError(e);
             }
         }
     }

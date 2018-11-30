@@ -29,20 +29,27 @@ namespace AnimeListBot.Modules
             }
         }
 
-        [Command("fakeerror")]
-        public async Task SendFakeError([Remainder]string message)
+        [Command("errortest")]
+        public async Task SendErrorTest([Remainder]string message)
         {
             EmbedHandler embed = new EmbedHandler(Context.User);
             if (Program.botOwners.Contains(Context.User.Id.ToString()))
             {
-                await Program._logger.LogError("Fake Error: " + message);
                 embed.Title = "Sent fake error.";
+                await embed.SendMessage(Context.Channel);
+                try
+                {
+                    throw new Exception("Fake Error: " + message);
+                }catch(Exception e)
+                {
+                    await Program._logger.LogError(e);
+                }
             }
             else
             {
                 embed.Title = "You dont have permission to do this command.";
+                await embed.SendMessage(Context.Channel);
             }
-            await embed.SendMessage(Context.Channel);
         }
     }
 }

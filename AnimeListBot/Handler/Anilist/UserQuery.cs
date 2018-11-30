@@ -84,7 +84,7 @@ namespace AnimeListBot.Handler.Anilist
                 return userType;
             }catch(Exception e)
             {
-                await Program._logger.LogError("ERROR: Username: " + username + "\n" + e);
+                await Program._logger.LogError(e);
                 return null;
             }
         }

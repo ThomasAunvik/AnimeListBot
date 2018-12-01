@@ -180,11 +180,14 @@ namespace AnimeListBot.Modules
             if (server != null)
             {
                 ServerUser sUser = server.GetUserFromId(user.Id);
-                GlobalUser gUser = Program.globalUsers.Find(x => x.userID == user.Id);
-                if (sUser != null && gUser != null)
+                if (sUser != null)
                 {
-                    await UpdateUserRole(server, sUser, gUser, embed);
-                    return true;
+                    GlobalUser gUser = Program.globalUsers.Find(x => x.userID == user.Id);
+                    if (gUser != null)
+                    {
+                        await UpdateUserRole(server, sUser, gUser, embed);
+                        return true;
+                    }
                 }
             }
             return false;

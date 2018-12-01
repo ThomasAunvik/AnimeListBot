@@ -20,7 +20,7 @@ namespace AnimeListBot
     public class Program
     {
         public const ulong botID = 515269277553655823;
-        public const char botPrefix = '.';
+        public const string botPrefix = ".";
         public static readonly string inviteURL = "https://discordapp.com/api/oauth2/authorize?client_id=" + botID + "&permissions=0&scope=bot";
         
         public static Color embedColor = new Color(114, 137, 218);
@@ -130,31 +130,6 @@ namespace AnimeListBot
             _client.LeftGuild += OnLeftGuild;
             _client.JoinedGuild += OnJoinedGuild;
             _client.UserJoined += OnUserJoined;
-
-            _client.MessageReceived += async (arg) =>
-            {
-                if (globalUsers == null)
-                    return;
-
-                if (arg is null || arg.Author.IsBot)
-                    return;
-
-                try
-                {
-                    GlobalUser user = globalUsers.FirstOrDefault(x => x.userID == arg.Author.Id);
-                    if (user == default(GlobalUser)) globalUsers.Add(new GlobalUser(arg.Author));
-
-                    ulong guildId = ((IGuildChannel)arg.Channel).Guild.Id;
-                    DiscordServer server = DiscordServer.GetServerFromID(guildId);
-                    if (arg.Channel.Id == server.animeListChannelId)
-                    {
-                        await AutoAdder.AddUser(arg);
-                    }
-                }catch(Exception e)
-                {
-                    await _logger.LogError(e);
-                }
-            };
             
             await RegisterCommandsAsync();
             
@@ -177,12 +152,22 @@ namespace AnimeListBot
             {
                 var message = arg as SocketUserMessage;
                 if (message is null || message.Author.IsBot) return;
+                
+                IDMChannel dmChannel = await arg.Author.GetOrCreateDMChannelAsync();
+                if (arg.Channel.Id == dmChannel?.Id) return;
 
-                DiscordServer server = discordServers.Find(x => x.Guild.GetChannel(message.Channel.Id) == message.Channel);
-                ServerUser user = server.GetUserFromId(message.Author.Id);
+                GlobalUser user = globalUsers.FirstOrDefault(x => x.userID == arg.Author.Id);
+                if (user == default(GlobalUser)) globalUsers.Add(new GlobalUser(arg.Author));
+                
+                ulong guildId = ((IGuildChannel)arg.Channel).Guild.Id;
+                DiscordServer server = DiscordServer.GetServerFromID(guildId);
+                if (arg.Channel.Id == server.animeListChannelId)
+                {
+                    await AutoAdder.AddUser(arg);
+                }
 
                 int argPos = 0;
-                if (message.HasStringPrefix(botPrefix.ToString(), ref argPos))
+                if (message.HasStringPrefix(botPrefix, ref argPos))
                 {
                     var context = new SocketCommandContext(_client, message);
 
@@ -190,12 +175,16 @@ namespace AnimeListBot
 
                     if (!result.IsSuccess)
                     {
-                        if (result.ErrorReason != "Unknown command.")
+                        if (!result.ErrorReason.Contains("Unknown command.") && !result.ErrorReason.Contains("The input text has too few parameters."))
                         {
                             string errorMessage = "Command Error: " + result.ErrorReason;
                             EmbedHandler embed = new EmbedHandler(message.Author, errorMessage);
                             await embed.SendMessage(message.Channel);
                             await _logger.LogError(errorMessage);
+                        }else if(!result.ErrorReason.Contains("Unknown command.") && result.ErrorReason.Contains("The input text has too few parameters."))
+                        {
+                            string commandMessage = context.Message.Content;
+                            commandMessage = commandMessage.Remove(0, botPrefix.Length);
                         }
                     }
                 }

@@ -87,4 +87,4 @@ Extra Info: As a bot owner, you get to have the exlusive right to be able to get
 3. Copy the token and insert in `botToken_template.txt` 
 4. Rename `botToken_template.txt` to `botToken.txt`
 5. In Visual Studio 2017, publish the app from the Build toolbar.
-6. Run command `dotnet MyAnimeListBot.dll` in `repo\MyAnimeListBot\bin\Debug\netcoreapp2.0`
+6. Run command `dotnet AnimeListBot.dll` in `repo\AnimeListBot\bin\Debug\netcoreapp2.0`

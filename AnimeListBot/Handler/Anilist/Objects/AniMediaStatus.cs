@@ -4,7 +4,7 @@ using System.Text;
 
 namespace AnimeListBot.Handler.Anilist
 {
-    public enum AnilistMediaStatus
+    public enum AniMediaStatus
     {
         FINISHED,
         RELEASING,

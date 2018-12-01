@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace AnimeListBot.Handler.Anilist
 {
-    public class MediaListQuery
+    public class AniMediaListQuery
     {
         public const string searchQuery = @"
                 query ($userName: String, $mediaId: Int, $type: MediaType, $scoreFormat: ScoreFormat){
@@ -35,7 +35,7 @@ namespace AnimeListBot.Handler.Anilist
                 }
                 ";
 
-        public static async Task<IAnilistMediaList> GetMediaList(string username, int id, AnilistMediaType mediaType)
+        public static async Task<IAniMediaList> GetMediaList(string username, int id, AniMediaType mediaType)
         {
             try
             {
@@ -46,8 +46,8 @@ namespace AnimeListBot.Handler.Anilist
                     {
                         name = username,
                         mediaId = id,
-                        type = Enum.GetName(typeof(AnilistMediaType), mediaType),
-                        scoreFormat = Enum.GetName(typeof(ScoreFormat), ScoreFormat.POINT_10_DECIMAL)
+                        type = Enum.GetName(typeof(AniMediaType), mediaType),
+                        scoreFormat = Enum.GetName(typeof(AniScoreFormat), AniScoreFormat.POINT_10_DECIMAL)
                     }
                 };
                 var graphQLClient = new GraphQLHttpClient(AnilistConstants.AnilistAPILink);
@@ -58,7 +58,7 @@ namespace AnimeListBot.Handler.Anilist
                 {
                     throw new Exception(string.Join("\n", response.Errors.Select(x => x.Message)));
                 }
-                var mediaList = response.GetDataFieldAs<AnilistMediaList>("MediaList");
+                var mediaList = response.GetDataFieldAs<AniMediaList>("MediaList");
 
                 return mediaList;
             }

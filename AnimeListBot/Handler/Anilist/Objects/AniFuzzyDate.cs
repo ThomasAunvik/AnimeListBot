@@ -4,7 +4,7 @@ using System.Text;
 
 namespace AnimeListBot.Handler.Anilist
 {
-    public class AnilistFuzzyDate
+    public class AniFuzzyDate
     {
         public int? year { get; set; }
         public int? month { get; set; }

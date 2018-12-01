@@ -4,7 +4,7 @@ using System.Text;
 
 namespace AnimeListBot.Handler.Anilist
 {
-     public interface IAnilistUser
+     public interface IAniUser
      {
          int id { get; }
          string name { get; }

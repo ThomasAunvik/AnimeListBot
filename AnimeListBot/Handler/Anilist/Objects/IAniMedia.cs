@@ -4,7 +4,7 @@ using System.Text;
 
 namespace AnimeListBot.Handler.Anilist
 {
-    public interface IAnilistMedia
+    public interface IAniMedia
     {
         int? id { get; }
         int? idMal { get; }

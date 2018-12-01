@@ -4,7 +4,7 @@ using System.Text;
 
 namespace AnimeListBot.Handler.Anilist
 {
-    public enum ScoreFormat
+    public enum AniScoreFormat
     {
         POINT_100,
         POINT_10_DECIMAL,

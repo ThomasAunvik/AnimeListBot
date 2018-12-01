@@ -4,17 +4,17 @@ using System.Text;
 
 namespace AnimeListBot.Handler.Anilist
 {
-    public interface IAnilistMediaList
+    public interface IAniMediaList
     {
         int id { get; }
         int userId { get; }
         int mediaId { get; }
-        AnilistMediaListStatus? status { get; }
+        AniMediaListStatus? status { get; }
         float? score { get; }
         int? progress { get; }
         int? progressVolumes { get; }
         int? repeat { get; }
-        AnilistFuzzyDate startedAt { get; }
-        AnilistFuzzyDate completedAt { get; }
+        AniFuzzyDate startedAt { get; }
+        AniFuzzyDate completedAt { get; }
     }
 }

@@ -4,17 +4,17 @@ using System.Text;
 
 namespace AnimeListBot.Handler.Anilist
 {
-    class AnilistMedia : IAnilistMedia
+    class AniMedia : IAniMedia
     {
         public int? id { get; set; }
 
         public int? idMal { get; set; }
 
-        public AnilistMediaTitle title { get; set; }
+        public AniMediaTitle title { get; set; }
 
-        public AnilistMediaType? type { get; set; }
+        public AniMediaType? type { get; set; }
 
-        public AnilistMediaStatus? status { get; set; }
+        public AniMediaStatus? status { get; set; }
 
         public string description { get; set; }
 
@@ -28,7 +28,7 @@ namespace AnimeListBot.Handler.Anilist
 
         public int? volumes { get; set; }
 
-        public AnilistMediaCoverImage coverImage { get; set; }
+        public AniMediaCoverImage coverImage { get; set; }
 
         public string siteUrl { get; set; }
     }

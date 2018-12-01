@@ -4,7 +4,7 @@ using System.Text;
 
 namespace AnimeListBot.Handler.Anilist
 {
-    public class AnilistListScoreStats
+    public class AniListScoreStats
     {
         public int meanScore { get; set; }
 

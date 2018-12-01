@@ -4,7 +4,7 @@ using System.Text;
 
 namespace AnimeListBot.Handler.Anilist
 {
-    public enum AnilistMediaType
+    public enum AniMediaType
     {
         ANIME,
         MANGA

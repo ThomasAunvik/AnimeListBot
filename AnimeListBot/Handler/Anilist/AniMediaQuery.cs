@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace AnimeListBot.Handler.Anilist
 {
-    public class MediaQuery
+    public class AniMediaQuery
     {
         public const string searchQuery = @"
                 query ($search: String, $type: MediaType, $asHtml: Boolean){
@@ -45,7 +45,7 @@ namespace AnimeListBot.Handler.Anilist
                 }
                 ";
 
-        public static async Task<IAnilistMedia> SearchMedia(string mediaSearch, AnilistMediaType mediaType)
+        public static async Task<IAniMedia> SearchMedia(string mediaSearch, AniMediaType mediaType)
         {
             try
             {
@@ -55,7 +55,7 @@ namespace AnimeListBot.Handler.Anilist
                     Variables = new
                     {
                         search = mediaSearch,
-                        type = Enum.GetName(typeof(AnilistMediaType), mediaType),
+                        type = Enum.GetName(typeof(AniMediaType), mediaType),
                         asHtml = false
                     }
                 };
@@ -68,7 +68,7 @@ namespace AnimeListBot.Handler.Anilist
                     if (response.Errors[0].Message.Contains("Not Found.")) return null;
                     throw new Exception(string.Join("\n", response.Errors.Select(x => x.Message)));
                 }
-                var media = response.GetDataFieldAs<AnilistMedia>("Media");
+                var media = response.GetDataFieldAs<AniMedia>("Media");
 
                 media.description = media.description.Replace("<br>", "\n");
 

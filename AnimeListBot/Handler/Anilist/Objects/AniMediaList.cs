@@ -4,7 +4,7 @@ using System.Text;
 
 namespace AnimeListBot.Handler.Anilist
 {
-    public class AnilistMediaList : IAnilistMediaList
+    public class AniMediaList : IAniMediaList
     {
         public int id { get; set; }
 
@@ -12,7 +12,7 @@ namespace AnimeListBot.Handler.Anilist
 
         public int mediaId { get; set; }
 
-        public AnilistMediaListStatus? status { get; set; }
+        public AniMediaListStatus? status { get; set; }
 
         public float? score { get; set; }
 

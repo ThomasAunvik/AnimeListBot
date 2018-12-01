@@ -71,7 +71,7 @@ namespace AnimeListBot.Modules
             }
             else
             {
-                IAnilistMedia media = await MediaQuery.SearchMedia(search, AnilistMediaType.ANIME);
+                IAniMedia media = await AniMediaQuery.SearchMedia(search, AniMediaType.ANIME);
                 if (media != null)
                 {
                     embed.Title = media.title.english;
@@ -80,21 +80,21 @@ namespace AnimeListBot.Modules
                     embed.ThumbnailUrl = media.coverImage.large;
                     embed.AddField(
                         "Information",
-                            "Type: " + Enum.GetName(typeof(AnilistMediaType), media.type) +
+                            "Type: " + Enum.GetName(typeof(AniMediaType), media.type) +
                             "\nEpisodes: " + (media.episodes.GetValueOrDefault() == 0 ? "Unknown" : media.episodes.GetValueOrDefault().ToString()) +
-                            "\nStatus: " + Enum.GetName(typeof(AnilistMediaStatus), media.status).Replace("_", " ") +
+                            "\nStatus: " + Enum.GetName(typeof(AniMediaStatus), media.status).Replace("_", " ") +
                             "\nAired: " + GetDate(media.startDate, media.endDate)
                     );
 
                     if (globalUser != null)
                     {
-                        IAnilistMediaList list = await MediaListQuery.GetMediaList(globalUser.Anilist_Username, media.id.GetValueOrDefault(), AnilistMediaType.ANIME);
+                        IAniMediaList list = await AniMediaListQuery.GetMediaList(globalUser.Anilist_Username, media.id.GetValueOrDefault(), AniMediaType.ANIME);
                         if(list != null)
                         {
                             embed.AddField(
                                 Format.Sanitize(globalUser.Anilist_Username) + " Stats",
                                 //(malEntry.Days.GetValueOrDefault() == 0 ? "" : "\nDays watched: " + list.day) +
-                                "\nStatus: " + Enum.GetName(typeof(AnilistMediaListStatus), list.status.GetValueOrDefault()) +
+                                "\nStatus: " + Enum.GetName(typeof(AniMediaListStatus), list.status.GetValueOrDefault()) +
                                 "\nEpisodes watched: " + list.progress.GetValueOrDefault() +
                                 "\nRating: " + list.score
                             );
@@ -181,7 +181,7 @@ namespace AnimeListBot.Modules
             }
             else
             {
-                IAnilistMedia media = await MediaQuery.SearchMedia(search, AnilistMediaType.MANGA);
+                IAniMedia media = await AniMediaQuery.SearchMedia(search, AniMediaType.MANGA);
                 if (media != null)
                 {
                     embed.Title = media.title.english;
@@ -190,22 +190,22 @@ namespace AnimeListBot.Modules
                     embed.ThumbnailUrl = media.coverImage.large;
                     embed.AddField(
                         "Information",
-                            "Type: " + Enum.GetName(typeof(AnilistMediaType), media.type) +
+                            "Type: " + Enum.GetName(typeof(AniMediaType), media.type) +
                             "\nVolumes: " + (media.volumes.GetValueOrDefault() == 0 ? "Unknown" : media.volumes.GetValueOrDefault().ToString()) +
                             "\nChapters: " + (media.chapters.GetValueOrDefault() == 0 ? "Unknown" : media.chapters.GetValueOrDefault().ToString()) +
-                            "\nStatus: " + Enum.GetName(typeof(AnilistMediaStatus), media.status).Replace("_", " ") +
+                            "\nStatus: " + Enum.GetName(typeof(AniMediaStatus), media.status).Replace("_", " ") +
                             "\nAired: " + GetDate(media.startDate, media.endDate)
                     );
 
                     if (globalUser != null)
                     {
-                        IAnilistMediaList list = await MediaListQuery.GetMediaList(globalUser.Anilist_Username, media.id.GetValueOrDefault(), AnilistMediaType.MANGA);
+                        IAniMediaList list = await AniMediaListQuery.GetMediaList(globalUser.Anilist_Username, media.id.GetValueOrDefault(), AniMediaType.MANGA);
                         if (list != null)
                         {
                             embed.AddField(
                                 Format.Sanitize(globalUser.Anilist_Username) + " Stats",
                                 //(malEntry.Days.GetValueOrDefault() == 0 ? "" : "\nDays watched: " + list.day) +
-                                "\nStatus: " + Enum.GetName(typeof(AnilistMediaListStatus), list.status.GetValueOrDefault()) +
+                                "\nStatus: " + Enum.GetName(typeof(AniMediaListStatus), list.status.GetValueOrDefault()) +
                                 "\nVolumes Read: " + list.progressVolumes +
                                 "\nChapters Read: " + list.progress +
                                 "\nRating: " + list.score
@@ -270,7 +270,7 @@ namespace AnimeListBot.Modules
             return returnMessage;
         }
 
-        public static string GetDate(AnilistFuzzyDate startDate, AnilistFuzzyDate endDate)
+        public static string GetDate(AniFuzzyDate startDate, AniFuzzyDate endDate)
         {
             DateTime startDateTime = default(DateTime);
             DateTime endDateTime = default(DateTime);

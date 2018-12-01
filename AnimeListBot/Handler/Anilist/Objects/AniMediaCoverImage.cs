@@ -4,7 +4,7 @@ using System.Text;
 
 namespace AnimeListBot.Handler.Anilist
 {
-    public class AnilistMediaCoverImage
+    public class AniMediaCoverImage
     {
         public string large { get; set; }
         public string medium { get; set; }

@@ -57,7 +57,7 @@ namespace AnimeListBot.Modules
                 {
                     //await globalUser.UpdateAnilistInfo();
                     embed.AddField(
-                            Format.Sanitize(globalUser.MAL_Username) + " Stats",
+                            Format.Sanitize(globalUser.Anilist_Username) + " Stats",
                             "Anilist Stats are not yet supported in search functions."
                     );
                 }
@@ -83,12 +83,12 @@ namespace AnimeListBot.Modules
         }
 
         [Command("manga")]
-        public async Task SearchManga(IUser user, [Remainder]string search)
+        public async Task SearchManga(IUser targetUser, [Remainder]string search)
         {
-            EmbedHandler embed = new EmbedHandler(user, "Searching for " + search + "...");
+            EmbedHandler embed = new EmbedHandler(targetUser, "Searching for " + search + "...");
             await embed.SendMessage(Context.Channel);
 
-            GlobalUser globalUser = Program.globalUsers.Find(x => x.userID == user.Id);
+            GlobalUser globalUser = Program.globalUsers.Find(x => x.userID == targetUser.Id);
 
             MangaSearchResult searchResult = await Program._jikan.SearchManga(search);
             if (searchResult?.Results.Count > 0)
@@ -128,14 +128,14 @@ namespace AnimeListBot.Modules
                 {
                     //await globalUser.UpdateAnilistInfo();
                     embed.AddField(
-                            Format.Sanitize(globalUser.MAL_Username) + " Stats",
+                            Format.Sanitize(globalUser.Anilist_Username) + " Stats",
                             "Anilist Stats are not yet supported in search functions."
                     );
                 }
                 else
                 {
                     embed.AddField(
-                            Format.Sanitize(user.Username) + " Stats",
+                            Format.Sanitize(targetUser.Username) + " Stats",
                             "There are no stats available for this user."
                     );
                 }

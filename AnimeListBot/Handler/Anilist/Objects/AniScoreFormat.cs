@@ -4,9 +4,12 @@ using System.Text;
 
 namespace AnimeListBot.Handler.Anilist
 {
-    public interface IAnilistListScoreStats
+    public enum ScoreFormat
     {
-        int meanScore { get; }
-        int standardDeviation { get; }
+        POINT_100,
+        POINT_10_DECIMAL,
+        POINT_10,
+        POINT_5,
+        POINT_3
     }
 }

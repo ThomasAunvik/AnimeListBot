@@ -4,9 +4,9 @@ using System.Text;
 
 namespace AnimeListBot.Handler.Anilist
 {
-    public interface IAnilistStatusDistribution
+    public enum AnilistMediaType
     {
-        AnilistMediaListStatus status { get; }
-        int amount { get; }
+        ANIME,
+        MANGA
     }
 }

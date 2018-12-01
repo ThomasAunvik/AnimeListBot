@@ -51,7 +51,7 @@ namespace AnimeListBot.Modules
                     username = usernamePart;
                 }
 
-                IAnilistUser profile = await UserQuery.GetUser(username);
+                IAniUser profile = await AniUserQuery.GetUser(username);
                 if (profile == null)
                 {
                     embed.Title = "Invalid Username.";
@@ -105,7 +105,7 @@ namespace AnimeListBot.Modules
             user.SaveData();
         }
 
-        public async Task SetupAnilist(IAnilistUser profile, EmbedHandler embed)
+        public async Task SetupAnilist(IAniUser profile, EmbedHandler embed)
         {
             GlobalUser user = Program.globalUsers.Find(x => x.userID == Context.User.Id);
             if (user == null)

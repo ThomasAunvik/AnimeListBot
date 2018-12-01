@@ -4,8 +4,8 @@ using System.Text;
 
 namespace AnimeListBot.Handler.Anilist
 {
-    public class AnilistUserOptions : IAnilistUserOptions
+    public class AnilistConstants
     {
-        public string profileColor { get; set; }
+        public const string AnilistAPILink = "https://graphql.anilist.co";
     }
 }

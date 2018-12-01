@@ -4,8 +4,9 @@ using System.Text;
 
 namespace AnimeListBot.Handler.Anilist
 {
-    public interface IAnilistUserOptions
+    public class AnilistScoreDistribution
     {
-        string profileColor { get; }
+        public int score { get; set; }
+        public int amount { get; set; }
     }
 }

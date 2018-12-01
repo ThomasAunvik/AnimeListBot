@@ -129,7 +129,7 @@ namespace AnimeListBot.Modules
                 }
                 else if (isValidLink && containsAnilist && string.IsNullOrWhiteSpace(user?.Anilist_Username))
                 {
-                    IAnilistUser profile = await UserQuery.GetUser(usernamePart);
+                    IAniUser profile = await AniUserQuery.GetUser(usernamePart);
                     if (profile != null)
                     {
                         user.Anilist_Username = usernamePart;

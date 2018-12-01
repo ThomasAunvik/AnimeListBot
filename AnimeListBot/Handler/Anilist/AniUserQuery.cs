@@ -10,7 +10,7 @@ using GraphQL.Common.Request;
 
 namespace AnimeListBot.Handler.Anilist
 {
-    public class UserQuery
+    public class AniUserQuery
     {
         public const string query = @"
                 query ($name: String){
@@ -60,11 +60,11 @@ namespace AnimeListBot.Handler.Anilist
                 }
                 ";
 
-        public static async Task<IAnilistUser> GetUser(string username)
+        public static async Task<IAniUser> GetUser(string username)
         {
             try
             {
-                var heroRequest = new GraphQLRequest
+                var userRequest = new GraphQLRequest
                 {
                     Query = query,
                     Variables = new
@@ -72,8 +72,8 @@ namespace AnimeListBot.Handler.Anilist
                         name = username
                     }
                 };
-                var graphQLClient = new GraphQLHttpClient("https://graphql.anilist.co");
-                var response = await graphQLClient.SendQueryAsync(heroRequest);
+                var graphQLClient = new GraphQLHttpClient(AnilistConstants.AnilistAPILink);
+                var response = await graphQLClient.SendQueryAsync(userRequest);
                 graphQLClient.Dispose();
 
                 if (response.Errors != null && response.Errors.Length > 0)

@@ -4,9 +4,9 @@ using System.Text;
 
 namespace AnimeListBot.Handler.Anilist
 {
-    public interface IAnilistUserAvatar
+    public class AnilistMediaCoverImage
     {
-        string large { get; }
-        string medium { get; }
+        public string large { get; set; }
+        public string medium { get; set; }
     }
 }

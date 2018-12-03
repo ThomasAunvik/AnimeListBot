@@ -81,6 +81,7 @@ namespace AnimeListBot.Modules
                     embed.AddField(
                         "Information",
                             "Type: " + Enum.GetName(typeof(AniMediaType), media.type) +
+                            "\nFormat: " + Enum.GetName(typeof(AniMediaFormat), media.format).Replace("_", " ") +
                             "\nEpisodes: " + (media.episodes.GetValueOrDefault() == 0 ? "Unknown" : media.episodes.GetValueOrDefault().ToString()) +
                             "\nStatus: " + Enum.GetName(typeof(AniMediaStatus), media.status).Replace("_", " ") +
                             "\nAired: " + GetDate(media.startDate, media.endDate)
@@ -191,6 +192,7 @@ namespace AnimeListBot.Modules
                     embed.AddField(
                         "Information",
                             "Type: " + Enum.GetName(typeof(AniMediaType), media.type) +
+                            "\nFormat: " + Enum.GetName(typeof(AniMediaFormat), media.format) +
                             "\nVolumes: " + (media.volumes.GetValueOrDefault() == 0 ? "Unknown" : media.volumes.GetValueOrDefault().ToString()) +
                             "\nChapters: " + (media.chapters.GetValueOrDefault() == 0 ? "Unknown" : media.chapters.GetValueOrDefault().ToString()) +
                             "\nStatus: " + Enum.GetName(typeof(AniMediaStatus), media.status).Replace("_", " ") +

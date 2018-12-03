@@ -14,6 +14,8 @@ namespace AnimeListBot.Handler.Anilist
 
         public AniMediaType? type { get; set; }
 
+        public AniMediaFormat? format { get; set; }
+
         public AniMediaStatus? status { get; set; }
 
         public string description { get; set; }

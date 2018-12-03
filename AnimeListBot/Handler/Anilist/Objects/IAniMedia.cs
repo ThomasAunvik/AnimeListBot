@@ -10,6 +10,7 @@ namespace AnimeListBot.Handler.Anilist
         int? idMal { get; }
         AniMediaTitle title { get; }
         AniMediaType? type { get; }
+        AniMediaFormat? format { get; }
         AniMediaStatus? status { get; }
 
         string description { get; }

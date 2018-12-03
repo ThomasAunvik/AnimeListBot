@@ -21,6 +21,7 @@ namespace AnimeListBot.Handler.Anilist
                             native
                         }
                         type
+                        format
                         status
                         description(asHtml: $asHtml)
                         startDate {

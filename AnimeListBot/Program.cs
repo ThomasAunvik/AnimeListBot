@@ -153,8 +153,8 @@ namespace AnimeListBot
 
         private async Task HandleCommandAsync(SocketMessage arg)
         {
-            /*try
-            {*/
+            try
+            {
                 var message = arg as SocketUserMessage;
                 if (message is null || message.Author.IsBot) return;
                 
@@ -175,35 +175,17 @@ namespace AnimeListBot
                 if (message.HasStringPrefix(botPrefix, ref argPos))
                 {
                     var context = new SocketCommandContext(_client, message);
-
                     var result = await _commands.ExecuteAsync(context, argPos, _services);
-
-                    if (!result.IsSuccess)
-                    {
-                        Console.WriteLine(result.ErrorReason);
-                        //if (!result.ErrorReason.Contains("Unknown command.") && !result.ErrorReason.Contains("The input text has too few parameters."))
-                        //{
-                        //    string errorMessage = "Command Error: " + result.ErrorReason;
-                        //    EmbedHandler embed = new EmbedHandler(message.Author, errorMessage);
-                        //    await embed.SendMessage(message.Channel);
-                        //    await _logger.LogError(errorMessage);
-                        //}else if(!result.ErrorReason.Contains("Unknown command.") && result.ErrorReason.Contains("The input text has too few parameters."))
-                        //{
-                        //    string commandMessage = context.Message.Content;
-                        //    commandMessage = commandMessage.Remove(0, botPrefix.Length);
-                        //}
-                    }
                 }
-            /*}catch(Exception e)
+            }catch(Exception e)
             {
-                await _logger.LogError(e);
-            }*/
+                await _logger.LogError(e, arg.Author);
+            }
         }
 
 
         private async Task OnCommandExecuted(Optional<CommandInfo> info, ICommandContext context, IResult result)
         {
-            Console.WriteLine("Command Executed: " + info.GetValueOrDefault().Name);
             if(result.Error != null)
             {
                 if (!result.ErrorReason.Contains("Unknown command.") && !result.ErrorReason.Contains("The input text has too few parameters."))

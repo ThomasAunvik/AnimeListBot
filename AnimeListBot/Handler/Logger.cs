@@ -10,6 +10,8 @@ namespace AnimeListBot.Handler
 {
     public class Logger
     {
+        const int MAX_FIELD_VALUE_LENGTH = 1024;
+
         string logPath;
         int logLines = 0;
 
@@ -70,7 +72,7 @@ namespace AnimeListBot.Handler
         {
             EmbedHandler embed = new EmbedHandler(user, "Exception");
             embed.AddField("Exception Message", exception.Message);
-            embed.AddField("Stacktrace", Format.Sanitize(exception.StackTrace).Substring(0, 1024));
+            embed.AddField("Stacktrace", TrancuateStacktrace(exception.StackTrace));
             await LogError(exception, embed);
         }
 
@@ -82,8 +84,18 @@ namespace AnimeListBot.Handler
             EmbedHandler embed = new EmbedHandler(context.User, "Command Exception");
             embed.AddField("Command Used", context.Message);
             embed.AddField("Exception Message", e.Message);
-            embed.AddField("Stacktrace", Format.Sanitize(e.StackTrace).Substring(0, 1024));
+            embed.AddField("Stacktrace", TrancuateStacktrace(e.StackTrace));
             await LogError(e, embed);
+        }
+
+        public string TrancuateStacktrace(string input)
+        {
+            input = Format.Sanitize(input);
+            if(input.Length > MAX_FIELD_VALUE_LENGTH)
+            {
+                input = input.Substring(0, MAX_FIELD_VALUE_LENGTH);
+            }
+            return input;
         }
     }
 }

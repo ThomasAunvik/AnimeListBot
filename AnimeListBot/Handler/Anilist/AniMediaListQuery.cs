@@ -50,17 +50,18 @@ namespace AnimeListBot.Handler.Anilist
                         scoreFormat = Enum.GetName(typeof(AniScoreFormat), AniScoreFormat.POINT_10_DECIMAL)
                     }
                 };
-                var graphQLClient = new GraphQLHttpClient(AnilistConstants.AnilistAPILink);
-                var response = await graphQLClient.SendQueryAsync(mediaListRequest);
-                graphQLClient.Dispose();
 
-                if (response.Errors != null && response.Errors.Length > 0)
+                using (var graphQLClient = new GraphQLHttpClient(AnilistConstants.AnilistAPILink))
                 {
-                    throw new Exception(string.Join("\n", response.Errors.Select(x => x.Message)));
-                }
-                var mediaList = response.GetDataFieldAs<AniMediaList>("MediaList");
+                    var response = await graphQLClient.SendQueryAsync(mediaListRequest);
+                    if (response.Errors != null && response.Errors.Length > 0)
+                    {
+                        throw new Exception(string.Join("\n", response.Errors.Select(x => x.Message)));
+                    }
+                    var mediaList = response.GetDataFieldAs<AniMediaList>("MediaList");
 
-                return mediaList;
+                    return mediaList;
+                }
             }
             catch (Exception e)
             {

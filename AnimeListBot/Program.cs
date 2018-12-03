@@ -88,9 +88,10 @@ namespace AnimeListBot
 
         public async Task RegisterCommandsAsync()
         {
-            _client.MessageReceived += HandleCommandAsync;
+            await _commands.AddModulesAsync(Assembly.GetEntryAssembly(), _services);
 
-            await _commands.AddModulesAsync(Assembly.GetEntryAssembly());
+            _commands.CommandExecuted += OnCommandExecuted;
+            _client.MessageReceived += HandleCommandAsync;
         }
 
         public async Task RunBotAsync()
@@ -114,9 +115,13 @@ namespace AnimeListBot
                 botOwners = File.ReadAllLines("botOwners.txt");
             }
 
+            _client?.Dispose();
             _client = new DiscordSocketClient();
+
+            (_commands as IDisposable)?.Dispose();
             _commands = new CommandService();
 
+            (_services as IDisposable)?.Dispose();
             _services = new ServiceCollection()
                 .AddSingleton(_client)
                 .AddSingleton(_commands)
@@ -148,8 +153,8 @@ namespace AnimeListBot
 
         private async Task HandleCommandAsync(SocketMessage arg)
         {
-            try
-            {
+            /*try
+            {*/
                 var message = arg as SocketUserMessage;
                 if (message is null || message.Author.IsBot) return;
                 
@@ -175,22 +180,44 @@ namespace AnimeListBot
 
                     if (!result.IsSuccess)
                     {
-                        if (!result.ErrorReason.Contains("Unknown command.") && !result.ErrorReason.Contains("The input text has too few parameters."))
-                        {
-                            string errorMessage = "Command Error: " + result.ErrorReason;
-                            EmbedHandler embed = new EmbedHandler(message.Author, errorMessage);
-                            await embed.SendMessage(message.Channel);
-                            await _logger.LogError(errorMessage);
-                        }else if(!result.ErrorReason.Contains("Unknown command.") && result.ErrorReason.Contains("The input text has too few parameters."))
-                        {
-                            string commandMessage = context.Message.Content;
-                            commandMessage = commandMessage.Remove(0, botPrefix.Length);
-                        }
+                        Console.WriteLine(result.ErrorReason);
+                        //if (!result.ErrorReason.Contains("Unknown command.") && !result.ErrorReason.Contains("The input text has too few parameters."))
+                        //{
+                        //    string errorMessage = "Command Error: " + result.ErrorReason;
+                        //    EmbedHandler embed = new EmbedHandler(message.Author, errorMessage);
+                        //    await embed.SendMessage(message.Channel);
+                        //    await _logger.LogError(errorMessage);
+                        //}else if(!result.ErrorReason.Contains("Unknown command.") && result.ErrorReason.Contains("The input text has too few parameters."))
+                        //{
+                        //    string commandMessage = context.Message.Content;
+                        //    commandMessage = commandMessage.Remove(0, botPrefix.Length);
+                        //}
                     }
                 }
-            }catch(Exception e)
+            /*}catch(Exception e)
             {
                 await _logger.LogError(e);
+            }*/
+        }
+
+
+        private async Task OnCommandExecuted(Optional<CommandInfo> info, ICommandContext context, IResult result)
+        {
+            Console.WriteLine("Command Executed: " + info.GetValueOrDefault().Name);
+            if(result.Error != null)
+            {
+                if (!result.ErrorReason.Contains("Unknown command.") && !result.ErrorReason.Contains("The input text has too few parameters."))
+                {
+                    string errorMessage = "Command Error: " + result.ErrorReason;
+                    EmbedHandler embed = new EmbedHandler(context.Message.Author, errorMessage);
+                    await embed.SendMessage(context.Channel);
+                    await _logger.LogError(info.GetValueOrDefault(), context, result);
+                }
+                else if (!result.ErrorReason.Contains("Unknown command.") && result.ErrorReason.Contains("The input text has too few parameters."))
+                {
+                    string commandMessage = context.Message.Content;
+                    commandMessage = commandMessage.Remove(0, botPrefix.Length);
+                }
             }
         }
 

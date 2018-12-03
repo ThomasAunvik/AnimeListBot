@@ -130,7 +130,8 @@ namespace AnimeListBot.Handler
         public int GetMangaTotalEntries()
         {
             int totalEntries = 0;
-            anilistProfile.Stats.mangaStatusDistribution.ForEach(x => totalEntries += x.amount);
+            if(anilistProfile != null && toggleAnilist) anilistProfile.Stats.mangaStatusDistribution.ForEach(x => totalEntries += x.amount);
+
             return toggleAnilist ? totalEntries : malProfile.MangaStatistics.TotalEntries.GetValueOrDefault();
         }
 

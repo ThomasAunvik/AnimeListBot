@@ -72,16 +72,17 @@ namespace AnimeListBot.Handler.Anilist
                         name = username
                     }
                 };
-                var graphQLClient = new GraphQLHttpClient(AnilistConstants.AnilistAPILink);
-                var response = await graphQLClient.SendQueryAsync(userRequest);
-                graphQLClient.Dispose();
-
-                if (response.Errors != null && response.Errors.Length > 0)
+                using (var graphQLClient = new GraphQLHttpClient(AnilistConstants.AnilistAPILink))
                 {
-                    throw new Exception(string.Join("\n", response.Errors.Select(x => x.Message)));
+                    var response = await graphQLClient.SendQueryAsync(userRequest);
+
+                    if (response.Errors != null && response.Errors.Length > 0)
+                    {
+                        throw new Exception(string.Join("\n", response.Errors.Select(x => x.Message)));
+                    }
+                    var userType = response.GetDataFieldAs<AnilistUser>("User");
+                    return userType;
                 }
-                var userType = response.GetDataFieldAs<AnilistUser>("User");
-                return userType;
             }catch(Exception e)
             {
                 await Program._logger.LogError(e);

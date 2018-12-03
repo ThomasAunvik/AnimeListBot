@@ -59,20 +59,21 @@ namespace AnimeListBot.Handler.Anilist
                         asHtml = false
                     }
                 };
-                var graphQLClient = new GraphQLHttpClient(AnilistConstants.AnilistAPILink);
-                var response = await graphQLClient.SendQueryAsync(mediaRequest);
-                graphQLClient.Dispose();
-
-                if (response.Errors != null && response.Errors.Length > 0)
+                using (var graphQLClient = new GraphQLHttpClient(AnilistConstants.AnilistAPILink))
                 {
-                    if (response.Errors[0].Message.Contains("Not Found.")) return null;
-                    throw new Exception(string.Join("\n", response.Errors.Select(x => x.Message)));
+                    var response = await graphQLClient.SendQueryAsync(mediaRequest);
+
+                    if (response.Errors != null && response.Errors.Length > 0)
+                    {
+                        if (response.Errors[0].Message.Contains("Not Found.")) return null;
+                        throw new Exception(string.Join("\n", response.Errors.Select(x => x.Message)));
+                    }
+                    var media = response.GetDataFieldAs<AniMedia>("Media");
+
+                    media.description = media.description.Replace("<br>", "\n");
+
+                    return media;
                 }
-                var media = response.GetDataFieldAs<AniMedia>("Media");
-
-                media.description = media.description.Replace("<br>", "\n");
-
-                return media;
             }
             catch (Exception e)
             {

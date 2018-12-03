@@ -12,10 +12,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Discord.Net" Version="2.0.0-beta" />
-    <PackageReference Include="Discord.Net.Commands" Version="2.0.0-beta" />
-    <PackageReference Include="Discord.Net.Core" Version="2.0.0-beta" />
-    <PackageReference Include="Discord.Net.WebSocket" Version="2.0.0-beta" />
     <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
   </ItemGroup>
 
@@ -24,6 +20,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Discord.Net\src\Discord.Net.Commands\Discord.Net.Commands.csproj" />
+    <ProjectReference Include="..\Discord.Net\src\Discord.Net.Core\Discord.Net.Core.csproj" />
+    <ProjectReference Include="..\Discord.Net\src\Discord.Net.Rest\Discord.Net.Rest.csproj" />
+    <ProjectReference Include="..\Discord.Net\src\Discord.Net.Webhook\Discord.Net.Webhook.csproj" />
+    <ProjectReference Include="..\Discord.Net\src\Discord.Net.WebSocket\Discord.Net.WebSocket.csproj" />
     <ProjectReference Include="..\graphql-client\src\GraphQL.Client\GraphQL.Client.csproj" />
     <ProjectReference Include="..\graphql-dotnet\src\GraphQL\GraphQL.csproj" />
     <ProjectReference Include="..\jikan.net\JikanDotNet\JikanDotNet\JikanDotNet.csproj" />

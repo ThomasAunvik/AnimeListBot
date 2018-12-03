@@ -17,7 +17,12 @@ namespace AnimeListBot.Handler
 
             Title = title;
             Description = description;
-            Author = new EmbedAuthorBuilder() { Name = user.Username, IconUrl = user.GetAvatarUrl() };
+
+            if (user != null)
+            {
+                Author = new EmbedAuthorBuilder() { Name = user.Username, IconUrl = user.GetAvatarUrl() };
+            }
+
             Color = Program.embedColor;
         }
 

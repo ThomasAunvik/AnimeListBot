@@ -78,14 +78,17 @@ namespace AnimeListBot.Handler
 
         public async Task LogError(CommandInfo info, ICommandContext context, IResult result)
         {
-            ExecuteResult execute = (ExecuteResult)result;
-            Exception e = execute.Exception;
+            if(result is ExecuteResult)
+            {
+                ExecuteResult executeResult = (ExecuteResult)result;
+                Exception e = executeResult.Exception;
 
-            EmbedHandler embed = new EmbedHandler(context.User, "Command Exception");
-            embed.AddField("Command Used", context.Message);
-            embed.AddField("Exception Message", e.Message);
-            embed.AddField("Stacktrace", TrancuateStacktrace(e.StackTrace));
-            await LogError(e, embed);
+                EmbedHandler embed = new EmbedHandler(context.User, "Command Exception");
+                embed.AddField("Command Used", context.Message);
+                embed.AddField("Exception Message", e.Message);
+                embed.AddField("Stacktrace", TrancuateStacktrace(e.StackTrace));
+                await LogError(e, embed);
+            }
         }
 
         public string TrancuateStacktrace(string input)

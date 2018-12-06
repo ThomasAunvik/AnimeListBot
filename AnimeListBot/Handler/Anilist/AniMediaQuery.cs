@@ -71,7 +71,7 @@ namespace AnimeListBot.Handler.Anilist
                     }
                     var media = response.GetDataFieldAs<AniMedia>("Media");
 
-                    media.description = media.description.Replace("<br>", "\n");
+                    media.description = media?.description?.Replace("<br>", "\n");
 
                     return media;
                 }

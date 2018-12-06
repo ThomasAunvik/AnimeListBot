@@ -29,26 +29,31 @@ namespace AnimeListBot.Modules
                 return;
             }
 
-            var result = _service.Search(Context, command);
+            EmbedHandler embed = GetCommandHelp(command, Context);
+            await ReplyAsync("", false, embed.Build());
+        }
+
+        public static EmbedHandler GetCommandHelp(string command, ICommandContext context)
+        {
+            var result = Program._commands.Search(context, command);
+
+            var builder = new EmbedHandler(context.User, $"Command: **{command}**");
 
             if (!result.IsSuccess)
             {
-                await ReplyAsync($"Sorry, couldn't find a command like **{command}**.");
-                return;
+                builder.Title = $"Sorry, couldn't find a command like {command}.";
+                builder.Description = "";
+                return builder;
             }
 
-            var builder = new EmbedBuilder()
-            {
-                Color = Program.embedColor,
-                Title = $"Command: **{command}**",
-                Description = $"{result.Commands.FirstOrDefault().Command.Summary}"
-            };
+            builder.Description = result.Commands.FirstOrDefault().Command.Summary;
 
-            bool isOwner = Program.botOwners.ToList().Exists(x => x == Context.User.Id.ToString());
+            bool isOwner = Program.botOwners.ToList().Exists(x => x == context.User.Id.ToString());
 
             foreach (var match in result.Commands)
             {
                 var cmd = match.Command;
+                if (cmd.Name == typeof(Administrator).Name && !Program.botOwners.Contains(context.User.Id.ToString())) continue;
 
                 builder.AddField(x =>
                 {
@@ -58,8 +63,12 @@ namespace AnimeListBot.Modules
                     x.IsInline = false;
                 });
             }
-
-            await ReplyAsync("", false, builder.Build());
+            if (builder.Fields.Count <= 0)
+            {
+                builder.Title = $"Sorry, couldn't find a command like {command}.";
+                builder.Description = "";
+            }
+            return builder;
         }
 
         [Command("contact")]

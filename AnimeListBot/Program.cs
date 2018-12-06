@@ -186,19 +186,27 @@ namespace AnimeListBot
 
         private async Task OnCommandExecuted(Optional<CommandInfo> info, ICommandContext context, IResult result)
         {
-            if(result.Error != null)
+            if(result.Error.HasValue)
             {
-                if (!result.ErrorReason.Contains("Unknown command.") && !result.ErrorReason.Contains("The input text has too few parameters."))
+                if (result is ExecuteResult)
                 {
                     string errorMessage = "Command Error: " + result.ErrorReason;
                     EmbedHandler embed = new EmbedHandler(context.Message.Author, errorMessage);
                     await embed.SendMessage(context.Channel);
                     await _logger.LogError(info.GetValueOrDefault(), context, result);
                 }
-                else if (!result.ErrorReason.Contains("Unknown command.") && result.ErrorReason.Contains("The input text has too few parameters."))
+
+                if(result is ParseResult)
                 {
-                    string commandMessage = context.Message.Content;
-                    commandMessage = commandMessage.Remove(0, botPrefix.Length);
+                    ParseResult parseResult = (ParseResult)result;
+                    if (!parseResult.IsSuccess)
+                    {
+                        string message = context.Message.Content;
+                        message = message.Remove(0, botPrefix.Length);
+                        message = message.Split(" ")[0];
+                        EmbedHandler embed = HelpModule.GetCommandHelp(message, context);
+                        await embed.SendMessage(context.Channel);
+                    }
                 }
             }
         }

@@ -44,19 +44,11 @@ namespace AnimeListBot.Modules
                 {
                     TraceDoc doc = result.docs[0];
 
-                    decimal atValue = doc.at.GetValueOrDefault();
-                    string atString = string.Empty;
-                    if(atValue != 0)
-                    {
-                        atString = decimal.Round(atValue / (decimal)60, 2).ToString().Replace(",", ":");
-                    }
+                    double atValue = (double)doc.at.GetValueOrDefault();
+                    double toValue = (double)doc.to.GetValueOrDefault();
 
-                    decimal toValue = doc.to.GetValueOrDefault();
-                    string toString = string.Empty;
-                    if (atValue != 0)
-                    {
-                        toString = decimal.Round(toValue / (decimal)60, 2).ToString().Replace(",", ":");
-                    }
+                    TimeSpan atTime = TimeSpan.FromSeconds(atValue);
+                    TimeSpan toTime = TimeSpan.FromSeconds(toValue);
 
                     embed.Title = "";
                     embed.AddField(
@@ -65,8 +57,8 @@ namespace AnimeListBot.Modules
                         "Native Title: " + doc.title_native + "\n" +
 
                         "Episode: " + doc.episode + "\n" +
-                        "At: " + atString + "\n" +
-                        (atString == toString ? "" :("To: " + toString + "\n")) +
+                        "At: " + atTime.Minutes + ":" + atTime.Seconds + "\n" +
+                        (atValue == toValue ? "" :("To: " + toTime.Minutes + ":" + toTime.Seconds + "\n")) +
                         "Similarity: " + doc.similarity + "\n" +
                         
                         "MAL Id: " + doc.mal_id + "\n" +

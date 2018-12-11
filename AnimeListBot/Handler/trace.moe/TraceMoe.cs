@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using System.Net.Http;
 using System.Net;
 using System.IO;
-using System.Drawing;
 using AnimeListBot.Handler.trace.moe.Objects;
 using Newtonsoft.Json;
 
@@ -50,8 +49,7 @@ namespace AnimeListBot.Handler.trace.moe
             {
                 return (false, "Failed to load image.", null);
             }
-
-
+            
             string base64image = Convert.ToBase64String(imgData);
 
             HttpClient httpClient = Program.httpClient;

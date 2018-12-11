@@ -57,8 +57,8 @@ namespace AnimeListBot.Modules
                         "Native Title: " + doc.title_native + "\n" +
 
                         "Episode: " + doc.episode + "\n" +
-                        "At: " + atTime.Minutes + ":" + atTime.Seconds + "\n" +
-                        (atValue == toValue ? "" :("To: " + toTime.Minutes + ":" + toTime.Seconds + "\n")) +
+                        "At: " + GetTraceTime(atTime) + "\n" +
+                        (atValue == toValue ? "" :("To: " + GetTraceTime(atTime) + "\n")) +
                         "Similarity: " + doc.similarity + "\n" +
                         
                         "MAL Id: " + doc.mal_id + "\n" +
@@ -71,6 +71,11 @@ namespace AnimeListBot.Modules
                 embed.Title = response.Item2;
             }
             await embed.UpdateEmbed();
+        }
+
+        public static string GetTraceTime(TimeSpan time)
+        {
+            return (time.Hours == 0 ? "" : time.Hours + ":") + time.Minutes + ":" + time.Seconds;
         }
     }
 }

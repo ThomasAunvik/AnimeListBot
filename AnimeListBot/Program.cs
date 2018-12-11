@@ -14,6 +14,7 @@ using JikanDotNet;
 using AnimeListBot.Handler;
 using AnimeListBot.Modules;
 using System.Threading;
+using System.Net.Http;
 
 namespace AnimeListBot
 {
@@ -33,6 +34,8 @@ namespace AnimeListBot
         public static Logger _logger;
 
         public static IJikan _jikan;
+
+        public static readonly HttpClient httpClient = new HttpClient();
 
         public static List<DiscordServer> discordServers;
         public static List<GlobalUser> globalUsers;

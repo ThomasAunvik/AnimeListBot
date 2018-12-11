@@ -16,7 +16,7 @@ namespace AnimeListBot.Handler
             catch(Exception)
             {
                 IGuild guild = Program._client.GetGuild(((IGuildUser)message.Author).Guild.Id);
-                await Program._logger.LogError("Bot does not have permission to delete message in server: (" + guild.Id + ", " + guild.Name + ")");
+                await Program._logger.Log("Bot does not have permission to delete message in server: (" + guild.Id + ", " + guild.Name + ")");
                 return;
             }
         }

@@ -44,8 +44,8 @@ namespace AnimeListBot.Modules
                 {
                     TraceDoc doc = result.docs[0];
 
-                    double atValue = (double)doc.at.GetValueOrDefault();
-                    double toValue = (double)doc.to.GetValueOrDefault();
+                    double atValue = Math.Round((double)doc.at.GetValueOrDefault());
+                    double toValue = Math.Round((double)doc.to.GetValueOrDefault());
 
                     TimeSpan atTime = TimeSpan.FromSeconds(atValue);
                     TimeSpan toTime = TimeSpan.FromSeconds(toValue);
@@ -58,7 +58,7 @@ namespace AnimeListBot.Modules
 
                         "Episode: " + doc.episode + "\n" +
                         "At: " + GetTraceTime(atTime) + "\n" +
-                        (atValue == toValue ? "" :("To: " + GetTraceTime(atTime) + "\n")) +
+                        (atTime.TotalSeconds == toTime.TotalSeconds ? "" :("To: " + GetTraceTime(atTime) + "\n")) +
                         "Similarity: " + doc.similarity + "\n" +
                         
                         "MAL Id: " + doc.mal_id + "\n" +

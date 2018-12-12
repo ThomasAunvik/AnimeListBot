@@ -7,6 +7,7 @@ using System.Net;
 using System.IO;
 using AnimeListBot.Handler.trace.moe.Objects;
 using Newtonsoft.Json;
+using System.Text.RegularExpressions;
 
 namespace AnimeListBot.Handler.trace.moe
 {
@@ -14,7 +15,7 @@ namespace AnimeListBot.Handler.trace.moe
     {
         public const string API_LINK = "https://trace.moe/api/";
 
-        public static async Task<(bool, string, ITraceResult)> Search(Uri link)
+        public static async Task<ITraceResult> Search(Uri link)
         {
             byte[] buffer = new byte[1024];
             byte[] imgData;
@@ -47,7 +48,11 @@ namespace AnimeListBot.Handler.trace.moe
 
             if(imgData.Length <= 0)
             {
-                return (false, "Failed to load image.", null);
+                return new TraceResult()
+                {
+                    failed = true,
+                    errorMessage = "Failed to load image."
+                };
             }
             
             string base64image = Convert.ToBase64String(imgData);
@@ -64,23 +69,57 @@ namespace AnimeListBot.Handler.trace.moe
                 var response = await httpClient.PostAsync(API_LINK + "search", content);
                 var responseString = await response.Content.ReadAsStringAsync();
 
+                string errorMessage = Regex.Match(responseString, @"\<title\b[^>]*\>\s*(?<Title>[\s\S]*?)\</title\>", RegexOptions.IgnoreCase).Groups["Title"].Value;
+                string errorDescription = string.Empty;
+
+                if (errorMessage == string.Empty && response.StatusCode != HttpStatusCode.OK)
+                {
+                    errorMessage = response.ReasonPhrase;
+                    errorDescription = responseString;
+                }
+
+                if(errorMessage != string.Empty)
+                {
+                    if (response.StatusCode == HttpStatusCode.RequestEntityTooLarge)
+                    {
+                        errorDescription = "Please use an image that is less than 1MB"; 
+                    }
+
+                    return new TraceResult()
+                    {
+                        failed = true,
+                        errorMessage = errorMessage,
+                        errorDescription = errorDescription
+                    };
+                }
+
                 try
                 {
-                    TraceResult result = JsonConvert.DeserializeObject<TraceResult>(responseString);
+                    TraceImage result = JsonConvert.DeserializeObject<TraceImage>(responseString);
                     if (result != null)
                     {
-                        return (true, responseString, result);
+                        return new TraceResult()
+                        {
+                            trace = result
+                        };
                     }
                     else
                     {
-                        return (false, "Failed to load.", null);
+                        return new TraceResult()
+                        {
+                            failed = true,
+                            errorMessage = errorMessage != string.Empty ? errorMessage : "Failed to load trace data."
+                        };
                     }
                 }
                 catch(Exception e)
                 {
-                    Console.WriteLine(responseString);
                     await Program._logger.LogError(e);
-                    return (false, e.Message, null);
+                    return new TraceResult()
+                    {
+                        failed = true,
+                        errorMessage = e.Message
+                    };
                 }
             }
         }

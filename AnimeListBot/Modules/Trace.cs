@@ -19,7 +19,7 @@ namespace AnimeListBot.Modules
             Uri imgLink = null;
             if (!Uri.TryCreate(url, UriKind.Absolute, out imgLink))
             {
-                embed.Title = "URL is invalid.";
+                embed.Title = "Invalid URL";
                 await embed.SendMessage(Context.Channel);
                 return;
             }
@@ -29,20 +29,13 @@ namespace AnimeListBot.Modules
 
             await PermissionWrapper.DeleteMessage(Context.Message);
 
-            (bool, string, ITraceResult) response = await TraceMoe.Search(imgLink);
-            if (response.Item1)
+            ITraceResult response = await TraceMoe.Search(imgLink);
+            if (!response.failed)
             {
-                ITraceResult result = response.Item3;
-                if(result == null)
+                ITraceImage trace = response.trace;
+                if(trace.docs.Count > 0)
                 {
-                    embed.Title = "Failed to load.";
-                    await embed.UpdateEmbed();
-                    return;
-                }
-
-                if(result.docs.Count > 0)
-                {
-                    TraceDoc doc = result.docs[0];
+                    TraceDoc doc = trace.docs[0];
 
                     double atValue = Math.Round((double)doc.at.GetValueOrDefault());
                     double toValue = Math.Round((double)doc.to.GetValueOrDefault());
@@ -68,7 +61,8 @@ namespace AnimeListBot.Modules
             }
             else
             {
-                embed.Title = response.Item2;
+                embed.Title = response.errorMessage;
+                embed.Description = response.errorDescription;
             }
             await embed.UpdateEmbed();
         }

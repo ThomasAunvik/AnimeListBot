@@ -6,17 +6,10 @@ namespace AnimeListBot.Handler.trace.moe.Objects
 {
     public interface ITraceResult
     {
-        long RawDocsCount { get; }
-        long RawDocsSearchTime { get; }
-        long ReRankSearchTIme { get; }
-        bool CacheHit { get; }
-        int trial { get; }
+        ITraceImage trace { get; }
 
-        List<TraceDoc> docs { get; }
-
-        int limit { get; }
-        int limit_ttl { get; }
-        int quota { get; }
-        int quata_ttl { get; }
+        bool failed { get; }
+        string errorMessage { get; }
+        string errorDescription { get; }
     }
 }

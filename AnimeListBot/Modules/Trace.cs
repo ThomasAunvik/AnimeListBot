@@ -30,8 +30,6 @@ namespace AnimeListBot.Modules
             embed.ThumbnailUrl = imgLink.AbsoluteUri;
             await embed.SendMessage(Context.Channel);
 
-            await PermissionWrapper.DeleteMessage(Context.Message);
-
             ITraceResult response = await TraceMoe.Search(imgLink);
             if (!response.failed)
             {
@@ -74,6 +72,7 @@ namespace AnimeListBot.Modules
                 embed.Description = response.errorDescription;
             }
             await embed.UpdateEmbed();
+            await PermissionWrapper.DeleteMessage(Context.Message);
         }
 
         [Command("trace")]

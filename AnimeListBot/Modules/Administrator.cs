@@ -37,13 +37,7 @@ namespace AnimeListBot.Modules
             {
                 embed.Title = "Sent fake error.";
                 await embed.SendMessage(Context.Channel);
-                try
-                {
-                    throw new Exception("Fake Error: " + message);
-                }catch(Exception e)
-                {
-                    await Program._logger.LogError(e);
-                }
+                throw new Exception(message);
             }
             else
             {

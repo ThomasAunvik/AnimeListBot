@@ -20,48 +20,58 @@ namespace AnimeListBot.Handler.trace.moe
             byte[] buffer = new byte[1024];
             byte[] imgData;
 
-            WebRequest req = WebRequest.Create(link);
-            WebResponse imgResponse = await req.GetResponseAsync();
-
-            if (!imgResponse.ContentType.StartsWith("image/"))
+            try
             {
-                return new TraceResult()
-                {
-                    failed = true,
-                    errorMessage = "File/Link is not an image."
-                };
-            }
+                WebRequest req = WebRequest.Create(link);
+                WebResponse imgResponse = await req.GetResponseAsync();
 
-            using (Stream imgStream = imgResponse.GetResponseStream())
-            {
-                using (MemoryStream memStream = new MemoryStream())
+                if (!imgResponse.ContentType.StartsWith("image/"))
                 {
-                    while (true)
+                    return new TraceResult()
                     {
-                        int bytesRead = imgStream.Read(buffer, 0, buffer.Length);
-
-                        if (bytesRead == 0)
-                        {
-                            break;
-                        }
-                        else
-                        {
-                            memStream.Write(buffer, 0, bytesRead);
-                        }
-                    }
-                    imgData = memStream.ToArray();
-
-                    imgStream.Close();
-                    memStream.Close();
+                        failed = true,
+                        errorMessage = "File/Link is not an image."
+                    };
                 }
-            }
 
-            if(imgData.Length <= 0)
+                using (Stream imgStream = imgResponse.GetResponseStream())
+                {
+                    using (MemoryStream memStream = new MemoryStream())
+                    {
+                        while (true)
+                        {
+                            int bytesRead = imgStream.Read(buffer, 0, buffer.Length);
+
+                            if (bytesRead == 0)
+                            {
+                                break;
+                            }
+                            else
+                            {
+                                memStream.Write(buffer, 0, bytesRead);
+                            }
+                        }
+                        imgData = memStream.ToArray();
+
+                        imgStream.Close();
+                        memStream.Close();
+                    }
+                }
+
+                if (imgData.Length <= 0)
+                {
+                    return new TraceResult()
+                    {
+                        failed = true,
+                        errorMessage = "Failed to load data."
+                    };
+                }
+            }catch(Exception e)
             {
                 return new TraceResult()
                 {
                     failed = true,
-                    errorMessage = "Failed to load data."
+                    errorMessage = e.Message
                 };
             }
             

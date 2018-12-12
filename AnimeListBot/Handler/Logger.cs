@@ -72,6 +72,7 @@ namespace AnimeListBot.Handler
         {
             EmbedHandler embed = new EmbedHandler(user, "Exception");
             embed.AddField("Exception Message", exception.Message);
+            embed.AddField("Type", exception.GetType().FullName);
             embed.AddField("Stacktrace", TrancuateStacktrace(exception.StackTrace));
             await LogError(exception, embed);
         }
@@ -86,6 +87,7 @@ namespace AnimeListBot.Handler
                 EmbedHandler embed = new EmbedHandler(context.User, "Command Exception");
                 embed.AddField("Command Used", context.Message);
                 embed.AddField("Exception Message", e.Message);
+                embed.AddField("Type", e.GetType().FullName);
                 embed.AddField("Stacktrace", TrancuateStacktrace(e.StackTrace));
                 await LogError(e, embed);
             }

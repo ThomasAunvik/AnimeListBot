@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27004.2006
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.28407.52
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AnimeListBot", "AnimeListBot\AnimeListBot.csproj", "{4034F5FB-54BD-42C3-8BED-EA803A439987}"
 EndProject
@@ -12,16 +12,6 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GraphQL", "graphql-dotnet\src\GraphQL\GraphQL.csproj", "{08E89C1F-D305-4A00-8FC2-423BEDD2045F}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GraphQL.Common", "graphql-client\src\GraphQL.Common\GraphQL.Common.csproj", "{9629E912-5EAA-4555-9EBF-6D60D133E934}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Discord.Net.Core", "Discord.Net\src\Discord.Net.Core\Discord.Net.Core.csproj", "{65B76FF2-8D07-48DC-AC5D-B5E95A4BF11F}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Discord.Net.Commands", "Discord.Net\src\Discord.Net.Commands\Discord.Net.Commands.csproj", "{58A2F308-0F76-4131-83C3-2B2BDCBE99B6}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Discord.Net.WebSocket", "Discord.Net\src\Discord.Net.WebSocket\Discord.Net.WebSocket.csproj", "{489D97BB-26B8-4511-A121-4F97ACC631A8}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Discord.Net.Rest", "Discord.Net\src\Discord.Net.Rest\Discord.Net.Rest.csproj", "{DA56FFD2-100B-42B3-A453-9A9CC1F39BBC}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Discord.Net.Webhook", "Discord.Net\src\Discord.Net.Webhook\Discord.Net.Webhook.csproj", "{AFEED933-0754-40F4-8AC4-EB7D2E5FCEA5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -49,26 +39,6 @@ Global
 		{9629E912-5EAA-4555-9EBF-6D60D133E934}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9629E912-5EAA-4555-9EBF-6D60D133E934}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9629E912-5EAA-4555-9EBF-6D60D133E934}.Release|Any CPU.Build.0 = Release|Any CPU
-		{65B76FF2-8D07-48DC-AC5D-B5E95A4BF11F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{65B76FF2-8D07-48DC-AC5D-B5E95A4BF11F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{65B76FF2-8D07-48DC-AC5D-B5E95A4BF11F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{65B76FF2-8D07-48DC-AC5D-B5E95A4BF11F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{58A2F308-0F76-4131-83C3-2B2BDCBE99B6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{58A2F308-0F76-4131-83C3-2B2BDCBE99B6}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{58A2F308-0F76-4131-83C3-2B2BDCBE99B6}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{58A2F308-0F76-4131-83C3-2B2BDCBE99B6}.Release|Any CPU.Build.0 = Release|Any CPU
-		{489D97BB-26B8-4511-A121-4F97ACC631A8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{489D97BB-26B8-4511-A121-4F97ACC631A8}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{489D97BB-26B8-4511-A121-4F97ACC631A8}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{489D97BB-26B8-4511-A121-4F97ACC631A8}.Release|Any CPU.Build.0 = Release|Any CPU
-		{DA56FFD2-100B-42B3-A453-9A9CC1F39BBC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{DA56FFD2-100B-42B3-A453-9A9CC1F39BBC}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{DA56FFD2-100B-42B3-A453-9A9CC1F39BBC}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{DA56FFD2-100B-42B3-A453-9A9CC1F39BBC}.Release|Any CPU.Build.0 = Release|Any CPU
-		{AFEED933-0754-40F4-8AC4-EB7D2E5FCEA5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{AFEED933-0754-40F4-8AC4-EB7D2E5FCEA5}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{AFEED933-0754-40F4-8AC4-EB7D2E5FCEA5}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{AFEED933-0754-40F4-8AC4-EB7D2E5FCEA5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

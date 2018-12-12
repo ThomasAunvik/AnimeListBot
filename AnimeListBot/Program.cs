@@ -189,27 +189,28 @@ namespace AnimeListBot
 
         private async Task OnCommandExecuted(Optional<CommandInfo> info, ICommandContext context, IResult result)
         {
-            if(result.Error.HasValue)
+            if (result is ExecuteResult)
             {
-                if (result is ExecuteResult)
+                ExecuteResult executeResult = (ExecuteResult)result;
+                if (executeResult.Exception != null)
                 {
                     string errorMessage = "Command Error: " + result.ErrorReason;
                     EmbedHandler embed = new EmbedHandler(context.Message.Author, errorMessage);
                     await embed.SendMessage(context.Channel);
                     await _logger.LogError(info.GetValueOrDefault(), context, result);
                 }
+            }
 
-                if(result is ParseResult)
+            if(result is ParseResult)
+            {
+                ParseResult parseResult = (ParseResult)result;
+                if (!parseResult.IsSuccess)
                 {
-                    ParseResult parseResult = (ParseResult)result;
-                    if (!parseResult.IsSuccess)
-                    {
-                        string message = context.Message.Content;
-                        message = message.Remove(0, botPrefix.Length);
-                        message = message.Split(" ")[0];
-                        EmbedHandler embed = HelpModule.GetCommandHelp(message, context);
-                        await embed.SendMessage(context.Channel);
-                    }
+                    string message = context.Message.Content;
+                    message = message.Remove(0, botPrefix.Length);
+                    message = message.Split(" ")[0];
+                    EmbedHandler embed = HelpModule.GetCommandHelp(message, context);
+                    await embed.SendMessage(context.Channel);
                 }
             }
         }

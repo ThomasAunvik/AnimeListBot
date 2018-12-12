@@ -8,6 +8,3 @@
 [submodule "graphql-dotnet"]
 	path = graphql-dotnet
 	url = https://github.com/graphql-dotnet/graphql-dotnet
-[submodule "Discord.Net"]
-	path = Discord.Net
-	url = git@github.com:RogueException/Discord.Net.git

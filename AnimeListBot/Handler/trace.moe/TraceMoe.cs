@@ -22,6 +22,16 @@ namespace AnimeListBot.Handler.trace.moe
 
             WebRequest req = WebRequest.Create(link);
             WebResponse imgResponse = await req.GetResponseAsync();
+
+            if (!imgResponse.ContentType.StartsWith("image/"))
+            {
+                return new TraceResult()
+                {
+                    failed = true,
+                    errorMessage = "File/Link is not an image."
+                };
+            }
+
             using (Stream imgStream = imgResponse.GetResponseStream())
             {
                 using (MemoryStream memStream = new MemoryStream())
@@ -51,7 +61,7 @@ namespace AnimeListBot.Handler.trace.moe
                 return new TraceResult()
                 {
                     failed = true,
-                    errorMessage = "Failed to load image."
+                    errorMessage = "Failed to load data."
                 };
             }
             

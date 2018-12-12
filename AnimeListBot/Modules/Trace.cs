@@ -1,17 +1,20 @@
 ﻿using AnimeListBot.Handler;
 using AnimeListBot.Handler.trace.moe;
 using AnimeListBot.Handler.trace.moe.Objects;
+using Discord;
 using Discord.Commands;
 using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace AnimeListBot.Modules
 {
     public class Trace : ModuleBase<ICommandContext>
     {
         [Command("trace")]
+        [Summary("Traces an image by link")]
         public async Task TraceImage(string url)
         {
             EmbedHandler embed = new EmbedHandler(Context.User, "Tracing Image...");
@@ -33,9 +36,11 @@ namespace AnimeListBot.Modules
             if (!response.failed)
             {
                 ITraceImage trace = response.trace;
-                if(trace.docs.Count > 0)
+                List<TraceDoc> validDocs = trace.docs.Where(x => x.similarity > (decimal)0.85).ToList();
+
+                if(validDocs.Count > 0)
                 {
-                    TraceDoc doc = trace.docs[0];
+                    TraceDoc doc = validDocs[0];
 
                     double atValue = Math.Round((double)doc.at.GetValueOrDefault());
                     double toValue = Math.Round((double)doc.to.GetValueOrDefault());
@@ -58,6 +63,10 @@ namespace AnimeListBot.Modules
                         "Anilist Id: " + doc.anilist_id + "\n"
                     );
                 }
+                else
+                {
+                    embed.Title = "None Found";
+                }
             }
             else
             {
@@ -65,6 +74,23 @@ namespace AnimeListBot.Modules
                 embed.Description = response.errorDescription;
             }
             await embed.UpdateEmbed();
+        }
+
+        [Command("trace")]
+        [Summary("Traces an image by uploading an image as an attachment while you do this command.")]
+        public async Task TraceImage()
+        {
+            var attachements = Context.Message.Attachments;
+            if(attachements.Count > 0)
+            {
+                IAttachment attachment = attachements.ElementAt(0);
+                await TraceImage(attachment.Url);
+            }
+            else
+            {
+                EmbedHandler embed = HelpModule.GetCommandHelp("trace", Context);
+                await embed.SendMessage(Context.Channel);
+            }
         }
 
         public static string GetTraceTime(TimeSpan time)

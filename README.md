@@ -105,7 +105,6 @@ Thanks to these who made these libraries, and made this bot possible.
 
 [Ervie/jikan.net](https://github.com/Ervie/jikan.net)
 
-
 [graphql-dotnet/graphql-client](https://github.com/graphql-dotnet/graphql-client)
 
 [JamesNK/Newtonsoft.Json](https://github.com/JamesNK/Newtonsoft.Json)

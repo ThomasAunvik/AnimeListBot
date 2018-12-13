@@ -102,7 +102,10 @@ Extra Info: As a bot owner, you get to have the exlusive right to be able to get
 Thanks to these who made these libraries, and made this bot possible.
 
 [RogueException/Discord.Net](https://github.com/RogueException/Discord.Net)
+
 [Ervie/jikan.net](https://github.com/Ervie/jikan.net)
 
+
 [graphql-dotnet/graphql-client](https://github.com/graphql-dotnet/graphql-client)
+
 [JamesNK/Newtonsoft.Json](https://github.com/JamesNK/Newtonsoft.Json)

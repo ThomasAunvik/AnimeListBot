@@ -1,5 +1,6 @@
 # AnimeList Bot [![CodeFactor](https://www.codefactor.io/repository/github/thomasaunvik/animelistbot/badge)](https://www.codefactor.io/repository/github/thomasaunvik/animelistbot)
-This bot is made in C#, and is built in dotnet core.
+This bot is made in [
+RogueException/Discord.Net](https://github.com/RogueException/Discord.Net) C#, and is built in dotnet core.
 
 You can invite my bot to your discord server by clicking: [here](https://discordapp.com/api/oauth2/authorize?client_id=377558188826034216&permissions=0&scope=bot)!
 
@@ -45,6 +46,13 @@ Ranks in this bot are setup this way if you have enough days you gain a role.
 
 `.manga` Searches for mang afrom your animelist (MAL/Anilist), and also shows your statistics of that manga if you have registered it.
 
+## Trace
+
+Thanks to [soruly/trace.moe](https://github.com/soruly/trace.moe/)!
+
+`.trace <image-link>` searches that image for what anime that image is from.
+
+`.trace (with image as attachment)` same as above, but you have to upload the image as attachment while you do the command.
 
 ## AutoAdder
 
@@ -88,3 +96,15 @@ Extra Info: As a bot owner, you get to have the exlusive right to be able to get
 4. Rename `botToken_template.txt` to `botToken.txt`
 5. In Visual Studio 2017, publish the app from the Build toolbar.
 6. Run command `dotnet AnimeListBot.dll` in `repo\AnimeListBot\bin\Debug\netcoreapp2.0`
+
+# Libs and API's
+
+Thanks to these who made these libraries, and made this bot possible.
+
+[RogueException/Discord.Net](https://github.com/RogueException/Discord.Net)
+
+[Ervie/jikan.net](https://github.com/Ervie/jikan.net)
+
+[graphql-dotnet/graphql-client](https://github.com/graphql-dotnet/graphql-client)
+
+[JamesNK/Newtonsoft.Json](https://github.com/JamesNK/Newtonsoft.Json)

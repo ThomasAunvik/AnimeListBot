@@ -123,7 +123,7 @@ namespace AnimeListBot.Modules
                     if (profile != null)
                     {
                         user.MAL_Username = usernamePart;
-                        user.toggleAnilist = false;
+                        user.animeList = GlobalUser.AnimeList.MAL;
                         await user.UpdateMALInfo();
                     }
                 }
@@ -133,7 +133,7 @@ namespace AnimeListBot.Modules
                     if (profile != null)
                     {
                         user.Anilist_Username = usernamePart;
-                        user.toggleAnilist = true;
+                        user.animeList = GlobalUser.AnimeList.Anilist;
                         await user.UpdateAnilistInfo();
                     }
                 }

@@ -101,7 +101,7 @@ namespace AnimeListBot.Modules
             }
             await embed.UpdateEmbed();
             await user.UpdateMALInfo();
-            user.toggleAnilist = false;
+            user.animeList = GlobalUser.AnimeList.MAL;
             user.SaveData();
         }
 
@@ -137,7 +137,7 @@ namespace AnimeListBot.Modules
             }
             await embed.UpdateEmbed();
             await user.UpdateAnilistInfo();
-            user.toggleAnilist = true;
+            user.animeList = GlobalUser.AnimeList.Anilist;
             user.SaveData();
         }
 
@@ -163,7 +163,7 @@ namespace AnimeListBot.Modules
                     return;
                 }
 
-                user.toggleAnilist = false;
+                user.animeList = GlobalUser.AnimeList.MAL;
                 embed.Title = "List set to MAL";
             }
             else if(option == "ani" || option == "anilist")
@@ -174,7 +174,7 @@ namespace AnimeListBot.Modules
                     embed.Title = "There is no Anilist profile set";
                     return;
                 }
-                user.toggleAnilist = true;
+                user.animeList = GlobalUser.AnimeList.Anilist;
                 embed.Title = "List set to Anilist";
             }
             else
@@ -205,8 +205,7 @@ namespace AnimeListBot.Modules
 
             if (gUser != null && !string.IsNullOrWhiteSpace(gUser.GetAnimelistUsername()))
             {
-                if(!gUser.toggleAnilist) await gUser.UpdateMALInfo();
-                else await gUser.UpdateAnilistInfo();
+                await gUser.UpdateCurrentAnimelist();
 
                 embed.ThumbnailUrl = gUser.GetAnimelistThumbnail();
                 embed.Url = gUser.GetAnimelistLink();

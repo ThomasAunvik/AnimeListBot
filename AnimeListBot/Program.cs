@@ -186,7 +186,6 @@ namespace AnimeListBot
             }
         }
 
-
         private async Task OnCommandExecuted(Optional<CommandInfo> info, ICommandContext context, IResult result)
         {
             if (result is ExecuteResult)

@@ -196,9 +196,8 @@ namespace AnimeListBot.Modules
         public static async Task UpdateUserRole(DiscordServer server, ServerUser sUser, GlobalUser gUser, EmbedBuilder embed)
         {
             // CALCULATING USER INFO
-
-            if (!gUser.toggleAnilist) await gUser.UpdateMALInfo();
-            else await gUser.UpdateAnilistInfo();
+            
+            await gUser.UpdateCurrentAnimelist();
 
             // ANIME
             decimal? animeDays = gUser.GetAnimeWatchDays();

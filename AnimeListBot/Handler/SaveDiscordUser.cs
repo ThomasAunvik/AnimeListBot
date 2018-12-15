@@ -10,7 +10,8 @@ namespace AnimeListBot.Handler
         public string Username;
         public ulong UserID;
 
-        public bool toggleAnilist = false;
+        public bool toggleAnilist; // TODO: Remove after upgrade
+        public GlobalUser.AnimeList animeList;
 
         public string MAL_Username;
         public string Anilist_Username;
@@ -32,7 +33,7 @@ namespace AnimeListBot.Handler
                 UserID = user.userID;
                 Username = user.Username;
 
-                toggleAnilist = user.toggleAnilist;
+                animeList = user.animeList;
 
                 MAL_Username = user.MAL_Username;
                 Anilist_Username = user.Anilist_Username; 

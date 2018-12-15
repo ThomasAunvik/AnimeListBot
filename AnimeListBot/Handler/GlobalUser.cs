@@ -250,7 +250,7 @@ namespace AnimeListBot.Handler
                 case AnimeList.MAL:
                     return malProfile.MangaStatistics.MeanScore.GetValueOrDefault();
                 case AnimeList.Anilist:
-                    return (anilistProfile?.Stats?.mangaListScores?.meanScore).GetValueOrDefault() / (decimal)10.0);
+                    return (anilistProfile?.Stats?.mangaListScores?.meanScore).GetValueOrDefault() / (decimal)10.0;
                 default:
                     return 0;
             }

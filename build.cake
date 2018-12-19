@@ -61,21 +61,12 @@ Task("Package")
     .IsDependentOn("Run-Tests")
     .Does(() =>
     {
-        MSBuild("src/Api/Api.csproj", settings =>
+        MSBuild("AnimeListBot/AnimeListBot.csproj", settings =>
             settings.SetConfiguration(configuration)
                 .WithProperty("TreatWarningsAsErrors", "True")
                 .SetVerbosity(Verbosity.Minimal)
                 .WithTarget("Package")
                 .WithProperty("PackageLocation", Directory("../..") + artifactsDir));
-
-        NuGetPack("./src/Client/Client.csproj", new NuGetPackSettings
-        {
-            OutputDirectory = artifactsDir,
-            Properties = new Dictionary<string, string>
-            {
-                { "Configuration", configuration }
-            }
-        });
     });
 
 Task("Default")

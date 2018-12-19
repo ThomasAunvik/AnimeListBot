@@ -19,7 +19,7 @@ switch (appVeyorBranch)
 }
 
 var artifactsDir = Directory("./artifacts");
-var solution = "./TheSolution.sln";
+var solution = "./AnimeListBot.sln";
 
 Task("Clean")
     .Does(() =>

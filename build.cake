@@ -11,7 +11,7 @@ switch (appVeyorBranch)
         configuration = "Release";
         break;
     case "development":
-        configuration = "QA";
+        configuration = "Debug";
         break;
     default:
         configuration = "Release";

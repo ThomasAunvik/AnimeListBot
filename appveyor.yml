@@ -22,6 +22,7 @@ artifacts:
     name: WebPackage
     type: WebDeployPackage
 
+deploy:
   - provider: Environment
     name: MyGet
     on:

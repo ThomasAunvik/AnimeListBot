@@ -3,7 +3,7 @@
 var target = Argument("target", "Default");
 
 string configuration;
-var appVeyorBranch = EnvironmentVariable("https://ci.appveyor.com/project/ThomasAunvik/animelistbot");
+var appVeyorBranch = EnvironmentVariable("APPVEYOR_REPO_BRANCH");
 
 switch (appVeyorBranch)
 {

@@ -57,4 +57,18 @@ Task("Run-Tests")
         });
     });
 
+Task("Package")
+    .IsDependentOn("Run-Tests")
+    .Does(() =>
+    {
+        MSBuild("AnimeListBot/AnimeListBot.csproj", settings =>
+            settings.SetConfiguration(configuration)
+                .WithProperty("TreatWarningsAsErrors", "True")
+                .SetVerbosity(Verbosity.Minimal)
+                .WithProperty("PackageLocation", Directory("../..") + artifactsDir));
+    });
+
+Task("Default")
+    .IsDependentOn("Package");
+
 RunTarget(target);

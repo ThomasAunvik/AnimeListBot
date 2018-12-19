@@ -21,7 +21,8 @@ test: off
 
 artifacts:
   - path: ./msbuild.log
-  - path: ./artifacts/*.nupkg
-  - path: ./artifacts/Api.zip
-    name: WebPackage
-    type: WebDeployPackage
+    name: Build Log
+    
+  - path: ./artifacts/AnimeListBot.zip
+    name: AnimeListBot
+    type: zip

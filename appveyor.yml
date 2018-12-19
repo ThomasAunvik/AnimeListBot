@@ -14,7 +14,7 @@ build_script:
   - ps: ./build.ps1
   
 after_build:
-  - ps: 7z a ./artifacts/AnimeListBot.zip ./AnimeListBot/bin/$(configuration)/netcoreapp2.0/*
+  7z a ./artifacts/AnimeListBot.zip ./AnimeListBot/bin/Release/netcoreapp2.0/*
   
 clone_script:
   - cmd: git clone --recursive --branch=%APPVEYOR_REPO_BRANCH% https://github.com/%APPVEYOR_REPO_NAME%.git %APPVEYOR_BUILD_FOLDER%

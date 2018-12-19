@@ -14,18 +14,20 @@ namespace AnimeListBot.Modules
 {
     public class Profile : ModuleBase<ICommandContext>
     {
-        [Command("setup"), Summary("Registers your discord account with MAL. Possible options: [mal, anilist]")]
-        public async Task SetupProfile(string option, string username)
+        [Command("setup"), Summary(
+            "Registers your discord account with MAL. Possible options: [mal, anilist]\n" +
+            "MAL = 0\n" +
+            "Anilist = 1"
+        )]
+        public async Task SetupProfile(GlobalUser.AnimeList animeList, string username)
         {
-            option = option.ToLower();
-
             EmbedHandler embed = new EmbedHandler(Context.User, "Setting up profile...");
             await embed.SendMessage(Context.Channel);
 
             Uri link = null;
             bool isValidLink = Uri.TryCreate(username, UriKind.Absolute, out link);
 
-            if(option == "mal" || option == "myanimelist")
+            if(animeList == GlobalUser.AnimeList.MAL)
             {
                 if (isValidLink && username.Contains("myanimelist.net"))
                 {
@@ -43,7 +45,7 @@ namespace AnimeListBot.Modules
 
                 await SetupMAL(profile, embed);
             }
-            else if(option == "ani" || option == "anilist")
+            else if(animeList == GlobalUser.AnimeList.Anilist)
             {
                 if (isValidLink && username.Contains("anilist.co"))
                 {
@@ -142,18 +144,20 @@ namespace AnimeListBot.Modules
         }
 
         [Command("setlist")]
-        [Summary("Chooses which anime/manga list you want to use.")]
-        public async Task SetList(string option)
+        [Summary(
+            "Chooses which anime/manga list you want to use.\n" +
+            "MAL = 0\n" +
+            "Anilist = 1"
+        )]
+        public async Task SetList(GlobalUser.AnimeList animeList)
         {
             GlobalUser user = Program.globalUsers.Find(x => x.userID == Context.User.Id);
             if (user == null) return;
 
             EmbedHandler embed = new EmbedHandler(Context.User, "Setting List...");
             await embed.SendMessage(Context.Channel);
-
-            option = option.ToLower();
             
-            if (option == "mal" || option == "myanimelist")
+            if (animeList == GlobalUser.AnimeList.MAL)
             {
                 await user.UpdateMALInfo();
                 if (user.malProfile == null)
@@ -166,7 +170,7 @@ namespace AnimeListBot.Modules
                 user.animeList = GlobalUser.AnimeList.MAL;
                 embed.Title = "List set to MAL";
             }
-            else if(option == "ani" || option == "anilist")
+            else if(animeList == GlobalUser.AnimeList.Anilist)
             {
                 await user.UpdateAnilistInfo();
                 if (user.anilistProfile == null)

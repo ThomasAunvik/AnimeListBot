@@ -74,7 +74,7 @@ namespace AnimeListBot
                     if (!user.IsBot)
                         if (globalUsers.Find(x => x.userID == user.Id) == null)
                             globalUsers.Add(new GlobalUser(user));
-
+                
                 await Ranks.UpdateUserRoles(newServer, null);
             }
         }

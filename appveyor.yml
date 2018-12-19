@@ -14,8 +14,8 @@ build_script:
   - ps: ./build.ps1
   
 clone_script:
-  - cmd: git clone -q --recursive --branch=%APPVEYOR_REPO_BRANCH% https://github.com/%APPVEYOR_REPO_NAME%.git %APPVEYOR_BUILD_FOLDER%
-  - cmd: git checkout -qf %APPVEYOR_REPO_COMMIT%
+  - cmd: git clone --recursive --branch=%APPVEYOR_REPO_BRANCH% https://github.com/%APPVEYOR_REPO_NAME%.git %APPVEYOR_BUILD_FOLDER%
+  - cmd: git checkout -f %APPVEYOR_REPO_COMMIT%
 
 test: off
 
@@ -25,9 +25,3 @@ artifacts:
   - path: ./artifacts/Api.zip
     name: WebPackage
     type: WebDeployPackage
-
-deploy:
-  - provider: Environment
-    name: MyGet
-    on:
-      branch: master

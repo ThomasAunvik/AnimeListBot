@@ -57,7 +57,4 @@ Task("Run-Tests")
         });
     });
 
-Task("Default")
-    .IsDependentOn("Package");
-
 RunTarget(target);

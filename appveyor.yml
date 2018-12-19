@@ -1,0 +1,28 @@
+image: Visual Studio 2017
+
+cache:
+  - packages -> **\packages.config, nuget.config
+  - tools -> build.cake, build.ps1
+
+install:
+  - choco install gitversion.portable -pre -y
+
+before_build:
+  - ps: gitversion $env:APPVEYOR_BUILD_FOLDER /l console /output buildserver /updateAssemblyInfo /nofetch /b $env:APPVEYOR_REPO_BRANCH
+
+build_script:
+  - ps: ./build.ps1
+
+test: off
+
+artifacts:
+  - path: ./msbuild.log
+  - path: ./artifacts/*.nupkg
+  - path: ./artifacts/Api.zip
+    name: WebPackage
+    type: WebDeployPackage
+
+  - provider: Environment
+    name: MyGet
+    on:
+      branch: master

@@ -63,9 +63,16 @@ Task("Package")
     {
         MSBuild("AnimeListBot/AnimeListBot.csproj", settings =>
             settings.SetConfiguration(configuration)
+				.WithProperty("OutDir", "../" + artifactsDir)
+				.WithProperty("DeployOnBuild", "true")
+				.WithProperty("WebPublishMethod", "FolderProfile")
+				.WithProperty("PackageAsSingleFile", "true")
+				.WithProperty("SkipInvalidConfigurations", "true")
+				
                 .WithProperty("TreatWarningsAsErrors", "True")
                 .SetVerbosity(Verbosity.Minimal)
-                .WithProperty("PackageLocation", Directory("../..") + artifactsDir));
+                .WithProperty("PackageLocation", "../" + artifactsDir)
+				);
     });
 
 Task("Default")

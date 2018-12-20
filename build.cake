@@ -40,9 +40,11 @@ Task("Build")
     {
         MSBuild(solution, settings =>
             settings.SetConfiguration(configuration)
+		.WithProperty("OutDir", "../" + artifactsDir)
                 .WithProperty("TreatWarningsAsErrors", "True")
                 .SetVerbosity(Verbosity.Minimal)
-                .AddFileLogger());
+                .AddFileLogger()
+	);
     });
 
 Task("Run-Tests")
@@ -63,16 +65,11 @@ Task("Package")
     {
         MSBuild("AnimeListBot/AnimeListBot.csproj", settings =>
             settings.SetConfiguration(configuration)
-				.WithProperty("OutDir", "../" + artifactsDir)
-				.WithProperty("DeployOnBuild", "true")
-				.WithProperty("WebPublishMethod", "FolderProfile")
-				.WithProperty("PackageAsSingleFile", "true")
-				.WithProperty("SkipInvalidConfigurations", "true")
-				
+		.WithProperty("OutDir", "../" + artifactsDir)
                 .WithProperty("TreatWarningsAsErrors", "True")
                 .SetVerbosity(Verbosity.Minimal)
                 .WithProperty("PackageLocation", "../" + artifactsDir)
-				);
+	);
     });
 
 Task("Default")

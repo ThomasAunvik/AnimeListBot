@@ -65,18 +65,21 @@ namespace AnimeListBot
         {
             globalUsers = new List<GlobalUser>();
             discordServers = new List<DiscordServer>();
-            foreach (SocketGuild guild in _client.Guilds)
+            new Thread(async () =>
             {
-                DiscordServer newServer = new DiscordServer(guild);
-                discordServers.Add(newServer);
+                foreach (SocketGuild guild in _client.Guilds)
+                {
+                    DiscordServer newServer = new DiscordServer(guild);
+                    discordServers.Add(newServer);
 
-                foreach (SocketUser user in newServer.Guild.Users)
-                    if (!user.IsBot)
-                        if (globalUsers.Find(x => x.userID == user.Id) == null)
-                            globalUsers.Add(new GlobalUser(user));
-                
-                await Ranks.UpdateUserRoles(newServer, null);
-            }
+                    foreach (SocketUser user in newServer.Guild.Users)
+                        if (!user.IsBot)
+                            if (globalUsers.Find(x => x.userID == user.Id) == null)
+                                globalUsers.Add(new GlobalUser(user));
+
+                    await Ranks.UpdateUserRoles(newServer, null);
+                }
+            }).Start();
         }
 
         public Task OnUserJoined(SocketGuildUser user)
@@ -149,6 +152,8 @@ namespace AnimeListBot
             {
                 await Task.Delay(20);
             }
+
+            await _logger.Log("Stopping Bot...");
             return;
         }
 

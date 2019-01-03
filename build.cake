@@ -38,11 +38,14 @@ Task("Build")
     .IsDependentOn("Restore-NuGet-Packages")
     .Does(() =>
     {
-        MSBuild(solution, settings =>
-            settings.SetConfiguration(configuration)
-                .WithProperty("TreatWarningsAsErrors", "True")
-                .SetVerbosity(Verbosity.Minimal)
-                .AddFileLogger());
+        var settings = new DotNetCorePublishSettings
+		{
+			Framework = "netcoreapp2.0",
+			Configuration = "Release",
+			OutputDirectory = "../" + artifactsDir
+		};
+	
+        DotNetCorePublish("AnimeListBot/AnimeListBot.csproj", settings);
     });
 
 Task("Run-Tests")
@@ -61,18 +64,14 @@ Task("Package")
     .IsDependentOn("Run-Tests")
     .Does(() =>
     {
-        MSBuild("AnimeListBot/AnimeListBot.csproj", settings =>
-            settings.SetConfiguration(configuration)
-				.WithProperty("OutDir", "../" + artifactsDir)
-				.WithProperty("DeployOnBuild", "true")
-				.WithProperty("WebPublishMethod", "FolderProfile")
-				.WithProperty("PackageAsSingleFile", "true")
-				.WithProperty("SkipInvalidConfigurations", "true")
-				
-                .WithProperty("TreatWarningsAsErrors", "True")
-                .SetVerbosity(Verbosity.Minimal)
-                .WithProperty("PackageLocation", "../" + artifactsDir)
-				);
+		var settings = new DotNetCorePublishSettings
+		{
+			Framework = "netcoreapp2.0",
+			Configuration = "Release",
+			OutputDirectory = "../" + artifactsDir
+		};
+	
+        DotNetCorePublish("AnimeListBot/AnimeListBot.csproj", settings);
     });
 
 Task("Default")

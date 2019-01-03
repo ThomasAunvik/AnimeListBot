@@ -17,6 +17,8 @@ namespace AnimeListBot.Modules
             EmbedHandler embed = new EmbedHandler(Context.User);
             if(Program.botOwners.Contains(Context.User.Id.ToString()))
             {
+                await Program._logger.Log("Stopping bot... Command run by: " + Context.User.Username);
+
                 embed.Title = "Stopping Bot.";
                 await embed.SendMessage(Context.Channel);
 

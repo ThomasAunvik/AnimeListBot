@@ -33,6 +33,19 @@ namespace AnimeListBot.Handler
             }
         }
 
+        public void ReplaceLine(int line, string text)
+        {
+            if(line < 0)
+            {
+                return;
+            }
+
+            int cursorPos = Console.CursorTop;
+            Console.SetCursorPosition(0, line);
+            Console.Write(text);
+            Console.SetCursorPosition(0, cursorPos);
+        }
+
         public async Task Log(string message)
         {
             using (StreamWriter writer = new StreamWriter(logPath, true))

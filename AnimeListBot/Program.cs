@@ -61,7 +61,7 @@ namespace AnimeListBot
             return Task.CompletedTask;
         }
 
-        public async Task OnReadyAsync()
+        public Task OnReadyAsync()
         {
             globalUsers = new List<GlobalUser>();
             discordServers = new List<DiscordServer>();
@@ -80,6 +80,7 @@ namespace AnimeListBot
                     await Ranks.UpdateUserRoles(newServer, null);
                 }
             }).Start();
+            return Task.CompletedTask;
         }
 
         public Task OnUserJoined(SocketGuildUser user)

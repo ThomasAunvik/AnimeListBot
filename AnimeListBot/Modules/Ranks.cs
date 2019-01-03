@@ -145,7 +145,7 @@ namespace AnimeListBot.Modules
 
         [Command("updateranks")]
         [RequireBotPermission(GuildPermission.ManageRoles)]
-        //[RequireUserPermission(GuildPermission.ManageRoles)]
+        [RequireUserPermission(GuildPermission.ManageRoles)]
         public Task UpdateRanks()
         {
             new Thread(async () =>

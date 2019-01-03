@@ -33,10 +33,11 @@ namespace AnimeListBot.Handler
             }
         }
 
-        public void ReplaceLine(int line, string text)
+        public async Task ReplaceLine(int line, string text)
         {
             if(line < 0)
             {
+                await Log(text);
                 return;
             }
 

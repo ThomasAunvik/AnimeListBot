@@ -301,7 +301,8 @@ namespace AnimeListBot.Modules
                 for (int j = 0; j < 10; j++)
                     if (j <= (progress / 10) - 1) newText += "=";
                     else newText += "-";
-                Program._logger.ReplaceLine(currentCursorPos - 1, updateText + newText + "] " + progress + "%");
+
+                if(currentCursorPos != 0 || (progress % 10 == 0 && progress / 10 != 0)) await Program._logger.ReplaceLine(currentCursorPos - 1, updateText + newText + "] " + progress + "%");
 
                 if (progress % 10 == 0)
                 {
@@ -312,7 +313,7 @@ namespace AnimeListBot.Modules
                     }
                 }
             }
-            Program._logger.ReplaceLine(currentCursorPos - 1, $"Finished user role update for server {server.Guild.Id}.                                  ");
+            await Program._logger.ReplaceLine(currentCursorPos - 1, $"Finished user role update for server {server.Guild.Id}.                                  ");
         }
 
         [Command("Ranks")]

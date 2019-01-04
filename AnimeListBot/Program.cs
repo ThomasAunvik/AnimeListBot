@@ -46,10 +46,21 @@ namespace AnimeListBot
 
         public static DateTime BOT_START_TIME { get; private set; }
 
-        public Task OnJoinedGuild(SocketGuild guild)
+        public async Task OnJoinedGuild(SocketGuild guild)
         {
-            discordServers.Add(new DiscordServer(guild));
-            return Task.CompletedTask;
+            DiscordServer newServer = new DiscordServer(guild);
+            discordServers.Add(newServer);
+            try
+            {
+                newServer.isUpdatingRoles = true;
+                await Ranks.UpdateUserRoles(newServer, null);
+                newServer.isUpdatingRoles = false;
+            }
+            catch (Exception e)
+            {
+                newServer.isUpdatingRoles = false;
+                await _logger.LogError(e);
+            }
         }
 
         public Task OnLeftGuild(SocketGuild guild)
@@ -85,9 +96,10 @@ namespace AnimeListBot
                         await Ranks.UpdateUserRoles(newServer, null);
                         newServer.isUpdatingRoles = false;
                     }
-                    catch (Exception)
+                    catch (Exception e)
                     {
                         newServer.isUpdatingRoles = false;
+                        await _logger.LogError(e);
                     }
                 }
             }).Start();
@@ -95,14 +107,14 @@ namespace AnimeListBot
             await Stats.LoadStats();
         }
 
-        public Task OnUserJoined(SocketGuildUser user)
+        public async Task OnUserJoined(SocketGuildUser user)
         {
             DiscordServer server = DiscordServer.GetServerFromID(user.Guild.Id);
             if (server != null)
             {
                 server.Users.Add(new ServerUser(user));
             }
-            return Task.CompletedTask;
+            await Ranks.UpdateUserRole(user, null);
         }
 
         public async Task RegisterCommandsAsync()

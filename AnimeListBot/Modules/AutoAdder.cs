@@ -113,7 +113,6 @@ namespace AnimeListBot.Modules
                 }
                 else
                 {
-                    await Program._logger.LogError("Invalid Link: \n    Message: " + message.Content + "\n    Link: " + currentLink);
                     return;
                 }
 

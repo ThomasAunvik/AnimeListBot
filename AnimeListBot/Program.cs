@@ -44,6 +44,8 @@ namespace AnimeListBot
 
         public static bool stop = false;
 
+        public static DateTime BOT_START_TIME { get; private set; }
+
         public Task OnJoinedGuild(SocketGuild guild)
         {
             discordServers.Add(new DiscordServer(guild));
@@ -61,7 +63,7 @@ namespace AnimeListBot
             return Task.CompletedTask;
         }
 
-        public Task OnReadyAsync()
+        public async Task OnReadyAsync()
         {
             globalUsers = new List<GlobalUser>();
             discordServers = new List<DiscordServer>();
@@ -80,7 +82,8 @@ namespace AnimeListBot
                     await Ranks.UpdateUserRoles(newServer, null);
                 }
             }).Start();
-            return Task.CompletedTask;
+            
+            await Stats.LoadStats();
         }
 
         public Task OnUserJoined(SocketGuildUser user)
@@ -103,6 +106,8 @@ namespace AnimeListBot
 
         public async Task RunBotAsync()
         {
+            BOT_START_TIME = DateTime.Now;
+
             _logger = new Logger();
 
             string botToken = "";
@@ -194,6 +199,8 @@ namespace AnimeListBot
 
         private async Task OnCommandExecuted(Optional<CommandInfo> info, ICommandContext context, IResult result)
         {
+            Stats.CommandUsed();
+
             if (result is ExecuteResult)
             {
                 ExecuteResult executeResult = (ExecuteResult)result;

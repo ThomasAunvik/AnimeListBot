@@ -22,6 +22,8 @@ namespace AnimeListBot.Handler
         public List<(ulong roleId, decimal days)> animeRoles = new List<(ulong roleId, decimal days)>();
         public List<(ulong roleId, decimal days)> mangaRoles = new List<(ulong roleId, decimal days)>();
 
+        public bool isUpdatingRoles = false;
+
         public DiscordServer(SocketGuild guild)
         {
             _guild = guild;

@@ -146,21 +146,37 @@ namespace AnimeListBot.Modules
         [Command("updateranks")]
         [RequireBotPermission(GuildPermission.ManageRoles)]
         [RequireUserPermission(GuildPermission.ManageRoles)]
-        public Task UpdateRanks()
+        public async Task UpdateRanks()
         {
+            EmbedHandler embed = new EmbedHandler(Context.User, "Updating user ranks on this server...");
+
+            DiscordServer server = DiscordServer.GetServerFromID(Context.Guild.Id);
+            if (server.isUpdatingRoles)
+            {
+                embed.Title = "You cant update user ranks now, its already updating.";
+                await embed.SendMessage(Context.Channel);
+                return;
+            }
+            await embed.SendMessage(Context.Channel);
+
             new Thread(async () =>
             {
-                EmbedHandler embed = new EmbedHandler(Context.User, "Updating user ranks on this server...");
-                await embed.SendMessage(Context.Channel);
-
-                DiscordServer server = DiscordServer.GetServerFromID(Context.Guild.Id);
-                await UpdateUserRoles(server, embed);
+                try
+                {
+                    server.isUpdatingRoles = true;
+                    await UpdateUserRoles(server, embed);
+                    server.isUpdatingRoles = false;
+                }
+                catch(Exception e)
+                {
+                    server.isUpdatingRoles = false;
+                    embed.Title = "Failed to update user roles.";
+                }
 
                 embed.Title = "Updated all user ranks.";
                 embed.Description = "";
                 await embed.UpdateEmbed();
             }).Start();
-            return Task.CompletedTask;
         }
 
         [Command("updaterank")]

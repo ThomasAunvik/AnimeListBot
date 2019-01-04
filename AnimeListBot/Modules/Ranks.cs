@@ -171,6 +171,7 @@ namespace AnimeListBot.Modules
                 {
                     server.isUpdatingRoles = false;
                     embed.Title = "Failed to update user roles.";
+                    await Program._logger.LogError(e);
                 }
 
                 embed.Title = "Updated all user ranks.";

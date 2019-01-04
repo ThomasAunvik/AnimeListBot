@@ -8,6 +8,9 @@ using System.Threading.Tasks;
 using System.IO;
 using Newtonsoft.Json;
 using System.Diagnostics;
+using Discord;
+using System.Net.NetworkInformation;
+using System.Reflection;
 
 namespace AnimeListBot.Modules
 {
@@ -40,7 +43,7 @@ namespace AnimeListBot.Modules
             long memorySize = proc.PrivateMemorySize64;
             float memoryMB = memorySize / 1024 / 1024;
 
-            EmbedHandler embed = new EmbedHandler(Context.User, "Bot Info");
+            EmbedHandler embed = new EmbedHandler(Context.User, "Bot Stats");
             embed.AddField("Uptime", $"{Math.Round(uptime.TotalHours)} hours, {uptime.Minutes, 0} minutes, {uptime.Seconds} seconds", false);
             embed.AddField("Guilds", Program._client.Guilds.Count + $"\n({totalUserCount/Program._client.Guilds.Count}Avg Users/Guild)", true);
             embed.AddField("Channels", totalChannelCount, true);
@@ -50,6 +53,38 @@ namespace AnimeListBot.Modules
 
             await embed.SendMessage(Context.Channel);
             await SaveStats();
+        }
+
+        [Command("info")]
+        [Summary("Gets the info of the bot/server")]
+        public async Task Info()
+        {
+            DateTime now = DateTime.Now;
+            DateTime start = Program.BOT_START_TIME;
+
+            TimeSpan uptime = now - start;
+            
+            const ulong ownerId = 96580514021912576;
+            IUser owner = await Context.Client.GetUserAsync(ownerId);
+
+            Assembly discordCoreAssembly = Assembly.GetAssembly(typeof(DiscordConfig));
+            FileVersionInfo coreInfo = FileVersionInfo.GetVersionInfo(discordCoreAssembly.Location);
+            string coreVersion = coreInfo.FileVersion;
+
+            Process process = Process.GetCurrentProcess();
+
+            EmbedHandler embed = new EmbedHandler(Context.User, "Bot Info");
+            embed.ThumbnailUrl = Program._client.CurrentUser.GetAvatarUrl();
+            embed.AddField("Name", "AnimeList", true);
+            embed.AddField("Developer", owner.Mention + $"\n({owner.Username}#{owner.Discriminator})", true);
+            embed.AddField("Uptime", $"{Math.Round(uptime.TotalDays)}d {uptime.Hours}h {uptime.Minutes}m {uptime.Seconds}s", true);
+            embed.AddField("Ping", (Program._client.Latency) + "ms", true);
+            embed.AddField("Discord.NET Version", coreVersion, false);
+            embed.AddField("Links",
+                "[Invite](https://discordapp.com/api/oauth2/authorize?client_id=515269277553655823&permissions=0&scope=bot) | [Github](https://github.com/ThomasAunvik/AnimeListBot)",
+                false
+            );
+            await embed.SendMessage(Context.Channel);
         }
 
         public static async Task SaveStats()

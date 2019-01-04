@@ -78,31 +78,31 @@ namespace AnimeListBot
         {
             globalUsers = new List<GlobalUser>();
             discordServers = new List<DiscordServer>();
-            new Thread(async () =>
+            foreach (SocketGuild guild in _client.Guilds)
             {
-                foreach (SocketGuild guild in _client.Guilds)
+                DiscordServer newServer = new DiscordServer(guild);
+                discordServers.Add(newServer);
+
+                foreach (SocketUser user in newServer.Guild.Users)
+                    if (!user.IsBot)
+                        if (globalUsers.Find(x => x.userID == user.Id) == null)
+                            globalUsers.Add(new GlobalUser(user));
+
+                try
                 {
-                    DiscordServer newServer = new DiscordServer(guild);
-                    discordServers.Add(newServer);
-
-                    foreach (SocketUser user in newServer.Guild.Users)
-                        if (!user.IsBot)
-                            if (globalUsers.Find(x => x.userID == user.Id) == null)
-                                globalUsers.Add(new GlobalUser(user));
-
-                    try
+                    new Thread(async () =>
                     {
                         newServer.isUpdatingRoles = true;
                         await Ranks.UpdateUserRoles(newServer, null);
                         newServer.isUpdatingRoles = false;
-                    }
-                    catch (Exception e)
-                    {
-                        newServer.isUpdatingRoles = false;
-                        await _logger.LogError(e);
-                    }
+                    }).Start();
                 }
-            }).Start();
+                catch (Exception e)
+                {
+                    newServer.isUpdatingRoles = false;
+                    await _logger.LogError(e);
+                }
+            }
             
             await Stats.LoadStats();
         }

@@ -28,7 +28,7 @@ namespace AnimeListBot.Modules
             embed.Title = "No Anime Found";
 
             bool mal = globalUser.animeList == GlobalUser.AnimeList.MAL;
-            if (mal && (searchResult != null || searchResult.Results.Count > 0))
+            if (mal && (searchResult != null && searchResult.Results.Count > 0))
             {
                 await SetAnimeMalInfo(searchResult, embed, globalUser, targetUser);
             }
@@ -41,7 +41,7 @@ namespace AnimeListBot.Modules
             {
                 await SetAnimeAniInfo(media, embed, globalUser, targetUser);
             }
-            else if(!mal && (searchResult != null || searchResult.Results.Count > 0))
+            else if(!mal && (searchResult != null && searchResult.Results.Count > 0))
             {
                 await SetAnimeMalInfo(searchResult, embed, globalUser, targetUser);
             }

@@ -34,7 +34,7 @@ namespace AnimeListBot.Modules
             if (!response.failed)
             {
                 ITraceImage trace = response.trace;
-                List<TraceDoc> validDocs = trace.docs.Where(x => x.similarity > (decimal)0.85).ToList();
+                List<TraceDoc> validDocs = trace.docs.Where(x => x.similarity > (decimal)0.8).ToList();
 
                 if(validDocs.Count > 0)
                 {

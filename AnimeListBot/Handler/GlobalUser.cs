@@ -237,7 +237,7 @@ namespace AnimeListBot.Handler
                     decimal mal_mangaRead = decimal.Round(MAL_daysReadManga.GetValueOrDefault(), 1);
                     return mal_mangaRead;
                 case AnimeList.Anilist:
-                    return Anilist_daysChaptersRead;
+                    return Math.Round(Anilist_daysChaptersRead, 1);
                 default:
                     return 0;
             }

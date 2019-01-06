@@ -160,8 +160,11 @@ namespace AnimeListBot.Modules
                 embed.Title = malPerson.Name;
                 embed.Url = malPerson.LinkCanonical;
                 embed.ThumbnailUrl = malPerson.ImageURL;
-                embed.Description = malPerson.More;
-                if(malPerson.Birthday.HasValue) embed.AddField("Birthday", malPerson.Birthday.Value.ToString("dddd, dd MMMM yyyy"));
+                embed.Description = malPerson.More.Replace(@"\n", "");
+                if (malPerson.Birthday.HasValue) {
+                    CultureInfo en_US = new CultureInfo("en-US");
+                    embed.AddField("Birthday", malPerson.Birthday.Value.ToString("dddd, dd MMMM yyyy", en_US));
+                }
             }else if(!mal && staff != null)
             {
                 embed.Title = (string.IsNullOrEmpty(staff.name.last) ? "" : staff.name.last + ", ") + staff.name.first;
@@ -169,6 +172,7 @@ namespace AnimeListBot.Modules
                 embed.ThumbnailUrl = staff.image.large;
                 embed.Description = staff.description;
             }
+            await embed.UpdateEmbed();
         }
 
         public async Task SetAnimeMalInfo(AnimeSearchResult searchResult, EmbedHandler embed, GlobalUser globalUser, IUser targetUser)

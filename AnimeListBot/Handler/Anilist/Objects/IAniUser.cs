@@ -10,8 +10,8 @@ namespace AnimeListBot.Handler.Anilist
          string name { get; }
          string siteUrl { get; }
 
-         AnilistUserAvatar Avatar { get; }
+         AniUserAvatar Avatar { get; }
         
-         AnilistUserStats Stats { get; }
+         AniUserStats Stats { get; }
     }
 }

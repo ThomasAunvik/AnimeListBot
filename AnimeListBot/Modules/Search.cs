@@ -95,6 +95,44 @@ namespace AnimeListBot.Modules
             await SearchManga(Context.User, search);
         }
 
+        [Command("character")]
+        public async Task SearchCharacter([Remainder]string search)
+        {
+            EmbedHandler embed = new EmbedHandler(Context.User, "Searching for " + search + "...");
+            await embed.SendMessage(Context.Channel);
+
+            embed.Title = "No Character Found";
+
+            GlobalUser globalUser = Program.globalUsers.Find(x => x.userID == Context.User.Id);
+
+            CharacterSearchResult result = await Program._jikan.SearchCharacter(search);
+            IAniCharacter character = await AniCharacterQuery.SearchCharacter(search);
+
+            bool mal = globalUser.animeList == GlobalUser.AnimeList.MAL;
+            if (mal && result != null && result.Results.Count > 0)
+            {
+                List<CharacterSearchEntry> results = result.Results.ToList();
+                CharacterSearchEntry entry = results[0];
+                
+                embed.Title = entry.Name;
+                embed.Url = entry.URL;
+                embed.ThumbnailUrl = entry.ImageURL;
+                if(entry.AlternativeNames.Count > 0) embed.AddField("Alternative Names", string.Join("\n", entry.AlternativeNames));
+            }else if(!mal && character != null)
+            {
+                embed.Title = (string.IsNullOrEmpty(character.name.last) ? "" : character.name.last + ", ") + character.name.first;
+                embed.Url = character.siteUrl;
+                embed.ThumbnailUrl = character.image.large;
+                embed.Description = character.description;
+                if (character.name.alternative.Count > 0 && !string.IsNullOrEmpty(character.name.alternative[0]))
+                {
+                    embed.AddField("Alternative Names", string.Join("\n", character.name.alternative));
+                }
+            }
+
+            await embed.UpdateEmbed();
+        }
+
         public async Task SetAnimeMalInfo(AnimeSearchResult searchResult, EmbedHandler embed, GlobalUser globalUser, IUser targetUser)
         {
             List<AnimeSearchEntry> results = searchResult.Results.ToList();

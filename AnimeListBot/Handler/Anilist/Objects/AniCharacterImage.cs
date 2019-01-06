@@ -4,8 +4,9 @@ using System.Text;
 
 namespace AnimeListBot.Handler.Anilist
 {
-    public class AnilistUserOptions
+    public class AniCharacterImage
     {
-        public string profileColor { get; set; }
+        public string large { get; set; }
+        public string medium { get; set; }
     }
 }

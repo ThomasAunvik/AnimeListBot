@@ -176,6 +176,7 @@ namespace AnimeListBot.Modules
                 if (user.anilistProfile == null)
                 {
                     embed.Title = "There is no Anilist profile set";
+                    await embed.UpdateEmbed();
                     return;
                 }
                 user.animeList = GlobalUser.AnimeList.Anilist;
@@ -185,6 +186,7 @@ namespace AnimeListBot.Modules
             {
                 await ReplyAsync("Incorrect mode, only MAL and Anilist");
                 embed.Title = "Incorrect mode, only MAL and Anilist";
+                await embed.UpdateEmbed();
                 return;
             }
             await embed.UpdateEmbed();

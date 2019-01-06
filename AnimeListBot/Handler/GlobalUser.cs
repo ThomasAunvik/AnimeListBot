@@ -392,6 +392,11 @@ namespace AnimeListBot.Handler
 
         public async Task UpdateMALInfo()
         {
+            if (string.IsNullOrEmpty(MAL_Username))
+            {
+                return;
+            }
+
             this.malProfile = null;
             UserProfile profile = await Program._jikan.GetUserProfile(MAL_Username);
             if (profile != null)
@@ -408,6 +413,11 @@ namespace AnimeListBot.Handler
 
         public async Task UpdateAnilistInfo()
         {
+            if (string.IsNullOrEmpty(Anilist_Username))
+            {
+                return;
+            }
+
             this.anilistProfile = null;
             IAniUser anilistUser = await AniUserQuery.GetUser(Anilist_Username);
             if(anilistUser != null)

@@ -80,12 +80,15 @@ namespace AnimeListBot.Handler.Anilist
                     {
                         throw new Exception(string.Join("\n", response.Errors.Select(x => x.Message)));
                     }
-                    var userType = response.GetDataFieldAs<AnilistUser>("User");
+                    var userType = response.GetDataFieldAs<AniUser>("User");
                     return userType;
                 }
             }catch(Exception e)
             {
-                await Program._logger.LogError(e);
+                if (!e.Message.Contains("Not Found."))
+                {
+                    await Program._logger.LogError(e);
+                }
                 return null;
             }
         }

@@ -6,6 +6,8 @@ using System.Text;
 using System.Threading.Tasks;
 
 using AnimeListBot.Handler;
+using AnimeListBot.Handler.Anilist;
+using System.Globalization;
 
 namespace AnimeListBot.Modules
 {
@@ -97,6 +99,27 @@ namespace AnimeListBot.Modules
                 embed.Title = "You dont have permission to do this command.";
                 await embed.SendMessage(Context.Channel);
             }
+        }
+
+        [Command("anilimit")]
+        public async Task GetAniLimit()
+        {
+            EmbedHandler embed = new EmbedHandler(Context.User, "Retrieving Anilist Headers...");
+            await embed.SendMessage(Context.Channel);
+            
+            AniHeaderResult result = await AniHeaderCheck.CheckHeaders();
+
+            CultureInfo en_US = new CultureInfo("en-US");
+
+            embed.Title = "";
+            embed.AddField(
+                "**Anilist Headers**",
+                "**Rate Limit:** " + result.RateLimit_Limit + "\n" +
+                "**Remaining Rate Limit:** " + result.RateLimit_Remaining + "\n" +
+                (result.RateLimit_Reset.HasValue ? "**Rate Limit Reset:** " + result.RateLimit_Reset.Value.ToString("HH:mm:ss", en_US) + " UTC" : "") +
+                (result.RetryAfter > 0 ? "**Retry After:** " + result.RetryAfter + " seconds.\n" : "")
+            );
+            await embed.UpdateEmbed();
         }
     }
 }

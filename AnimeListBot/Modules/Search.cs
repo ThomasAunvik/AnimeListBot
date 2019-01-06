@@ -149,14 +149,12 @@ namespace AnimeListBot.Modules
 
             PersonSearchResult result = await Program._jikan.SearchPerson(search);
             IAniStaff staff = await AniStaffQuery.SearchStaff(search);
-
             bool mal = globalUser.animeList == GlobalUser.AnimeList.MAL;
             if (mal && result != null && result.Results.Count > 0)
             {
                 List<PersonSearchEntry> results = result.Results.ToList();
                 PersonSearchEntry entry = results[0];
                 Person malPerson = await Program._jikan.GetPerson(entry.MalId);
-
                 embed.Title = malPerson.Name;
                 embed.Url = malPerson.LinkCanonical;
                 embed.ThumbnailUrl = malPerson.ImageURL;

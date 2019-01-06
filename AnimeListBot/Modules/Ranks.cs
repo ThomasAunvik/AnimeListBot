@@ -362,7 +362,7 @@ namespace AnimeListBot.Modules
                     animeRole = Context.Guild.GetRole(animeRank.roleId);
                     animeRoleList += "\n" + animeRole.Name + " for " + animeRank.days + " days";
                 }
-                embed.AddField(new EmbedFieldBuilder()
+                embed.AddFieldSecure(new EmbedFieldBuilder()
                 {
                     Name = "Anime",
                     Value = animeRoleList
@@ -383,7 +383,7 @@ namespace AnimeListBot.Modules
                     mangaRole = Context.Guild.GetRole(mangaRank.roleId);
                     mangaRoleList += "\n" + mangaRole.Name + " for " + mangaRank.days + " days";
                 }
-                embed.AddField(new EmbedFieldBuilder()
+                embed.AddFieldSecure(new EmbedFieldBuilder()
                 {
                     Name = "Manga",
                     Value = mangaRoleList

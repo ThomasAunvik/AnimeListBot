@@ -44,12 +44,12 @@ namespace AnimeListBot.Modules
             float memoryMB = memorySize / 1024 / 1024;
 
             EmbedHandler embed = new EmbedHandler(Context.User, "Bot Stats");
-            embed.AddField("Uptime", $"{Math.Round(uptime.TotalHours)} hours, {uptime.Minutes, 0} minutes, {uptime.Seconds} seconds", false);
-            embed.AddField("Guilds", Program._client.Guilds.Count + $"\n({totalUserCount/Program._client.Guilds.Count}Avg Users/Guild)", true);
-            embed.AddField("Channels", totalChannelCount, true);
-            embed.AddField("Users", totalUserCount, false);
-            embed.AddField("Total Commands", stats.totalCommands, false);
-            embed.AddField("RAM Usage", memoryMB + " MB", false);
+            embed.AddFieldSecure("Uptime", $"{Math.Round(uptime.TotalHours)} hours, {uptime.Minutes, 0} minutes, {uptime.Seconds} seconds", false);
+            embed.AddFieldSecure("Guilds", Program._client.Guilds.Count + $"\n({totalUserCount/Program._client.Guilds.Count}Avg Users/Guild)", true);
+            embed.AddFieldSecure("Channels", totalChannelCount, true);
+            embed.AddFieldSecure("Users", totalUserCount, false);
+            embed.AddFieldSecure("Total Commands", stats.totalCommands, false);
+            embed.AddFieldSecure("RAM Usage", memoryMB + " MB", false);
 
             await embed.SendMessage(Context.Channel);
             await SaveStats();
@@ -75,12 +75,12 @@ namespace AnimeListBot.Modules
 
             EmbedHandler embed = new EmbedHandler(Context.User, "Bot Info");
             embed.ThumbnailUrl = Program._client.CurrentUser.GetAvatarUrl();
-            embed.AddField("Name", "AnimeList", true);
-            embed.AddField("Developer", owner.Mention + $"\n({owner.Username}#{owner.Discriminator})", true);
-            embed.AddField("Uptime", $"{Math.Round(uptime.TotalDays)}d {uptime.Hours}h {uptime.Minutes}m {uptime.Seconds}s", true);
-            embed.AddField("Ping", (Program._client.Latency) + "ms", true);
-            embed.AddField("Discord.NET Version", coreVersion, false);
-            embed.AddField("Links",
+            embed.AddFieldSecure("Name", "AnimeList", true);
+            embed.AddFieldSecure("Developer", owner.Mention + $"\n({owner.Username}#{owner.Discriminator})", true);
+            embed.AddFieldSecure("Uptime", $"{Math.Round(uptime.TotalDays)}d {uptime.Hours}h {uptime.Minutes}m {uptime.Seconds}s", true);
+            embed.AddFieldSecure("Ping", (Program._client.Latency) + "ms", true);
+            embed.AddFieldSecure("Discord.NET Version", coreVersion, false);
+            embed.AddFieldSecure("Links",
                 "[Invite](https://discordapp.com/api/oauth2/authorize?client_id=515269277553655823&permissions=0&scope=bot) | [Github](https://github.com/ThomasAunvik/AnimeListBot)",
                 false
             );

@@ -112,7 +112,7 @@ namespace AnimeListBot.Modules
             CultureInfo en_US = new CultureInfo("en-US");
 
             embed.Title = "";
-            embed.AddField(
+            embed.AddFieldSecure(
                 "**Anilist Headers**",
                 "**Rate Limit:** " + result.RateLimit_Limit + "\n" +
                 "**Remaining Rate Limit:** " + result.RateLimit_Remaining + "\n" +

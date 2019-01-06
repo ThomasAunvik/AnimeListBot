@@ -47,7 +47,7 @@ namespace AnimeListBot.Modules
                     TimeSpan toTime = TimeSpan.FromSeconds(toValue);
 
                     embed.Title = "";
-                    embed.AddField(
+                    embed.AddFieldSecure(
                         doc.title_english,
 
                         "Native Title: " + doc.title_native + "\n" +

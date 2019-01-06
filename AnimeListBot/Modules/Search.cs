@@ -118,19 +118,19 @@ namespace AnimeListBot.Modules
                 embed.Title = malCharacter.Name;
                 embed.Url = malCharacter.LinkCanonical;
                 embed.ThumbnailUrl = malCharacter.ImageURL;
-                embed.Description = malCharacter.About;
+                embed.Description = EmbedHandler.SecureEmbedText(malCharacter.About);
                 
-                if(malCharacter.Nicknames.Count > 0) embed.AddField("Nicknames", string.Join("\n", malCharacter.Nicknames));
-                if(malCharacter.VoiceActors.Count > 0) embed.AddField("Voice Actors", string.Join("\n", malCharacter.VoiceActors));
+                if(malCharacter.Nicknames.Count > 0) embed.AddFieldSecure("Nicknames", string.Join("\n", malCharacter.Nicknames));
+                if(malCharacter.VoiceActors.Count > 0) embed.AddFieldSecure("Voice Actors", string.Join("\n", malCharacter.VoiceActors));
             }else if(!mal && character != null)
             {
                 embed.Title = (string.IsNullOrEmpty(character.name.last) ? "" : character.name.last + ", ") + character.name.first;
                 embed.Url = character.siteUrl;
                 embed.ThumbnailUrl = character.image.large;
-                embed.Description = character.description;
+                embed.Description = EmbedHandler.SecureEmbedText(character.description);
                 if (character.name.alternative.Count > 0 && !string.IsNullOrEmpty(character.name.alternative[0]))
                 {
-                    embed.AddField("Alternative Names", string.Join("\n", character.name.alternative));
+                    embed.AddFieldSecure("Alternative Names", string.Join("\n", character.name.alternative));
                 }
             }
 
@@ -158,17 +158,17 @@ namespace AnimeListBot.Modules
                 embed.Title = malPerson.Name;
                 embed.Url = malPerson.LinkCanonical;
                 embed.ThumbnailUrl = malPerson.ImageURL;
-                embed.Description = malPerson.More.Replace(@"\n", "");
+                embed.Description = EmbedHandler.SecureEmbedText(malPerson.More.Replace(@"\n", ""));
                 if (malPerson.Birthday.HasValue) {
                     CultureInfo en_US = new CultureInfo("en-US");
-                    embed.AddField("Birthday", malPerson.Birthday.Value.ToString("dddd, dd MMMM yyyy", en_US));
+                    embed.AddFieldSecure("Birthday", malPerson.Birthday.Value.ToString("dddd, dd MMMM yyyy", en_US));
                 }
             }else if(!mal && staff != null)
             {
                 embed.Title = (string.IsNullOrEmpty(staff.name.last) ? "" : staff.name.last + ", ") + staff.name.first;
                 embed.Url = staff.siteUrl;
                 embed.ThumbnailUrl = staff.image.large;
-                embed.Description = staff.description;
+                embed.Description = EmbedHandler.SecureEmbedText(staff.description);
             }
             await embed.UpdateEmbed();
         }
@@ -179,10 +179,10 @@ namespace AnimeListBot.Modules
             AnimeSearchEntry entry = results[0];
 
             embed.Title = entry.Title;
-            embed.Description = entry.Description;
+            embed.Description = EmbedHandler.SecureEmbedText(entry.Description);
             embed.Url = entry.URL;
             embed.ThumbnailUrl = entry.ImageURL;
-            embed.AddField(
+            embed.AddFieldSecure(
                 "Information",
                     "Type: " + entry.Type +
                     "\nEpisodes: " + (entry.Episodes == 0 ? "Unknown" : entry.Episodes.ToString()) +
@@ -197,7 +197,7 @@ namespace AnimeListBot.Modules
                 AnimeListEntry malEntry = animeList.Anime.ToList().Find(x => x.MalId == entry.MalId);
                 if (malEntry != null)
                 {
-                    embed.AddField(
+                    embed.AddFieldSecure(
                         Format.Sanitize(globalUser.MAL_Username) + " Stats",
                         (malEntry.Days.GetValueOrDefault() == 0 ? "" : "\nDays watched: " + malEntry.Days.GetValueOrDefault()) +
                         "\nEpisodes watched: " + malEntry.WatchedEpisodes +
@@ -207,7 +207,7 @@ namespace AnimeListBot.Modules
             }
             else
             {
-                embed.AddField(
+                embed.AddFieldSecure(
                         Format.Sanitize(targetUser.Username) + " Stats",
                         "There are no stats available for this user."
                 );
@@ -217,10 +217,10 @@ namespace AnimeListBot.Modules
         public async Task SetAnimeAniInfo(IAniMedia media, EmbedHandler embed, GlobalUser globalUser, IUser targetUser)
         {
             embed.Title = media.title.english;
-            embed.Description = media.description;
+            embed.Description = EmbedHandler.SecureEmbedText(media.description);
             embed.Url = media.siteUrl;
             embed.ThumbnailUrl = media.coverImage.large;
-            embed.AddField(
+            embed.AddFieldSecure(
                 "Information",
                     "Type: " + Enum.GetName(typeof(AniMediaType), media.type) +
                     "\nFormat: " + Enum.GetName(typeof(AniMediaFormat), media.format).Replace("_", " ") +
@@ -234,7 +234,7 @@ namespace AnimeListBot.Modules
                 IAniMediaList list = await AniMediaListQuery.GetMediaList(globalUser.Anilist_Username, media.id.GetValueOrDefault(), AniMediaType.ANIME);
                 if (list != null)
                 {
-                    embed.AddField(
+                    embed.AddFieldSecure(
                         Format.Sanitize(globalUser.Anilist_Username) + " Stats",
                         //(malEntry.Days.GetValueOrDefault() == 0 ? "" : "\nDays watched: " + list.day) +
                         "\nStatus: " + Enum.GetName(typeof(AniMediaListStatus), list.status.GetValueOrDefault()) +
@@ -245,7 +245,7 @@ namespace AnimeListBot.Modules
             }
             else
             {
-                embed.AddField(
+                embed.AddFieldSecure(
                         Format.Sanitize(targetUser.Username) + " Stats",
                         "There are no stats available for this user."
                 );
@@ -257,10 +257,10 @@ namespace AnimeListBot.Modules
             List<MangaSearchEntry> results = searchResult.Results.ToList();
             MangaSearchEntry entry = results[0];
             embed.Title = entry.Title;
-            embed.Description = entry.Description;
+            embed.Description = EmbedHandler.SecureEmbedText(entry.Description);
             embed.Url = entry.URL;
             embed.ThumbnailUrl = entry.ImageURL;
-            embed.AddField(
+            embed.AddFieldSecure(
                 "Information",
                     "Type: " + entry.Type +
                     "\nVolumes: " + (entry.Volumes == 0 ? "Unknown" : entry.Volumes.ToString()) +
@@ -276,7 +276,7 @@ namespace AnimeListBot.Modules
                 MangaListEntry malEntry = mangaList.Manga.ToList().Find(x => x.MalId == entry.MalId);
                 if (malEntry != null)
                 {
-                    embed.AddField(
+                    embed.AddFieldSecure(
                         Format.Sanitize(globalUser.MAL_Username) + " Stats",
                         (malEntry.Days.GetValueOrDefault() == 0 ? "" : "\nDays read: " + malEntry.Days.GetValueOrDefault()) +
                         "\nVolumes read: " + malEntry.ReadVolumes +
@@ -287,7 +287,7 @@ namespace AnimeListBot.Modules
             }
             else
             {
-                embed.AddField(
+                embed.AddFieldSecure(
                         Format.Sanitize(targetUser.Username) + " Stats",
                         "There are no stats available for this user."
                 );
@@ -297,10 +297,10 @@ namespace AnimeListBot.Modules
         public async Task SetMangaAniInfo(IAniMedia media, EmbedHandler embed, GlobalUser globalUser, IUser targetUser)
         {
             embed.Title = media.title.english;
-            embed.Description = media.description;
+            embed.Description = EmbedHandler.SecureEmbedText(media.description);
             embed.Url = media.siteUrl;
             embed.ThumbnailUrl = media.coverImage.large;
-            embed.AddField(
+            embed.AddFieldSecure(
                 "Information",
                     "Type: " + Enum.GetName(typeof(AniMediaType), media.type) +
                     "\nFormat: " + Enum.GetName(typeof(AniMediaFormat), media.format) +
@@ -315,7 +315,7 @@ namespace AnimeListBot.Modules
                 IAniMediaList list = await AniMediaListQuery.GetMediaList(globalUser.Anilist_Username, media.id.GetValueOrDefault(), AniMediaType.MANGA);
                 if (list != null)
                 {
-                    embed.AddField(
+                    embed.AddFieldSecure(
                         Format.Sanitize(globalUser.Anilist_Username) + " Stats",
                         //(malEntry.Days.GetValueOrDefault() == 0 ? "" : "\nDays watched: " + list.day) +
                         "\nStatus: " + Enum.GetName(typeof(AniMediaListStatus), list.status.GetValueOrDefault()) +
@@ -327,7 +327,7 @@ namespace AnimeListBot.Modules
             }
             else
             {
-                embed.AddField(
+                embed.AddFieldSecure(
                         Format.Sanitize(targetUser.Username) + " Stats",
                         "There are no stats available for this user."
                 );

@@ -9,7 +9,7 @@ namespace AnimeListBot.Handler
 {
     public class EmbedHandler : EmbedBuilder
     {
-        const int MAX_FIELD_VALUE_LENGTH = 1024;
+        const int MAX_FIELD_VALUE_LENGTH = 2048;
 
         IUser user;
         IUserMessage embedMessage;
@@ -63,11 +63,7 @@ namespace AnimeListBot.Handler
             if (value is string)
             {
                 string stringValue = value as string;
-                stringValue = Format.Sanitize(stringValue);
-                if (stringValue.Length > MAX_FIELD_VALUE_LENGTH)
-                {
-                    value = stringValue.Substring(0, MAX_FIELD_VALUE_LENGTH);
-                }
+                value = SecureEmbedText(stringValue);
             }
             AddField(name, value, inline);
         }
@@ -77,13 +73,19 @@ namespace AnimeListBot.Handler
             if (field.Value is string)
             {
                 string stringValue = field.Value as string;
-                stringValue = Format.Sanitize(stringValue);
-                if (stringValue.Length > MAX_FIELD_VALUE_LENGTH)
-                {
-                    field.Value = stringValue.Substring(0, MAX_FIELD_VALUE_LENGTH);
-                }
+                field.Value = SecureEmbedText(stringValue);
             }
             AddField(field);
+        }
+
+        public static string SecureEmbedText(string value)
+        {
+            value = Format.Sanitize(value);
+            if (value.Length > MAX_FIELD_VALUE_LENGTH)
+            {
+                value = value.Substring(0, MAX_FIELD_VALUE_LENGTH - 3) + "...";
+            }
+            return value;
         }
     }
 }

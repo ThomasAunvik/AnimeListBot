@@ -78,6 +78,7 @@ namespace AnimeListBot.Handler.Anilist
 
                     if (response.Errors != null && response.Errors.Length > 0)
                     {
+                        if (response.Errors[0].Message.Contains("Not Found.")) return null;
                         throw new Exception(string.Join("\n", response.Errors.Select(x => x.Message)));
                     }
                     var userType = response.GetDataFieldAs<AniUser>("User");

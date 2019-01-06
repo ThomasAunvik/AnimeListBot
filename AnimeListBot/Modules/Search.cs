@@ -137,6 +137,40 @@ namespace AnimeListBot.Modules
             await embed.UpdateEmbed();
         }
 
+        [Command("staff")]
+        public async Task SearchStaff([Remainder]string search)
+        {
+            EmbedHandler embed = new EmbedHandler(Context.User, "Searching for " + search + "...");
+            await embed.SendMessage(Context.Channel);
+
+            embed.Title = "No Staff Found";
+
+            GlobalUser globalUser = Program.globalUsers.Find(x => x.userID == Context.User.Id);
+
+            PersonSearchResult result = await Program._jikan.SearchPerson(search);
+            IAniStaff staff = await AniStaffQuery.SearchStaff(search);
+
+            bool mal = globalUser.animeList == GlobalUser.AnimeList.MAL;
+            if (mal && result != null && result.Results.Count > 0)
+            {
+                List<PersonSearchEntry> results = result.Results.ToList();
+                PersonSearchEntry entry = results[0];
+                Person malPerson = await Program._jikan.GetPerson(entry.MalId);
+
+                embed.Title = malPerson.Name;
+                embed.Url = malPerson.LinkCanonical;
+                embed.ThumbnailUrl = malPerson.ImageURL;
+                embed.Description = malPerson.More;
+                if(malPerson.Birthday.HasValue) embed.AddField("Birthday", malPerson.Birthday.Value.ToString("dddd, dd MMMM yyyy"));
+            }else if(!mal && staff != null)
+            {
+                embed.Title = (string.IsNullOrEmpty(staff.name.last) ? "" : staff.name.last + ", ") + staff.name.first;
+                embed.Url = staff.siteUrl;
+                embed.ThumbnailUrl = staff.image.large;
+                embed.Description = staff.description;
+            }
+        }
+
         public async Task SetAnimeMalInfo(AnimeSearchResult searchResult, EmbedHandler embed, GlobalUser globalUser, IUser targetUser)
         {
             List<AnimeSearchEntry> results = searchResult.Results.ToList();

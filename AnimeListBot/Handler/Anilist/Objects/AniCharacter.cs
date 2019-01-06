@@ -6,7 +6,7 @@ namespace AnimeListBot.Handler.Anilist
 {
     public class AniCharacter : IAniCharacter
     {
-        public int? id { get; set; }
+        public int id { get; set; }
 
         public AniCharacterName name { get; set; }
 

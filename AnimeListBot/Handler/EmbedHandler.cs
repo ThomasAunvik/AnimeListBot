@@ -9,6 +9,8 @@ namespace AnimeListBot.Handler
 {
     public class EmbedHandler : EmbedBuilder
     {
+        const int MAX_FIELD_VALUE_LENGTH = 1024;
+
         IUser user;
         IUserMessage embedMessage;
 
@@ -56,6 +58,32 @@ namespace AnimeListBot.Handler
             }
         }
 
-        
+        public void AddFieldSecure(string name, object value, bool inline = false)
+        {
+            if (value is string)
+            {
+                string stringValue = value as string;
+                stringValue = Format.Sanitize(stringValue);
+                if (stringValue.Length > MAX_FIELD_VALUE_LENGTH)
+                {
+                    value = stringValue.Substring(0, MAX_FIELD_VALUE_LENGTH);
+                }
+            }
+            AddField(name, value, inline);
+        }
+
+        public void AddFieldSecure(EmbedFieldBuilder field)
+        {
+            if (field.Value is string)
+            {
+                string stringValue = field.Value as string;
+                stringValue = Format.Sanitize(stringValue);
+                if (stringValue.Length > MAX_FIELD_VALUE_LENGTH)
+                {
+                    field.Value = stringValue.Substring(0, MAX_FIELD_VALUE_LENGTH);
+                }
+            }
+            AddField(field);
+        }
     }
 }

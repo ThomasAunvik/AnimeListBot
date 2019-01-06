@@ -83,7 +83,7 @@ namespace AnimeListBot.Modules
 
                 embed.Title = "";
                 embed.Description = "";
-                embed.AddField(new EmbedFieldBuilder()
+                embed.AddFieldSecure(new EmbedFieldBuilder()
                 {
                     Name = "MAL Account Setup",
                     Value = "User registered " + profile.Username
@@ -95,7 +95,7 @@ namespace AnimeListBot.Modules
 
                 embed.Title = "";
                 embed.Description = "";
-                embed.AddField(new EmbedFieldBuilder()
+                embed.AddFieldSecure(new EmbedFieldBuilder()
                 {
                     Name = "MAL Profile Updated",
                     Value = "Username updated to: " + profile.Username
@@ -119,7 +119,7 @@ namespace AnimeListBot.Modules
 
                 embed.Title = "";
                 embed.Description = "";
-                embed.AddField(new EmbedFieldBuilder()
+                embed.AddFieldSecure(new EmbedFieldBuilder()
                 {
                     Name = "Anilist Account Setup",
                     Value = "User registered: " + profile.name
@@ -131,7 +131,7 @@ namespace AnimeListBot.Modules
 
                 embed.Title = "";
                 embed.Description = "";
-                embed.AddField(new EmbedFieldBuilder()
+                embed.AddFieldSecure(new EmbedFieldBuilder()
                 {
                     Name = "Anilist Profile Updated",
                     Value = "Username updated to: " + profile.name
@@ -224,47 +224,47 @@ namespace AnimeListBot.Modules
                     embed.Title = gUser.GetAnimelistUsername() + " Anime Statistics";
                     embed.Fields.Clear();
                     
-                    if (!string.IsNullOrWhiteSpace(animeRank)) embed.AddField("Rank", animeRank, false);
+                    if (!string.IsNullOrWhiteSpace(animeRank)) embed.AddFieldSecure("Rank", animeRank, false);
 
-                    embed.AddField("Days", gUser.GetAnimeWatchDays(), true);
-                    embed.AddField("Mean Score", gUser.GetAnimeMeanScore(), true);
-                    embed.AddField("Total Entries", gUser.GetAnimeTotalEntries(), true);
-                    embed.AddField("Episodes", gUser.GetAnimeEpisodesWatched(), true);
-                    embed.AddField("Rewatched", gUser.GetAnimeRewatched(), false);
+                    embed.AddFieldSecure("Days", gUser.GetAnimeWatchDays(), true);
+                    embed.AddFieldSecure("Mean Score", gUser.GetAnimeMeanScore(), true);
+                    embed.AddFieldSecure("Total Entries", gUser.GetAnimeTotalEntries(), true);
+                    embed.AddFieldSecure("Episodes", gUser.GetAnimeEpisodesWatched(), true);
+                    embed.AddFieldSecure("Rewatched", gUser.GetAnimeRewatched(), false);
 
-                    embed.AddField("Watching", gUser.GetAnimeWatching(), true);
-                    embed.AddField("Completed", gUser.GetAnimeCompleted(), true);
-                    embed.AddField("On-Hold", gUser.GetAnimeOnHold(), true);
-                    embed.AddField("Dropped", gUser.GetAnimeDropped(), true);
-                    embed.AddField("Plan to Watch", gUser.GetAnimePlanToWatch(), true);
+                    embed.AddFieldSecure("Watching", gUser.GetAnimeWatching(), true);
+                    embed.AddFieldSecure("Completed", gUser.GetAnimeCompleted(), true);
+                    embed.AddFieldSecure("On-Hold", gUser.GetAnimeOnHold(), true);
+                    embed.AddFieldSecure("Dropped", gUser.GetAnimeDropped(), true);
+                    embed.AddFieldSecure("Plan to Watch", gUser.GetAnimePlanToWatch(), true);
                 }
                 else if(option.ToLower() == "manga")
                 {
                     embed.Title = gUser.GetAnimelistUsername() + " Manga Statistics";
                     embed.Fields.Clear();
                     
-                    if (!string.IsNullOrWhiteSpace(mangaRank)) embed.AddField("Rank", mangaRank, false);
+                    if (!string.IsNullOrWhiteSpace(mangaRank)) embed.AddFieldSecure("Rank", mangaRank, false);
 
-                    embed.AddField("Days", gUser.GetMangaReadDays(), true);
-                    embed.AddField("Mean Score", gUser.GetMangaMeanScore(), true);
-                    embed.AddField("Total Entries", gUser.GetMangaTotalEntries(), true);
-                    embed.AddField("Chapters", gUser.GetMangaChaptersRead(), true);
-                    embed.AddField("Volumes", gUser.GetMangaVolumesRead(), true);
-                    embed.AddField("Reread", gUser.GetMangaReread(), true);
+                    embed.AddFieldSecure("Days", gUser.GetMangaReadDays(), true);
+                    embed.AddFieldSecure("Mean Score", gUser.GetMangaMeanScore(), true);
+                    embed.AddFieldSecure("Total Entries", gUser.GetMangaTotalEntries(), true);
+                    embed.AddFieldSecure("Chapters", gUser.GetMangaChaptersRead(), true);
+                    embed.AddFieldSecure("Volumes", gUser.GetMangaVolumesRead(), true);
+                    embed.AddFieldSecure("Reread", gUser.GetMangaReread(), true);
 
-                    embed.AddField("Reading", gUser.GetMangaReading(), true);
-                    embed.AddField("Completed", gUser.GetMangaCompleted(), true);
-                    embed.AddField("On-Hold", gUser.GetMangaOnHold(), true);
-                    embed.AddField("Dropped", gUser.GetMangaDropped(), true);
-                    embed.AddField("Plan to Read", gUser.GetMangaPlanToRead(), true);
+                    embed.AddFieldSecure("Reading", gUser.GetMangaReading(), true);
+                    embed.AddFieldSecure("Completed", gUser.GetMangaCompleted(), true);
+                    embed.AddFieldSecure("On-Hold", gUser.GetMangaOnHold(), true);
+                    embed.AddFieldSecure("Dropped", gUser.GetMangaDropped(), true);
+                    embed.AddFieldSecure("Plan to Read", gUser.GetMangaPlanToRead(), true);
                 }
                 else
                 {
                     embed.Title = gUser.GetAnimelistUsername() + " Profile";
 
-                    embed.AddField("Anime:", (string.IsNullOrWhiteSpace(animeRank) ? "" : "**Rank:** " + animeRank) +
+                    embed.AddFieldSecure("Anime:", (string.IsNullOrWhiteSpace(animeRank) ? "" : "**Rank:** " + animeRank) +
                                              "\n**Days:** " + gUser.GetAnimeWatchDays());
-                    embed.AddField("Manga:", (string.IsNullOrWhiteSpace(mangaRank) ? "" : "**Rank:** " + mangaRank) +
+                    embed.AddFieldSecure("Manga:", (string.IsNullOrWhiteSpace(mangaRank) ? "" : "**Rank:** " + mangaRank) +
                                              "\n**Days:** " + gUser.GetMangaReadDays());
                 }
             }
@@ -342,7 +342,7 @@ namespace AnimeListBot.Modules
                     int yourIndex = animeLeaderboard.FindIndex(x => x.GetAnimeWatchDays() == gUser.GetAnimeWatchDays());
                     animeBoardField.Value += "\n\n**Your Position: #" + (yourIndex + 1) + ":** " + Format.Sanitize(gUser.GetAnimelistUsername()) + " - " + gUser.GetAnimeWatchDays() + " days.";
                 }
-                embed.AddField(animeBoardField);
+                embed.AddFieldSecure(animeBoardField);
             }
 
             if(mangaLeaderboard.Count > 0)
@@ -369,7 +369,7 @@ namespace AnimeListBot.Modules
                     int yourIndex = mangaLeaderboard.FindIndex(x => x.GetMangaReadDays() == gUser.GetMangaReadDays());
                     mangaBoardField.Value += "\n\n**Your Position: #" + (yourIndex + 1) + ":** " + Format.Sanitize(gUser.GetAnimelistUsername()) + " - " + gUser.GetMangaReadDays() + " days.";
                 }
-                embed.AddField(mangaBoardField);
+                embed.AddFieldSecure(mangaBoardField);
             }
             await embed.UpdateEmbed();
         }

@@ -72,7 +72,7 @@ namespace AnimeListBot.Handler
         public async Task LogError(string errorMessage, IUser user = null)
         {
             EmbedHandler embed = new EmbedHandler(user, "Error");
-            embed.AddField("ErrorMessage", errorMessage);
+            embed.AddFieldSecure("ErrorMessage", errorMessage);
             await LogError(errorMessage, embed);
         }
 
@@ -85,9 +85,9 @@ namespace AnimeListBot.Handler
         public async Task LogError(Exception exception, IUser user = null)
         {
             EmbedHandler embed = new EmbedHandler(user, "Exception");
-            embed.AddField("Exception Message", exception.Message);
-            embed.AddField("Type", exception.GetType().FullName);
-            embed.AddField("Stacktrace", TrancuateStacktrace(exception.StackTrace));
+            embed.AddFieldSecure("Exception Message", exception.Message);
+            embed.AddFieldSecure("Type", exception.GetType().FullName);
+            embed.AddFieldSecure("Stacktrace", TrancuateStacktrace(exception.StackTrace));
             await LogError(exception, embed);
         }
 
@@ -99,10 +99,10 @@ namespace AnimeListBot.Handler
                 Exception e = executeResult.Exception;
 
                 EmbedHandler embed = new EmbedHandler(context.User, "Command Exception");
-                embed.AddField("Command Used", context.Message);
-                embed.AddField("Exception Message", e.Message);
-                embed.AddField("Type", e.GetType().FullName);
-                embed.AddField("Stacktrace", TrancuateStacktrace(e.StackTrace));
+                embed.AddFieldSecure("Command Used", context.Message.Content);
+                embed.AddFieldSecure("Exception Message", e.Message);
+                embed.AddFieldSecure("Type", e.GetType().FullName);
+                embed.AddFieldSecure("Stacktrace", TrancuateStacktrace(e.StackTrace));
                 await LogError(e, embed);
             }
         }

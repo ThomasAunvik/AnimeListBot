@@ -84,7 +84,7 @@ namespace AnimeListBot.Modules
 
             if (string.IsNullOrWhiteSpace(message))
             {
-                embed.AddField("Bot Contacter", "Welcome, This is the contact service to message the developer.\n" +
+                embed.AddFieldSecure("Bot Contacter", "Welcome, This is the contact service to message the developer.\n" +
                     "To directly contact the developer use the command as following `.contact whatever you want the developer to know` And he will contact you as soon as possible.\n");
 
                 await dmRequestor.SendMessageAsync("", false, embed.Build());
@@ -92,8 +92,8 @@ namespace AnimeListBot.Modules
             embed.Fields.Clear();
             message = string.IsNullOrWhiteSpace(message) ? "Just a false alarm" : message;
             embed.Title = "Bot Contactor";
-            embed.AddField("Message", message);
-            embed.AddField("Info", $"Guild: {Context.Guild.Name} ({Context.Guild.Id})\nUser: {Context.User.Mention} ({Context.User.Username}#{Context.User.Discriminator} {Context.User.Id})");
+            embed.AddFieldSecure("Message", message);
+            embed.AddFieldSecure("Info", $"Guild: {Context.Guild.Name} ({Context.Guild.Id})\nUser: {Context.User.Mention} ({Context.User.Username}#{Context.User.Discriminator} {Context.User.Id})");
 
             await dmOwner.SendMessageAsync("", false, embed.Build());
         }

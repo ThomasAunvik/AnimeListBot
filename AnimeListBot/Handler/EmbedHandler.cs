@@ -1,4 +1,5 @@
 ﻿using Discord;
+using Discord.WebSocket;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -37,6 +38,10 @@ namespace AnimeListBot.Handler
             {
                 await embedMessage.ModifyAsync(x => x.Embed = Build());
             }
+            else
+            {
+                throw new Exception("Unable to update Embed, there is no message set.");
+            }
         }
 
         public async Task EditMessage(string message)
@@ -45,6 +50,12 @@ namespace AnimeListBot.Handler
             {
                 await embedMessage.ModifyAsync(x => x.Content = message);
             }
+            else
+            {
+                throw new Exception("Unable to edit embed message, there is no message set.");
+            }
         }
+
+        
     }
 }

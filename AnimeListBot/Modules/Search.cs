@@ -113,11 +113,15 @@ namespace AnimeListBot.Modules
             {
                 List<CharacterSearchEntry> results = result.Results.ToList();
                 CharacterSearchEntry entry = results[0];
+                Character malCharacter = await Program._jikan.GetCharacter(entry.MalId);
                 
-                embed.Title = entry.Name;
-                embed.Url = entry.URL;
-                embed.ThumbnailUrl = entry.ImageURL;
-                if(entry.AlternativeNames.Count > 0) embed.AddField("Alternative Names", string.Join("\n", entry.AlternativeNames));
+                embed.Title = malCharacter.Name;
+                embed.Url = malCharacter.LinkCanonical;
+                embed.ThumbnailUrl = malCharacter.ImageURL;
+                embed.Description = malCharacter.About;
+                
+                if(malCharacter.Nicknames.Count > 0) embed.AddField("Nicknames", string.Join("\n", malCharacter.Nicknames));
+                if(malCharacter.VoiceActors.Count > 0) embed.AddField("Voice Actors", string.Join("\n", malCharacter.VoiceActors));
             }else if(!mal && character != null)
             {
                 embed.Title = (string.IsNullOrEmpty(character.name.last) ? "" : character.name.last + ", ") + character.name.first;

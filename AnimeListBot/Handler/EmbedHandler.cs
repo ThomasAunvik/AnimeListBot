@@ -80,7 +80,6 @@ namespace AnimeListBot.Handler
 
         public static string SecureEmbedText(string value)
         {
-            value = Format.Sanitize(value);
             if (value.Length > MAX_FIELD_VALUE_LENGTH)
             {
                 value = value.Substring(0, MAX_FIELD_VALUE_LENGTH - 3) + "...";

@@ -15,19 +15,19 @@ namespace AnimeListBot.Modules
 {
     public class AutoAdder : ModuleBase<ICommandContext>
     {
-        [Command("automal")]
+        [Command("autolist")]
         [RequireUserPermission(GuildPermission.ManageRoles)]
         public async Task SetChannel(ITextChannel channel)
         {
             DiscordServer server = DiscordServer.GetServerFromID(Context.Guild.Id);
             server.animeListChannelId = channel.Id;
 
-            EmbedHandler embed = new EmbedHandler(Context.User, "Set automal channel to <# " + channel.Id + ">...");
+            EmbedHandler embed = new EmbedHandler(Context.User, "Set auto anime list channel to <# " + channel.Id + ">...");
             await embed.SendMessage(Context.Channel);
             await Update();
         }
 
-        [Command("automalupdate")]
+        [Command("autolistupdate")]
         [RequireUserPermission(GuildPermission.ManageRoles)]
         public async Task Update()
         {
@@ -50,14 +50,14 @@ namespace AnimeListBot.Modules
             server.SaveData();
         }
 
-        [Command("automalchannel")]
+        [Command("autolistchannel")]
         public async Task GetAutoMalChannel()
         {
             DiscordServer server = DiscordServer.GetServerFromID(Context.Guild.Id);
             EmbedHandler embed = new EmbedHandler(Context.User);
             if (server.animeListChannelId != 0)
             {
-                embed.Title = "AutoMAL is set to channel: <#" + server.animeListChannelId + ">";
+                embed.Title = "Auto AnimeList is set to channel: <#" + server.animeListChannelId + ">";
             }
             else
             {
@@ -98,8 +98,8 @@ namespace AnimeListBot.Modules
 
                 if (isValidLink)
                 {
-                    containsMAL = link.AbsolutePath.Contains("myanimelist.net");
-                    containsAnilist = link.AbsolutePath.Contains("anilist.co");
+                    containsMAL = link.ToString().Contains("myanimelist.net");
+                    containsAnilist = link.ToString().Contains("anilist.co");
                 }
 
                 string usernamePart = string.Empty;

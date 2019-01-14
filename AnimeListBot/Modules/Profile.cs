@@ -259,17 +259,24 @@ namespace AnimeListBot.Modules
                     embed.AddFieldSecure("Dropped", gUser.GetMangaDropped(), true);
                     embed.AddFieldSecure("Plan to Read", gUser.GetMangaPlanToRead(), true);
                 }
-                else if(option == "cache" && gUser.animeList == GlobalUser.AnimeList.MAL && gUser.malProfile != null)
+                else if(option == "cache")
                 {
-                    CultureInfo en_US = new CultureInfo("en-US");
+                    if (gUser.animeList == GlobalUser.AnimeList.MAL)
+                    {
+                        CultureInfo en_US = new CultureInfo("en-US");
 
-                    embed.Title = gUser.GetAnimelistUsername() + " Profile Cache";
-                    embed.AddFieldSecure(
-                        "Cache", 
-                        "Is Cached: " + gUser.malProfile.RequestCached.ToString() + (
-                        gUser.malProfile.RequestCached ?
-                        "\nCache Expiry In: " +  new DateTime().AddSeconds(gUser.malProfile.RequestCacheExpiry).ToString("mm:ss", en_US) : "")
-                    );
+                        embed.Title = gUser.GetAnimelistUsername() + " Profile Cache";
+                        embed.AddFieldSecure(
+                            "Cache",
+                            "Is Cached: " + gUser.malProfile.RequestCached.ToString() + (
+                            gUser.malProfile.RequestCached ?
+                            "\nCache Expiry In: " + new DateTime().AddSeconds(gUser.malProfile.RequestCacheExpiry).ToString("mm:ss", en_US) : "")
+                        );
+                    }
+                    else if(gUser.animeList == GlobalUser.AnimeList.Anilist)
+                    {
+                        embed.Title = "There is no cache option yet for Anilist";
+                    }
                 }
                 else
                 {

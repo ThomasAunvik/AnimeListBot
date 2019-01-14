@@ -275,7 +275,8 @@ namespace AnimeListBot.Modules
                     }
                     else if(gUser.animeList == GlobalUser.AnimeList.Anilist)
                     {
-                        embed.Title = "There is no cache option yet for Anilist";
+                        embed.Title = gUser.GetAnimelistUsername() + " Profile Cache";
+                        embed.Description = "There is no cache option yet for Anilist";
                     }
                 }
                 else

@@ -114,8 +114,12 @@ namespace AnimeListBot
             {
                 server.Users.Add(new ServerUser(user));
             }
-            GlobalUser gUser = new GlobalUser(user);
-            globalUsers.Add(gUser);
+
+            if(globalUsers.Find(x => x.userID == user.Id) != null)
+            {
+                GlobalUser gUser = new GlobalUser(user);
+                globalUsers.Add(gUser);
+            }
 
             await Ranks.UpdateUserRole(user, null);
         }

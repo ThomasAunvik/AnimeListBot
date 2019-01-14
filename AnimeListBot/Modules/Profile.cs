@@ -9,6 +9,7 @@ using AnimeListBot.Handler;
 using Discord;
 using JikanDotNet;
 using AnimeListBot.Handler.Anilist;
+using System.Globalization;
 
 namespace AnimeListBot.Modules
 {
@@ -219,7 +220,7 @@ namespace AnimeListBot.Modules
                 string mangaRank = Context.Guild.GetRole(sUser.currentMangaRankId)?.Name;
                 string animeRank = Context.Guild.GetRole(sUser.currentAnimeRankId)?.Name;
 
-                if (option.ToLower() == "anime")
+                if (option == "anime")
                 {
                     embed.Title = gUser.GetAnimelistUsername() + " Anime Statistics";
                     embed.Fields.Clear();
@@ -238,7 +239,7 @@ namespace AnimeListBot.Modules
                     embed.AddFieldSecure("Dropped", gUser.GetAnimeDropped(), true);
                     embed.AddFieldSecure("Plan to Watch", gUser.GetAnimePlanToWatch(), true);
                 }
-                else if(option.ToLower() == "manga")
+                else if(option == "manga")
                 {
                     embed.Title = gUser.GetAnimelistUsername() + " Manga Statistics";
                     embed.Fields.Clear();
@@ -257,6 +258,18 @@ namespace AnimeListBot.Modules
                     embed.AddFieldSecure("On-Hold", gUser.GetMangaOnHold(), true);
                     embed.AddFieldSecure("Dropped", gUser.GetMangaDropped(), true);
                     embed.AddFieldSecure("Plan to Read", gUser.GetMangaPlanToRead(), true);
+                }
+                else if(option == "cache" && gUser.animeList == GlobalUser.AnimeList.MAL && gUser.malProfile != null)
+                {
+                    CultureInfo en_US = new CultureInfo("en-US");
+
+                    embed.Title = gUser.GetAnimelistUsername() + " Profile Cache";
+                    embed.AddFieldSecure(
+                        "Cache", 
+                        "Is Cached: " + gUser.malProfile.RequestCached.ToString() + (
+                        gUser.malProfile.RequestCached ?
+                        "\nCache Expiry In: " +  new DateTime().AddSeconds(gUser.malProfile.RequestCacheExpiry).ToString("mm:ss", en_US) : "")
+                    );
                 }
                 else
                 {

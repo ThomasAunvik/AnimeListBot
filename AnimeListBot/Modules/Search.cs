@@ -190,11 +190,11 @@ namespace AnimeListBot.Modules
                     "\nAired: " + GetDate(entry.StartDate.GetValueOrDefault(), entry.EndDate.GetValueOrDefault())
             );
 
-            if (globalUser != null && !string.IsNullOrEmpty(globalUser.MAL_Username))
+            if (globalUser != null && !string.IsNullOrWhiteSpace(globalUser.MAL_Username))
             {
                 await globalUser.UpdateMALInfo();
                 UserAnimeList animeList = await Program._jikan.GetUserAnimeList(globalUser.MAL_Username);
-                AnimeListEntry malEntry = animeList.Anime.ToList().Find(x => x.MalId == entry.MalId);
+                AnimeListEntry malEntry = animeList?.Anime?.ToList().Find(x => x.MalId == entry.MalId);
                 if (malEntry != null)
                 {
                     embed.AddFieldSecure(
@@ -203,6 +203,10 @@ namespace AnimeListBot.Modules
                         "\nEpisodes watched: " + malEntry.WatchedEpisodes +
                         "\nRating: " + malEntry.Score
                     );
+                }
+                else
+                {
+                    embed.AddFieldSecure(Format.Sanitize(globalUser.MAL_Username) + " Stats", "Has not watched this anime.");
                 }
             }
             else
@@ -229,7 +233,7 @@ namespace AnimeListBot.Modules
                     "\nAired: " + GetDate(media.startDate, media.endDate)
             );
 
-            if (globalUser != null)
+            if (globalUser != null && !string.IsNullOrWhiteSpace(globalUser.Anilist_Username))
             {
                 IAniMediaList list = await AniMediaListQuery.GetMediaList(globalUser.Anilist_Username, media.id.GetValueOrDefault(), AniMediaType.ANIME);
                 if (list != null)
@@ -241,6 +245,10 @@ namespace AnimeListBot.Modules
                         "\nEpisodes watched: " + list.progress.GetValueOrDefault() +
                         "\nRating: " + list.score
                     );
+                }
+                else
+                {
+                    embed.AddFieldSecure(Format.Sanitize(globalUser.Anilist_Username) + " Stats", "Has not watched this anime.");
                 }
             }
             else
@@ -269,11 +277,11 @@ namespace AnimeListBot.Modules
                     "\nPublished: " + GetDate(entry.StartDate.GetValueOrDefault(), entry.EndDate.GetValueOrDefault())
             );
 
-            if (globalUser != null && !string.IsNullOrEmpty(globalUser.MAL_Username))
+            if (globalUser != null && !string.IsNullOrWhiteSpace(globalUser.MAL_Username))
             {
                 await globalUser.UpdateMALInfo();
                 UserMangaList mangaList = await Program._jikan.GetUserMangaList(globalUser.MAL_Username);
-                MangaListEntry malEntry = mangaList.Manga.ToList().Find(x => x.MalId == entry.MalId);
+                MangaListEntry malEntry = mangaList?.Manga?.ToList().Find(x => x.MalId == entry.MalId);
                 if (malEntry != null)
                 {
                     embed.AddFieldSecure(
@@ -283,6 +291,10 @@ namespace AnimeListBot.Modules
                         "\nChapters read: " + malEntry.ReadChapters +
                         "\nRating: " + malEntry.Score
                     );
+                }
+                else
+                {
+                    embed.AddFieldSecure(Format.Sanitize(globalUser.MAL_Username) + " Stats", "Has not read this manga.");
                 }
             }
             else
@@ -310,7 +322,7 @@ namespace AnimeListBot.Modules
                     "\nAired: " + GetDate(media.startDate, media.endDate)
             );
 
-            if (globalUser != null)
+            if (globalUser != null && !string.IsNullOrWhiteSpace(globalUser.Anilist_Username))
             {
                 IAniMediaList list = await AniMediaListQuery.GetMediaList(globalUser.Anilist_Username, media.id.GetValueOrDefault(), AniMediaType.MANGA);
                 if (list != null)
@@ -323,6 +335,10 @@ namespace AnimeListBot.Modules
                         "\nChapters Read: " + list.progress +
                         "\nRating: " + list.score
                     );
+                }
+                else
+                {
+                    embed.AddFieldSecure(Format.Sanitize(globalUser.Anilist_Username) + " Stats", "Has not read this manga.");
                 }
             }
             else

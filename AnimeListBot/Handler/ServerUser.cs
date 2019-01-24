@@ -1,5 +1,6 @@
 ﻿using Discord.WebSocket;
 using System;
+using System.Data.Common;
 using Newtonsoft.Json;
 
 namespace AnimeListBot.Handler
@@ -19,12 +20,7 @@ namespace AnimeListBot.Handler
 
         public ServerUser(SocketGuildUser user)
         {
-            if(user != null)
-            {
-                username = user.Username;
-                userID = user.Id;
-                isBot = user.IsBot;
-            }
+            UpdateInfo(user);
         }
 
         public void UpdateInfo(SocketGuildUser user)

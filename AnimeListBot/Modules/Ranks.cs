@@ -258,7 +258,7 @@ namespace AnimeListBot.Modules
 
                 // ADDING ROLES
 
-                if (animeRoleId != 0 && animeRoleId != sUser.currentAnimeRankId)
+                if (animeRoleId != 0)
                 {
                     if (!guildUser.RoleIds.Contains(animeRoleId))
                     {
@@ -269,7 +269,7 @@ namespace AnimeListBot.Modules
                     sUser.currentAnimeRankId = animeRoleId;
                 }
 
-                if (mangaRoleId != 0 && mangaRoleId != sUser.currentMangaRankId)
+                if (mangaRoleId != 0)
                 {
                     if (!guildUser.RoleIds.Contains(mangaRoleId))
                     {

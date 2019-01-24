@@ -86,9 +86,13 @@ namespace AnimeListBot
                 discordServers.Add(newServer);
 
                 foreach (SocketUser user in newServer.Guild.Users)
+                {
                     if (!user.IsBot)
+                    {
                         if (globalUsers.Find(x => x.userID == user.Id) == null)
                             globalUsers.Add(new GlobalUser(user));
+                    }
+                }
 
                 try
                 {

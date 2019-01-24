@@ -269,7 +269,7 @@ namespace AnimeListBot.Modules
                     "\nPublished: " + GetDate(entry.StartDate.GetValueOrDefault(), entry.EndDate.GetValueOrDefault())
             );
 
-            if (globalUser != null)
+            if (globalUser != null && !string.IsNullOrEmpty(globalUser.MAL_Username))
             {
                 await globalUser.UpdateMALInfo();
                 UserMangaList mangaList = await Program._jikan.GetUserMangaList(globalUser.MAL_Username);

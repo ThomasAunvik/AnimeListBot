@@ -113,6 +113,7 @@ namespace AnimeListBot.Modules
                 }
                 else
                 {
+                    Console.WriteLine("Invalid Link: " + message.Content);
                     return;
                 }
 

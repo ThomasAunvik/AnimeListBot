@@ -40,8 +40,8 @@ namespace AnimeListBot.Modules
             Program._client.Guilds.ToList().ForEach(x => { totalChannelCount += x.Channels.Count; });
 
             Process proc = Process.GetCurrentProcess();
-            long memorySize = proc.PrivateMemorySize64;
-            float memoryMB = memorySize / 1024 / 1024;
+            long memorySize = proc.WorkingSet64;
+            float memoryMB = MathF.Round(memorySize / 1024 / 1024, 2);
 
             EmbedHandler embed = new EmbedHandler(Context.User, "Bot Stats");
             embed.AddFieldSecure("Uptime", $"{Math.Round(uptime.TotalHours)} hours, {uptime.Minutes, 0} minutes, {uptime.Seconds} seconds", false);

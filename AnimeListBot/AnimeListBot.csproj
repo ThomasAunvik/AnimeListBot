@@ -11,6 +11,10 @@
     <AssemblyName>AnimeListBot</AssemblyName>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <PlatformTarget>x64</PlatformTarget>
+  </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="Discord.Net" Version="2.0.2-dev-01059" />
     <PackageReference Include="GraphQL.Client" Version="2.0.0-alpha.3" />
@@ -39,5 +43,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
+
+  <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+    <Exec Command="echo -- PRE BUILD START --&#xD;&#xA;&#xD;&#xA;echo Current Commit:&#xD;&#xA;git rev-parse HEAD&#xD;&#xA;&#xD;&#xA;break&gt;$(OutDir)current_commit.txt&#xD;&#xA;git rev-parse HEAD &gt;&gt; $(OutDir)current_commit.txt&#xD;&#xA;&#xD;&#xA;echo Git Status:&#xD;&#xA;git status&#xD;&#xA;&#xD;&#xA;break&gt;$(OutDir)git_status.txt&#xD;&#xA;git status &gt;&gt; $(OutDir)git_status.txt&#xD;&#xA;&#xD;&#xA;echo -- PRE BUILD END --" />
+  </Target>
 
 </Project>

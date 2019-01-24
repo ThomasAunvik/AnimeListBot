@@ -41,6 +41,8 @@ namespace AnimeListBot
         public static List<GlobalUser> globalUsers;
 
         public static string[] botOwners;
+        public static string currentCommit;
+        public static string gitStatus;
 
         public static bool stop = false;
 
@@ -153,6 +155,16 @@ namespace AnimeListBot
             if (File.Exists("botOwners.txt"))
             {
                 botOwners = File.ReadAllLines("botOwners.txt");
+            }
+
+            if (File.Exists("current_commit.txt"))
+            {
+                currentCommit = File.ReadAllText("current_commit.txt");
+            }
+
+            if (File.Exists("git_status.txt"))
+            {
+                gitStatus = File.ReadAllText("git_status.txt");
             }
 
             _client?.Dispose();

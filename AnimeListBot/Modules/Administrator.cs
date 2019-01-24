@@ -121,5 +121,14 @@ namespace AnimeListBot.Modules
             );
             await embed.UpdateEmbed();
         }
+
+        [Command("gitstatus")]
+        public async Task GitStatus()
+        {
+            EmbedHandler embed = new EmbedHandler(Context.User, "Git Status");
+            embed.AddFieldSecure("Commit Hash", string.IsNullOrEmpty(Program.currentCommit) ? "None" : Program.currentCommit);
+            embed.AddFieldSecure("Status", string.IsNullOrEmpty(Program.gitStatus) ? "None" : Program.gitStatus);
+            await embed.SendMessage(Context.Channel);
+        }
     }
 }

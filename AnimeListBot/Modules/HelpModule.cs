@@ -30,7 +30,7 @@ namespace AnimeListBot.Modules
             }
 
             EmbedHandler embed = GetCommandHelp(command, Context);
-            await ReplyAsync("", false, embed.Build());
+            await embed.SendMessage(Context.Channel);
         }
 
         public static EmbedHandler GetCommandHelp(string command, ICommandContext context)
@@ -107,8 +107,8 @@ namespace AnimeListBot.Modules
             var foo = await Context.Client.GetApplicationInfoAsync();
 
             var builder = GetHelpEmbed();
-
-            await ReplyAsync("", false, builder.Build());
+            
+            await builder.SendMessage(Context.Channel);
         }
 
         public async Task ContextlessHelpAsync(string command, ISocketMessageChannel channel)
@@ -120,12 +120,12 @@ namespace AnimeListBot.Modules
             await channel.SendMessageAsync("", false, builder.Build());
         }
         
-        public EmbedBuilder GetHelpEmbed(){
-            var builder = new EmbedBuilder()
-            {
-                Color = Program.embedColor,
-                Description = $"These are the commands you can use \nFor more detailed command explanations type `{ Program.botPrefix }help <command>`"
-            };
+        public EmbedHandler GetHelpEmbed()
+        {
+            IUser contextUser = Context?.User;
+
+            var builder = new EmbedHandler(contextUser);
+            builder.Description = $"These are the commands you can use \nFor more detailed command explanations type `{Program.botPrefix}help <command>`";
 
             foreach (var module in _service.Modules)
             {

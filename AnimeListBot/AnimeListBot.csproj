@@ -45,7 +45,7 @@
   </ItemGroup>
 
   <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
-    <Exec Command="echo -- PRE BUILD START --&#xD;&#xA;&#xD;&#xA;echo Current Commit:&#xD;&#xA;git rev-parse HEAD&#xD;&#xA;&#xD;&#xA;break&gt;$(OutDir)current_commit.txt&#xD;&#xA;git rev-parse HEAD &gt;&gt; $(OutDir)current_commit.txt&#xD;&#xA;&#xD;&#xA;echo Git Status:&#xD;&#xA;git status&#xD;&#xA;&#xD;&#xA;break&gt;$(OutDir)git_status.txt&#xD;&#xA;git status &gt;&gt; $(OutDir)git_status.txt&#xD;&#xA;&#xD;&#xA;echo -- PRE BUILD END --" />
+    <Exec Command="echo -- PRE BUILD START --&#xD;&#xA;&#xD;&#xA;echo Target Dir: $(TargetDir)&#xD;&#xA;&#xD;&#xA;echo Current Commit:&#xD;&#xA;git rev-parse HEAD&#xD;&#xA;&#xD;&#xA;break&gt;$(OutDir)current_commit.txt&#xD;&#xA;git rev-parse HEAD &gt;&gt; $(OutDir)current_commit.txt&#xD;&#xA;&#xD;&#xA;echo Git Status:&#xD;&#xA;git status&#xD;&#xA;&#xD;&#xA;break&gt;$(OutDir)git_status.txt&#xD;&#xA;git status &gt;&gt; $(OutDir)git_status.txt&#xD;&#xA;&#xD;&#xA;echo -- PRE BUILD END --" />
   </Target>
 
 </Project>

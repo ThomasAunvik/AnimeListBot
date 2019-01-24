@@ -126,7 +126,15 @@ namespace AnimeListBot.Modules
         public async Task GitStatus()
         {
             EmbedHandler embed = new EmbedHandler(Context.User, "Git Status");
-            embed.AddFieldSecure("Commit Hash", string.IsNullOrEmpty(Program.currentCommit) ? "None" : Program.currentCommit);
+
+            string commitText = "None";
+            if (!string.IsNullOrEmpty(Program.currentCommit))
+            {
+                commitText = "[" + Program.currentCommit.Substring(0, 7) + "](" +
+                             "https://github.com/ThomasAunvik/AnimeListBot/commit/" + Program.currentCommit + ")";
+            }
+
+            embed.AddFieldSecure("Commit", commitText);
             embed.AddFieldSecure("Status", string.IsNullOrEmpty(Program.gitStatus) ? "None" : Program.gitStatus);
             await embed.SendMessage(Context.Channel);
         }

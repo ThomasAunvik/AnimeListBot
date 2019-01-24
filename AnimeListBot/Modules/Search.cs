@@ -190,7 +190,7 @@ namespace AnimeListBot.Modules
                     "\nAired: " + GetDate(entry.StartDate.GetValueOrDefault(), entry.EndDate.GetValueOrDefault())
             );
 
-            if (globalUser != null)
+            if (globalUser != null && !string.IsNullOrEmpty(globalUser.MAL_Username))
             {
                 await globalUser.UpdateMALInfo();
                 UserAnimeList animeList = await Program._jikan.GetUserAnimeList(globalUser.MAL_Username);

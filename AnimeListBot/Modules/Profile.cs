@@ -73,6 +73,52 @@ namespace AnimeListBot.Modules
             await Ranks.UpdateUserRole((IGuildUser)Context.User, embed);
         }
 
+        [Command("removeprofile")]
+        [Summary("Removes your or others (only admin) profiles from the discord bot.")]
+        public async Task RemoveProfile(GlobalUser.AnimeList animeList, IUser user = null)
+        {
+            EmbedHandler embed = new EmbedHandler(Context.User, "Removing Profile...");
+            await embed.SendMessage(Context.Channel);
+
+            IGuildUser author = (IGuildUser)Context.User;
+
+            IUser targetUser = Context.User;
+
+            if (user != null && author.GuildPermissions.Has(GuildPermission.ManageRoles))
+            {
+                targetUser = user;
+            }else if (user != null)
+            {
+                embed.Title = "You are not allowed to remove someone else profile.";
+                await embed.UpdateEmbed();
+                return;
+            }
+
+            GlobalUser globalUser = Program.globalUsers.Find(x => x.userID == targetUser.Id);
+            if (globalUser != null)
+            {
+                switch (animeList)
+                {
+                    case GlobalUser.AnimeList.MAL:
+                        globalUser.MAL_Username = "";
+                        await globalUser.UpdateMALInfo();
+                        break;
+                    case GlobalUser.AnimeList.Anilist:
+                        globalUser.Anilist_Username = "";
+                        await globalUser.UpdateAnilistInfo();
+                        break;
+                }
+
+                embed.Title = "Removed profile from discord bot (if there was any).";
+            }
+            else
+            {
+                embed.Title = "User does not have a profile on this discord bot.";
+            }
+
+            await embed.UpdateEmbed();
+        }
+
         public async Task SetupMAL(UserProfile profile, EmbedHandler embed)
         {
             GlobalUser user = Program.globalUsers.Find(x => x.userID == Context.User.Id);

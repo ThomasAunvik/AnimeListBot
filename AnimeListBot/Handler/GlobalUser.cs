@@ -394,6 +394,7 @@ namespace AnimeListBot.Handler
         {
             if (string.IsNullOrEmpty(MAL_Username))
             {
+                malProfile = null;
                 return;
             }
 
@@ -415,6 +416,7 @@ namespace AnimeListBot.Handler
         {
             if (string.IsNullOrEmpty(Anilist_Username))
             {
+                anilistProfile = null;
                 return;
             }
 

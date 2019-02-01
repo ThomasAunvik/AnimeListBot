@@ -137,7 +137,10 @@ namespace AnimeListBot.Modules
                         await user.UpdateAnilistInfo();
                     }
                 }
-            }catch(Exception e)
+
+                await Ranks.UpdateUserRole((IGuildUser)message.Author, null);
+            }
+            catch(Exception e)
             {
                 await Program._logger.LogError(e);
             }

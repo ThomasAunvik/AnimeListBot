@@ -117,7 +117,7 @@ namespace AnimeListBot.Modules
                     return;
                 }
 
-                if (isValidLink && containsMAL && !string.IsNullOrWhiteSpace(user.MAL_Username))
+                if (isValidLink && containsMAL && string.IsNullOrWhiteSpace(user.MAL_Username))
                 {
                     UserProfile profile = await Program._jikan.GetUserProfile(usernamePart);
                     if (profile != null)
@@ -127,7 +127,7 @@ namespace AnimeListBot.Modules
                         await user.UpdateMALInfo();
                     }
                 }
-                else if (isValidLink && containsAnilist && !string.IsNullOrWhiteSpace(user?.Anilist_Username))
+                else if (isValidLink && containsAnilist && string.IsNullOrWhiteSpace(user?.Anilist_Username))
                 {
                     IAniUser profile = await AniUserQuery.GetUser(usernamePart);
                     if (profile != null)

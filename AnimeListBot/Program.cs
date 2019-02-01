@@ -243,7 +243,7 @@ namespace AnimeListBot
 
         private async Task OnCommandExecuted(Optional<CommandInfo> info, ICommandContext context, IResult result)
         {
-            Stats.CommandUsed();
+            await Stats.CommandUsed();
 
             if (result is ExecuteResult)
             {

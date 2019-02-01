@@ -22,7 +22,10 @@ namespace AnimeListBot.Modules
         }
 
         private static SavedStats stats = new SavedStats();
-        public static void CommandUsed() { stats.totalCommands++; }
+        public static async Task CommandUsed() {
+            stats.totalCommands++;
+            await SaveStats();
+        }
 
         [Command("stats")]
         [Summary("Shows the stats for the discord bot.")]

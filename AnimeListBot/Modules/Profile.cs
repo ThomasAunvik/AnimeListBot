@@ -404,7 +404,7 @@ namespace AnimeListBot.Modules
             }
             
             embed.Title = "Leaderboard";
-            if (animeLeaderboard.Count > 0 && animeLeaderboard.Count > ((page - 1) * 10))
+            if (animeLeaderboard.Count > 0 && animeLeaderboard.Count >= ((page - 1) * 10))
             {
                 GlobalUser animeLeadUser = animeLeaderboard[0];
 
@@ -413,7 +413,7 @@ namespace AnimeListBot.Modules
                 animeBoardField.IsInline = true;
                 
                 int startIndex = 0 + ((page - 1) * 10);
-                for (int i = startIndex; i < (mangaLeaderboard.Count >= startIndex + 10 ? startIndex + 10 : mangaLeaderboard.Count); i++)
+                for (int i = startIndex; i < (animeLeaderboard.Count > startIndex + 10 ? startIndex + 10 : animeLeaderboard.Count); i++)
                 {
                     animeLeadUser = animeLeaderboard[i];
 

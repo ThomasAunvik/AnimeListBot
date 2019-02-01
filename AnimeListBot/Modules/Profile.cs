@@ -316,11 +316,10 @@ namespace AnimeListBot.Modules
         }
 
         [Command("Leaderboard")]
-        public async Task Leaderboard()
+        public async Task Leaderboard(int page = 1)
         {
             EmbedHandler embed = new EmbedHandler(Context.User, "Getting Leaderboard...");
             await embed.SendMessage(Context.Channel);
-            embed.Title = "Leaderboard";
 
             GlobalUser gUser = Program.globalUsers.Find(x => x.userID == Context.User.Id);
             DiscordServer server = DiscordServer.GetServerFromID(Context.Guild.Id);
@@ -335,24 +334,44 @@ namespace AnimeListBot.Modules
 
             if (animeLeaderboard.Count <= 0 && mangaLeaderboard.Count <= 0)
             {
-                await ReplyAsync("There is no lead to view.");
+                embed.Title = "There is no lead to view.";
+                await embed.UpdateEmbed();
                 return;
             }
 
-            if (animeLeaderboard.Count > 0)
+            float animePages = MathF.Ceiling(animeLeaderboard.Count / 10f);
+            float mangaPages = MathF.Ceiling(mangaLeaderboard.Count / 10f);
+            float maxPages = MathF.Round((animePages > mangaPages ? animePages : mangaPages));
+            if (maxPages > 1)
+            {
+                embed.Description = "Page: " + page + "/" + maxPages;
+            }
+            
+            if(page > maxPages)
+            {
+                embed.Title = "Page value is too high. Max Page: " + maxPages;
+                embed.Description = "";
+                await embed.UpdateEmbed();
+                return;
+            }
+            
+            embed.Title = "Leaderboard";
+            if (animeLeaderboard.Count > 0 && animeLeaderboard.Count > ((page - 1) * 10))
             {
                 GlobalUser animeLeadUser = animeLeaderboard[0];
 
                 EmbedFieldBuilder animeBoardField = new EmbedFieldBuilder();
                 animeBoardField.Name = "Anime Leaderboard";
                 animeBoardField.IsInline = true;
-
-                // TOP
-                animeBoardField.Value = "#1: " + Format.Sanitize(animeLeadUser.GetAnimelistUsername()) + " - " + animeLeadUser.GetAnimeWatchDays() + " days";
-
-                // THE REST
-                for (int i = 1; i < (animeLeaderboard.Count >= 10 ? 10 : animeLeaderboard.Count); i++)
+                
+                int startIndex = 0 + ((page - 1) * 10);
+                for (int i = startIndex; i < (mangaLeaderboard.Count >= startIndex + 10 ? startIndex + 10 : mangaLeaderboard.Count); i++)
                 {
+                    if (i == startIndex)
+                    {
+                        animeBoardField.Value = "#" + (i + 1) + ": " + Format.Sanitize(animeLeadUser.GetAnimelistUsername()) + " - " + animeLeadUser.GetAnimeWatchDays() + " days";
+                        continue;
+                    }
                     animeLeadUser = animeLeaderboard[i];
                     animeBoardField.Value += "\n#" + (i + 1) + ": " + Format.Sanitize(animeLeadUser.GetAnimelistUsername()) + " - " + animeLeadUser.GetAnimeWatchDays() + " days";
                 }
@@ -366,20 +385,22 @@ namespace AnimeListBot.Modules
                 embed.AddFieldSecure(animeBoardField);
             }
 
-            if(mangaLeaderboard.Count > 0)
+            if(mangaLeaderboard.Count > 0 && mangaLeaderboard.Count > ((page - 1) * 10))
             {
                 GlobalUser mangaLeadUser = mangaLeaderboard[0];
 
                 EmbedFieldBuilder mangaBoardField = new EmbedFieldBuilder();
                 mangaBoardField.Name = "Manga Leaderboard";
                 mangaBoardField.IsInline = true;
-
-                // TOP
-                mangaBoardField.Value = "#1: " + Format.Sanitize(mangaLeadUser.GetAnimelistUsername()) + " - " + mangaLeadUser.GetMangaReadDays() + " days";
-
-                // THE REST
-                for (int i = 1; i < (mangaLeaderboard.Count >= 10 ? 10 : mangaLeaderboard.Count); i++)
+                
+                int startIndex = 0 + ((page - 1) * 10);
+                for (int i = startIndex; i < (mangaLeaderboard.Count >= startIndex + 10 ? startIndex + 10 : mangaLeaderboard.Count); i++)
                 {
+                    if (i == startIndex)
+                    {
+                        mangaBoardField.Value = "#" + (i + 1) + ": " + Format.Sanitize(mangaLeadUser.GetAnimelistUsername()) + " - " + mangaLeadUser.GetAnimeWatchDays() + " days";
+                        continue;
+                    }
                     mangaLeadUser = mangaLeaderboard[i];
                     mangaBoardField.Value += "\n#" + (i + 1) + ": " + Format.Sanitize(mangaLeadUser.GetAnimelistUsername()) + " - " + mangaLeadUser.GetMangaReadDays() + " days";
                 }
@@ -392,6 +413,7 @@ namespace AnimeListBot.Modules
                 }
                 embed.AddFieldSecure(mangaBoardField);
             }
+            
             await embed.UpdateEmbed();
         }
     }

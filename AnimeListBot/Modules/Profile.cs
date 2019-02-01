@@ -334,6 +334,8 @@ namespace AnimeListBot.Modules
                     embed.AddFieldSecure("Manga:", (string.IsNullOrWhiteSpace(mangaRank) ? "" : "**Rank:** " + mangaRank) +
                                              "\n**Days:** " + gUser.GetMangaReadDays());
                 }
+
+                await Ranks.UpdateUserRole(server, sUser, gUser, null);
             }
             else
             {
@@ -413,13 +415,13 @@ namespace AnimeListBot.Modules
                 int startIndex = 0 + ((page - 1) * 10);
                 for (int i = startIndex; i < (mangaLeaderboard.Count >= startIndex + 10 ? startIndex + 10 : mangaLeaderboard.Count); i++)
                 {
-                    if (i == startIndex)
-                    {
-                        animeBoardField.Value = "#" + (i + 1) + ": " + Format.Sanitize(animeLeadUser.GetAnimelistUsername()) + " - " + animeLeadUser.GetAnimeWatchDays() + " days";
-                        continue;
-                    }
                     animeLeadUser = animeLeaderboard[i];
-                    animeBoardField.Value += "\n#" + (i + 1) + ": " + Format.Sanitize(animeLeadUser.GetAnimelistUsername()) + " - " + animeLeadUser.GetAnimeWatchDays() + " days";
+
+                    if (i != startIndex)
+                    {
+                        animeBoardField.Value += "\n";
+                    }
+                    animeBoardField.Value += "#" + (i + 1) + ": " + Format.Sanitize(animeLeadUser.GetAnimelistUsername()) + " - " + animeLeadUser.GetAnimeWatchDays() + " days";
                 }
 
                 // YOURS
@@ -442,13 +444,13 @@ namespace AnimeListBot.Modules
                 int startIndex = 0 + ((page - 1) * 10);
                 for (int i = startIndex; i < (mangaLeaderboard.Count >= startIndex + 10 ? startIndex + 10 : mangaLeaderboard.Count); i++)
                 {
-                    if (i == startIndex)
-                    {
-                        mangaBoardField.Value = "#" + (i + 1) + ": " + Format.Sanitize(mangaLeadUser.GetAnimelistUsername()) + " - " + mangaLeadUser.GetAnimeWatchDays() + " days";
-                        continue;
-                    }
                     mangaLeadUser = mangaLeaderboard[i];
-                    mangaBoardField.Value += "\n#" + (i + 1) + ": " + Format.Sanitize(mangaLeadUser.GetAnimelistUsername()) + " - " + mangaLeadUser.GetMangaReadDays() + " days";
+
+                    if (i != startIndex)
+                    {
+                        mangaBoardField.Value += "\n";
+                    }
+                    mangaBoardField.Value += "#" + (i + 1) + ": " + Format.Sanitize(mangaLeadUser.GetAnimelistUsername()) + " - " + mangaLeadUser.GetMangaReadDays() + " days";
                 }
 
                 // YOURS

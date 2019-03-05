@@ -96,6 +96,9 @@ namespace AnimeListBot.Modules
             embed.AddFieldSecure("Info", $"Guild: {Context.Guild.Name} ({Context.Guild.Id})\nUser: {Context.User.Mention} ({Context.User.Username}#{Context.User.Discriminator} {Context.User.Id})");
 
             await dmOwner.SendMessageAsync("", false, embed.Build());
+
+            EmbedHandler embedRecieved = new EmbedHandler(Context.User, "Contact", "Message Recieved");
+            await embedRecieved.SendMessage(Context.Channel);
         }
 
         [Command("invite")]

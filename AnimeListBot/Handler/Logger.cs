@@ -49,24 +49,31 @@ namespace AnimeListBot.Handler
 
         public async Task Log(string message)
         {
-            using (StreamWriter writer = new StreamWriter(logPath, true))
+            try
             {
-                await writer.WriteAsync((logLines == 0 ? "" : writer.NewLine) + message);
-                Console.WriteLine(message);
-                writer.Close();
+                using (StreamWriter writer = new StreamWriter(logPath, true))
+                {
+                    await writer.WriteAsync((logLines == 0 ? "" : writer.NewLine) + message);
+                    Console.WriteLine(message);
+                    writer.Close();
+                }
+                logLines++;
+            }catch(IOException e)
+            {
+                Console.WriteLine(e);   
             }
-            logLines++;
         }
 
         public async Task LogError(string errorMessage, EmbedBuilder sendEmbed)
         {
+            await Log(errorMessage);
+            if (Program._client == null) return;
+
             const ulong ownerId = 96580514021912576;
             IUser owner = Program._client.GetUser(ownerId);
             var dmOwner = await owner?.GetOrCreateDMChannelAsync();
 
             await owner.SendMessageAsync("", false, sendEmbed.Build());
-
-            await Log(errorMessage);
         }
 
         public async Task LogError(string errorMessage, IUser user = null)

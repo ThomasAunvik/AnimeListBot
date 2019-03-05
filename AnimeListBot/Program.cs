@@ -96,12 +96,9 @@ namespace AnimeListBot
 
                 try
                 {
-                    new Thread(async () =>
-                    {
-                        newServer.isUpdatingRoles = true;
-                        await Ranks.UpdateUserRoles(newServer, null);
-                        newServer.isUpdatingRoles = false;
-                    }).Start();
+                    newServer.isUpdatingRoles = true;
+                    await Ranks.UpdateUserRoles(newServer, null);
+                    newServer.isUpdatingRoles = false;
                 }
                 catch (Exception e)
                 {

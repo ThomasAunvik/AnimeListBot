@@ -30,8 +30,8 @@ namespace AnimeListBot.Handler
         
         public AnimeList animeList;
 
-        public string MAL_Username;
-        public string Anilist_Username;
+        public string MAL_Username = string.Empty;
+        public string Anilist_Username = string.Empty;
 
         public string MAL_imageURL;
         public decimal? MAL_daysWatchedAnime = 0;
@@ -55,9 +55,9 @@ namespace AnimeListBot.Handler
             switch (animeList)
             {
                 case AnimeList.MAL:
-                    return MAL_Username;
+                    return MAL_Username == null ? "" : MAL_Username;
                 case AnimeList.Anilist:
-                    return Anilist_Username;
+                    return Anilist_Username == null ? "" : Anilist_Username;
                 default:
                     return "";
             }

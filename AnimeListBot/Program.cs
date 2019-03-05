@@ -221,7 +221,7 @@ namespace AnimeListBot
                 
                 ulong guildId = ((IGuildChannel)arg.Channel).Guild.Id;
                 DiscordServer server = DiscordServer.GetServerFromID(guildId);
-                if (arg.Channel.Id == server.animeListChannelId)
+                if (arg?.Channel?.Id == server?.animeListChannelId)
                 {
                     await AutoAdder.AddUser(arg);
                 }

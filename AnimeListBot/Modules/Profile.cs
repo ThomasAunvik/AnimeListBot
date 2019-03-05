@@ -346,9 +346,22 @@ namespace AnimeListBot.Modules
         }
 
         [Command("profile")]
-        public async Task GetProfile(string option = "")
+        public async Task GetProfile(string nameOrOption = "", string option = "")
         {
-            await GetProfile(null, option);
+            IUser targetUser = null;
+            if(nameOrOption != "anime" && nameOrOption != "manga")
+            {
+                List<GlobalUser> searchUsers = Program.globalUsers.Where(x =>
+                    x.GetAnimelistUsername().ToLower().Contains(nameOrOption.ToLower())
+                ).ToList();
+
+                if (searchUsers.Count > 0)
+                {
+                    targetUser = Program._client.GetUser(searchUsers[0].userID);
+                }
+            }
+
+            await GetProfile(targetUser, targetUser == null ? nameOrOption : option);
         }
 
         [Command("animeprofile")]

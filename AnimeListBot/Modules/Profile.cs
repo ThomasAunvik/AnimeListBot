@@ -349,7 +349,7 @@ namespace AnimeListBot.Modules
         public async Task GetProfile(string nameOrOption = "", string option = "")
         {
             IUser targetUser = null;
-            if(nameOrOption != "anime" && nameOrOption != "manga")
+            if(nameOrOption != "anime" && nameOrOption != "manga" && nameOrOption != string.Empty)
             {
                 List<GlobalUser> searchUsers = Program.globalUsers.Where(x =>
                     x.GetAnimelistUsername().ToLower().Contains(nameOrOption.ToLower())

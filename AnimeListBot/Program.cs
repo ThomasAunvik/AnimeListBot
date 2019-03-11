@@ -78,6 +78,8 @@ namespace AnimeListBot
 
         public async Task OnReadyAsync()
         {
+            await Stats.LoadStats();
+
             globalUsers = new List<GlobalUser>();
             discordServers = new List<DiscordServer>();
             foreach (SocketGuild guild in _client.Guilds)
@@ -106,8 +108,6 @@ namespace AnimeListBot
                     await _logger.LogError(e);
                 }
             }
-            
-            await Stats.LoadStats();
         }
 
         public async Task OnUserJoined(SocketGuildUser user)

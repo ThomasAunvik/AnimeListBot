@@ -92,6 +92,7 @@ namespace AnimeListBot.Modules
 
         public static async Task SaveStats()
         {
+            await LoadStats();
             try
             {
                 string json = JsonConvert.SerializeObject(stats);

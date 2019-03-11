@@ -434,7 +434,8 @@ namespace AnimeListBot.Modules
                     {
                         animeBoardField.Value += "\n";
                     }
-                    animeBoardField.Value += "#" + (i + 1) + ": " + Format.Sanitize(animeLeadUser.GetAnimelistUsername()) + " - " + animeLeadUser.GetAnimeWatchDays() + " days";
+                    IUser leadDiscordUser = Program._client.GetUser(animeLeadUser.userID);
+                    animeBoardField.Value += "#" + (i + 1) + ": " + Format.Sanitize(animeLeadUser.GetAnimelistUsername()) + " (" + leadDiscordUser.Mention + ") - " + animeLeadUser.GetAnimeWatchDays() + " days";
                 }
 
                 // YOURS
@@ -463,7 +464,9 @@ namespace AnimeListBot.Modules
                     {
                         mangaBoardField.Value += "\n";
                     }
-                    mangaBoardField.Value += "#" + (i + 1) + ": " + Format.Sanitize(mangaLeadUser.GetAnimelistUsername()) + " - " + mangaLeadUser.GetMangaReadDays() + " days";
+
+                    IUser leadDiscordUser = Program._client.GetUser(mangaLeadUser.userID);
+                    mangaBoardField.Value += "#" + (i + 1) + ": " + Format.Sanitize(mangaLeadUser.GetAnimelistUsername()) + " (" + leadDiscordUser.Mention + ") - " + mangaLeadUser.GetMangaReadDays() + " days";
                 }
 
                 // YOURS

@@ -44,7 +44,7 @@ namespace AnimeListBot.Handler.Anilist
                     Query = searchQuery,
                     Variables = new
                     {
-                        name = username,
+                        userName = username,
                         mediaId = id,
                         type = Enum.GetName(typeof(AniMediaType), mediaType),
                         scoreFormat = Enum.GetName(typeof(AniScoreFormat), AniScoreFormat.POINT_10_DECIMAL)

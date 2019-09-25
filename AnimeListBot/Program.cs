@@ -188,6 +188,8 @@ namespace AnimeListBot
             _client.LeftGuild += OnLeftGuild;
             _client.JoinedGuild += OnJoinedGuild;
             _client.UserJoined += OnUserJoined;
+
+            _client.ReactionAdded += OnReactionAdded;
             
             await RegisterCommandsAsync();
             
@@ -202,6 +204,12 @@ namespace AnimeListBot
 
             await _logger.Log("Stopping Bot...");
             return;
+        }
+
+        private Task OnReactionAdded(Cacheable<IUserMessage, ulong> arg1, ISocketMessageChannel arg2, SocketReaction arg3)
+        {
+            EmbedHandler.ExecuteAnyEmoteAction(arg3.Emote, arg1.Value);
+            return Task.CompletedTask;
         }
 
         private static void Main(string[] args) => new Program().RunBotAsync().GetAwaiter().GetResult();

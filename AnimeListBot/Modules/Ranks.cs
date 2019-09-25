@@ -199,7 +199,7 @@ namespace AnimeListBot.Modules
         public static async Task<bool> UpdateUserRole(IGuildUser user, EmbedBuilder embed)
         {
             DiscordServer server = DiscordServer.GetServerFromID(user.Guild.Id);
-            if (server != null)
+            if (server != null && (server.animeRoles.Count > 0 || server.mangaRoles.Count > 0))
             {
                 ServerUser sUser = server.GetUserFromId(user.Id);
                 if (sUser != null)
@@ -243,18 +243,27 @@ namespace AnimeListBot.Modules
                 // DELETING ROLES
 
                 var delAnimeRoles = server.animeRoles.ToList();
-                delAnimeRoles.Remove((animeRoleId, currentAnimeDays));
-                delAnimeRoles.ToList().ForEach(x => { if (!guildUser.RoleIds.Contains(x.roleId)) delAnimeRoles.Remove(x); });
+                if (server.animeRoles != null && server.animeRoles.Count > 0)
+                {
+                    delAnimeRoles.Remove((animeRoleId, currentAnimeDays));
+                    delAnimeRoles.ToList().ForEach(x => { if (!guildUser.RoleIds.Contains(x.roleId)) delAnimeRoles.Remove(x); });
+                }
 
                 var delMangaRoles = server.mangaRoles.ToList();
-                delMangaRoles.Remove((mangaRoleId, currentMangaDays));
-                delMangaRoles.ToList().ForEach(x => { if (!guildUser.RoleIds.Contains(x.roleId)) delMangaRoles.Remove(x); });
+                if (server.mangaRoles != null && server.mangaRoles.Count > 0)
+                {
+                    delMangaRoles.Remove((mangaRoleId, currentMangaDays));
+                    delMangaRoles.ToList().ForEach(x => { if (!guildUser.RoleIds.Contains(x.roleId)) delMangaRoles.Remove(x); });
+                }
 
-                var rolesToDelete = delAnimeRoles.Select(z => server.Guild.GetRole(z.roleId)).ToList();
-                delMangaRoles.ForEach(x => { rolesToDelete.Add(server.Guild.GetRole(x.roleId)); });
+                if (delAnimeRoles.Count > 0 || delMangaRoles.Count > 0)
+                {
+                    var rolesToDelete = delAnimeRoles.Select(z => server.Guild.GetRole(z.roleId)).ToList();
+                    delMangaRoles.ForEach(x => { rolesToDelete.Add(server.Guild.GetRole(x.roleId)); });
 
-                rolesToDelete.ForEach(async x => { await Program._logger.Log(gUser.Username + " lost rank " + x.Name); });
-                await guildUser.RemoveRolesAsync(rolesToDelete);
+                    rolesToDelete.ForEach(async x => { await Program._logger.Log(gUser.Username + " lost rank " + x.Name); });
+                    await guildUser.RemoveRolesAsync(rolesToDelete);
+                }
 
                 // ADDING ROLES
 

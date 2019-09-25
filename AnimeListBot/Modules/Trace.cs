@@ -55,7 +55,7 @@ namespace AnimeListBot.Modules
                         "Episode: " + doc.episode + "\n" +
                         "At: " + GetTraceTime(atTime) + "\n" +
                         (atTime.TotalSeconds == toTime.TotalSeconds ? "" :("To: " + GetTraceTime(atTime) + "\n")) +
-                        "Similarity: " + doc.similarity + "\n" +
+                        "Similarity: " + (doc.similarity.GetValueOrDefault() * 100).ToString("N2") + "%\n" +
                         
                         "MAL Id: " + doc.mal_id + "\n" +
                         "Anilist Id: " + doc.anilist_id + "\n"

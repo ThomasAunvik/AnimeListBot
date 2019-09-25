@@ -20,8 +20,16 @@ namespace AnimeListBot.Modules
             EmbedHandler embed = new EmbedHandler(targetUser, "Searching for " + search + "...");
             await embed.SendMessage(Context.Channel);
 
+            await SearchAnime(embed, targetUser, search);
+        }
+
+        public static async Task SearchAnime(EmbedHandler embed, IUser targetUser, string search)
+        {
+            embed.Title = "Searching for " + search + "...";
+            await embed.UpdateEmbed();
+
             GlobalUser globalUser = Program.globalUsers.Find(x => x.userID == targetUser.Id);
-            
+
             AnimeSearchResult searchResult = await Program._jikan.SearchAnime(search);
             IAniMedia media = await AniMediaQuery.SearchMedia(search, AniMediaType.ANIME);
 
@@ -32,16 +40,16 @@ namespace AnimeListBot.Modules
             {
                 await SetAnimeMalInfo(searchResult, embed, globalUser, targetUser);
             }
-            else if(mal && media != null)
+            else if (mal && media != null)
             {
                 mal = false;
             }
-            
-            if(!mal && media != null)
+
+            if (!mal && media != null)
             {
                 await SetAnimeAniInfo(media, embed, globalUser, targetUser);
             }
-            else if(!mal && (searchResult != null && searchResult.Results.Count > 0))
+            else if (!mal && (searchResult != null && searchResult.Results.Count > 0))
             {
                 await SetAnimeMalInfo(searchResult, embed, globalUser, targetUser);
             }
@@ -173,7 +181,7 @@ namespace AnimeListBot.Modules
             await embed.UpdateEmbed();
         }
 
-        public async Task SetAnimeMalInfo(AnimeSearchResult searchResult, EmbedHandler embed, GlobalUser globalUser, IUser targetUser)
+        private static async Task SetAnimeMalInfo(AnimeSearchResult searchResult, EmbedHandler embed, GlobalUser globalUser, IUser targetUser)
         {
             List<AnimeSearchEntry> results = searchResult.Results.ToList();
             AnimeSearchEntry entry = results[0];
@@ -218,7 +226,7 @@ namespace AnimeListBot.Modules
             }
         }
 
-        public async Task SetAnimeAniInfo(IAniMedia media, EmbedHandler embed, GlobalUser globalUser, IUser targetUser)
+        private static async Task SetAnimeAniInfo(IAniMedia media, EmbedHandler embed, GlobalUser globalUser, IUser targetUser)
         {
             embed.Title = media.title.english;
             embed.Description = EmbedHandler.SecureEmbedText(media.description);
@@ -260,7 +268,7 @@ namespace AnimeListBot.Modules
             }
         }
 
-        public async Task SetMangaMalInfo(MangaSearchResult searchResult, EmbedHandler embed, GlobalUser globalUser, IUser targetUser)
+        private static async Task SetMangaMalInfo(MangaSearchResult searchResult, EmbedHandler embed, GlobalUser globalUser, IUser targetUser)
         {
             List<MangaSearchEntry> results = searchResult.Results.ToList();
             MangaSearchEntry entry = results[0];
@@ -306,7 +314,7 @@ namespace AnimeListBot.Modules
             }
         }
 
-        public async Task SetMangaAniInfo(IAniMedia media, EmbedHandler embed, GlobalUser globalUser, IUser targetUser)
+        private static async Task SetMangaAniInfo(IAniMedia media, EmbedHandler embed, GlobalUser globalUser, IUser targetUser)
         {
             embed.Title = media.title.english;
             embed.Description = EmbedHandler.SecureEmbedText(media.description);

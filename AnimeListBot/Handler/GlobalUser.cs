@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace AnimeListBot.Handler
 {
@@ -81,9 +82,9 @@ namespace AnimeListBot.Handler
             switch (animeList)
             {
                 case AnimeList.MAL:
-                    return malProfile.URL;
+                    return malProfile?.URL;
                 case AnimeList.Anilist:
-                    return anilistProfile.siteUrl;
+                    return anilistProfile?.siteUrl;
                 default:
                     return "";
             }

@@ -8,6 +8,11 @@ using System.IO;
 using AnimeListBot.Handler.trace.moe.Objects;
 using Newtonsoft.Json;
 using System.Text.RegularExpressions;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Processing;
+using SixLabors.ImageSharp.PixelFormats;
+using SixLabors.ImageSharp.Formats;
+using SixLabors.ImageSharp.Formats.Jpeg;
 
 namespace AnimeListBot.Handler.trace.moe
 {
@@ -17,9 +22,7 @@ namespace AnimeListBot.Handler.trace.moe
 
         public static async Task<ITraceResult> Search(Uri link)
         {
-            byte[] buffer = new byte[1024];
-            byte[] imgData;
-
+            Image<Rgba32> searchImage;
             try
             {
                 WebRequest req = WebRequest.Create(link);
@@ -36,35 +39,8 @@ namespace AnimeListBot.Handler.trace.moe
 
                 using (Stream imgStream = imgResponse.GetResponseStream())
                 {
-                    using (MemoryStream memStream = new MemoryStream())
-                    {
-                        while (true)
-                        {
-                            int bytesRead = imgStream.Read(buffer, 0, buffer.Length);
-
-                            if (bytesRead == 0)
-                            {
-                                break;
-                            }
-                            else
-                            {
-                                memStream.Write(buffer, 0, bytesRead);
-                            }
-                        }
-                        imgData = memStream.ToArray();
-
-                        imgStream.Close();
-                        memStream.Close();
-                    }
-                }
-
-                if (imgData.Length <= 0)
-                {
-                    return new TraceResult()
-                    {
-                        failed = true,
-                        errorMessage = "Failed to load data."
-                    };
+                    searchImage = Image.Load(imgStream);
+                    imgStream.Close();
                 }
             }catch(Exception e)
             {
@@ -74,8 +50,9 @@ namespace AnimeListBot.Handler.trace.moe
                     errorMessage = e.Message
                 };
             }
-            
-            string base64image = Convert.ToBase64String(imgData);
+
+            byte[] imageData = CompressImageToArray(searchImage);
+            string base64image = Convert.ToBase64String(imageData);
 
             HttpClient httpClient = Program.httpClient;
             var values = new Dictionary<string, string>
@@ -142,6 +119,23 @@ namespace AnimeListBot.Handler.trace.moe
                     };
                 }
             }
+        }
+
+        public static byte[] CompressImageToArray(Image<Rgba32> img)
+        {
+            byte[] byteArray = new byte[0];
+            using (MemoryStream stream = new MemoryStream())
+            {
+                JpegEncoder encoder = new JpegEncoder();
+                encoder.Quality = 75;
+                img.Save(stream, encoder);
+
+                byteArray = stream.ToArray();
+                Console.WriteLine("Data Length: " + byteArray.Length);
+
+                stream.Close();
+            }
+            return byteArray;
         }
     }
 }

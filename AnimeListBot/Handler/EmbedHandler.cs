@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace AnimeListBot.Handler
 {
@@ -13,6 +14,10 @@ namespace AnimeListBot.Handler
 
         IUser user;
         IUserMessage embedMessage;
+
+        private static List<EmbedHandler> activatedEmoteActions = new List<EmbedHandler>();
+        private List<(IEmote, Action)> emojiActions = new List<(IEmote, Action)>();
+        private DateTime emoteTimeout;
 
         public EmbedHandler(IUser user, string title = "", string description = "")
         {
@@ -32,6 +37,10 @@ namespace AnimeListBot.Handler
         public async Task SendMessage(IMessageChannel channel, string message = "")
         {
             embedMessage = await channel.SendMessageAsync(message, false, Build());
+            
+            await embedMessage.AddReactionsAsync(emojiActions.Select(x => x.Item1).ToArray());
+            emoteTimeout = DateTime.Now.AddSeconds(120);
+            CheckTimeouts();
         }
 
         public async Task UpdateEmbed()
@@ -39,6 +48,15 @@ namespace AnimeListBot.Handler
             if (embedMessage != null)
             {
                 await embedMessage.ModifyAsync(x => x.Embed = Build());
+
+                IEmote[] newEmotes = emojiActions.Select(x => x.Item1).ToArray();
+                if(embedMessage.Reactions.Select(x => x.Key) != newEmotes)
+                {
+                    await embedMessage.RemoveAllReactionsAsync();
+                    await embedMessage.AddReactionAsync(newEmotes[0]);
+                    emoteTimeout = DateTime.Now.AddSeconds(120);
+                    CheckTimeouts();
+                }
             }
             else
             {
@@ -85,6 +103,50 @@ namespace AnimeListBot.Handler
                 value = value.Substring(0, MAX_FIELD_VALUE_LENGTH - 3) + "...";
             }
             return value;
+        }
+
+        public async Task AddEmojiActions(List<(IEmote, Action)> actions)
+        {
+            if (!activatedEmoteActions.Contains(this))
+            {
+                activatedEmoteActions.Add(this);
+            }
+            emojiActions.AddRange(actions);
+
+            if (embedMessage != null) await UpdateEmbed();
+        }
+
+        public void AddEmojiAction(IEmote emote, Action action)
+        {
+            if (!activatedEmoteActions.Contains(this))
+            {
+                activatedEmoteActions.Add(this);
+            }
+            emojiActions.Add((emote, action));
+        }
+
+        public static void ExecuteAnyEmoteAction(IEmote emote, IMessage message)
+        {
+            CheckTimeouts();
+            EmbedHandler embed = activatedEmoteActions.Find(x => x.embedMessage?.Id == message.Id);
+            if (embed == null) return;
+
+            (IEmote, Action) actionEmote = embed.emojiActions.Find(x => x.Item1 == emote);
+            if(actionEmote != (null, null))
+            {
+                actionEmote.Item2();
+            }
+        }
+
+        public static void CheckTimeouts()
+        {
+            activatedEmoteActions.ToList().ForEach(x =>
+            {
+                if(x.emoteTimeout < DateTime.Now)
+                {
+                    activatedEmoteActions.Remove(x);
+                }
+            });
         }
     }
 }

@@ -22,7 +22,7 @@ namespace AnimeListBot.Handler.Anilist
                             medium
                         }
                         stats {
-                            watchedTime
+                            minutesWatched
                             chaptersRead
 
                             animeStatusDistribution {

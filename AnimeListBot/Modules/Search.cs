@@ -76,7 +76,7 @@ namespace AnimeListBot.Modules
             embed.Title = "No Manga Found";
 
             bool mal = globalUser.animeList == GlobalUser.AnimeList.MAL;
-            if (mal && (searchResult != null || searchResult.Results.Count > 0))
+            if (mal && (searchResult != null && searchResult.Results.Count > 0))
             {
                 await SetMangaMalInfo(searchResult, embed, globalUser, targetUser);
             }
@@ -89,7 +89,7 @@ namespace AnimeListBot.Modules
             {
                 await SetMangaAniInfo(media, embed, globalUser, targetUser);
             }
-            else if (!mal && (searchResult != null || searchResult.Results.Count > 0))
+            else if (!mal && (searchResult != null && searchResult.Results.Count > 0))
             {
                 await SetMangaMalInfo(searchResult, embed, globalUser, targetUser);
             }

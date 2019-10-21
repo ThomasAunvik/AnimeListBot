@@ -13,52 +13,46 @@ namespace AnimeListBot.Handler.Anilist
     public class AniUserQuery
     {
         public const string query = @"
-                query ($name: String){
-                    User(name: $name) {
-                        id
-                        name
-                        avatar {
-                            large
-                            medium
+                query($name: String){
+                    User(name: $name){
+                    id
+		            name
+   	                avatar{
+                      large
+                      medium
+                    } 
+    
+                    statistics{
+                      anime{
+                        count
+                        minutesWatched
+                        episodesWatched
+                        meanScore
+                        statuses{
+         	              status
+                          count
+                          meanScore
+                          chaptersRead
                         }
-                        stats {
-                            minutesWatched
-                            chaptersRead
-
-                            animeStatusDistribution {
-                                status
-                                amount
-                            }
-
-                            mangaStatusDistribution {
-                                status
-                                amount
-                            }
-
-                            animeScoreDistribution {
-                                score
-                                amount
-                            }
-
-                            mangaScoreDistribution {
-                                score
-                                amount
-                            }
-                            
-                            animeListScores {
-                                meanScore
-                                standardDeviation
-                            }
-
-                            mangaListScores {
-                                meanScore
-                                standardDeviation
-                            }
+                      }
+      
+                      manga{
+                        count
+                        volumesRead
+                        chaptersRead
+                        meanScore
+                        statuses{
+         	              status
+                          count
+                          meanScore
+                          chaptersRead
                         }
-                        siteUrl
+                      }
                     }
-                }
-                ";
+    
+		            siteUrl
+                  }
+                }";
 
         public static async Task<IAniUser> GetUser(string username)
         {

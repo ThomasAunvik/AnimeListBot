@@ -8,6 +8,6 @@
 
         public AniUserAvatar Avatar { get; set; }
 
-        public AniUserStats Stats { get; set; }
+        public AniUserStatisticTypes statistics { get; set; }
     }
 }

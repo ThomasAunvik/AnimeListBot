@@ -239,6 +239,7 @@ namespace AnimeListBot.Modules
 
                 // await Program._logger.Log("Getting userid: " + gUser.userID + " from: " + gUser.Username);
                 IGuildUser guildUser = server.Guild.GetUser(gUser.userID);
+                if (guildUser == null) return;
 
                 // DELETING ROLES
 
@@ -246,14 +247,20 @@ namespace AnimeListBot.Modules
                 if (server.animeRoles != null && server.animeRoles.Count > 0)
                 {
                     delAnimeRoles.Remove((animeRoleId, currentAnimeDays));
-                    delAnimeRoles.ToList().ForEach(x => { if (!guildUser.RoleIds.Contains(x.roleId)) delAnimeRoles.Remove(x); });
+                    delAnimeRoles.ToList().ForEach(x => {
+                        if (!guildUser.RoleIds.Contains(x.roleId))
+                            delAnimeRoles.Remove(x);
+                    });
                 }
 
                 var delMangaRoles = server.mangaRoles.ToList();
                 if (server.mangaRoles != null && server.mangaRoles.Count > 0)
                 {
                     delMangaRoles.Remove((mangaRoleId, currentMangaDays));
-                    delMangaRoles.ToList().ForEach(x => { if (!guildUser.RoleIds.Contains(x.roleId)) delMangaRoles.Remove(x); });
+                    delMangaRoles.ToList().ForEach(x => {
+                        if (!guildUser.RoleIds.Contains(x.roleId))
+                            delMangaRoles.Remove(x);
+                    });
                 }
 
                 if (delAnimeRoles.Count > 0 || delMangaRoles.Count > 0)

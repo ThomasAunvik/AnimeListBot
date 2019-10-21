@@ -7,7 +7,8 @@
          string siteUrl { get; }
 
          AniUserAvatar Avatar { get; }
-        
-         AniUserStats Stats { get; }
+
+         AniUserStatisticTypes statistics { get; }
+            
     }
 }

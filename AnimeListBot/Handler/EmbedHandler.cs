@@ -50,11 +50,12 @@ namespace AnimeListBot.Handler
                 await embedMessage.ModifyAsync(x => x.Embed = Build());
 
                 IEmote[] newEmotes = emojiActions.Select(x => x.Item1).ToArray();
-                if(embedMessage.Reactions.Select(x => x.Key) != newEmotes)
+                if (newEmotes.Length > 0 && embedMessage.Reactions.Select(x => x.Key) != newEmotes)
                 {
                     await embedMessage.RemoveAllReactionsAsync();
-                    await embedMessage.AddReactionAsync(newEmotes[0]);
+                    await embedMessage.AddReactionsAsync(newEmotes);
                     emoteTimeout = DateTime.Now.AddSeconds(120);
+
                     CheckTimeouts();
                 }
             }

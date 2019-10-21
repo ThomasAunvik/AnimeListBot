@@ -108,6 +108,8 @@ namespace AnimeListBot
                     await _logger.LogError(e);
                 }
             }
+
+            await RegisterCommandsAsync();
         }
 
         public async Task OnUserJoined(SocketGuildUser user)
@@ -190,8 +192,6 @@ namespace AnimeListBot
             _client.UserJoined += OnUserJoined;
 
             _client.ReactionAdded += OnReactionAdded;
-            
-            await RegisterCommandsAsync();
             
             await _client.LoginAsync(TokenType.Bot, botToken);
 

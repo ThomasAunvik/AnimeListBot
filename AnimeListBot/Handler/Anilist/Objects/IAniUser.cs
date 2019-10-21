@@ -9,6 +9,5 @@
          AniUserAvatar Avatar { get; }
 
          AniUserStatisticTypes statistics { get; }
-            
     }
 }

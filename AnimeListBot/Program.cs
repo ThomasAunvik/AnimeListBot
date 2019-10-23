@@ -45,6 +45,7 @@ namespace AnimeListBot
         public static string gitStatus;
 
         public static bool stop = false;
+        public static bool firstInitilized = false;
 
         public static DateTime BOT_START_TIME { get; private set; }
 
@@ -109,7 +110,11 @@ namespace AnimeListBot
                 }
             }
 
-            await RegisterCommandsAsync();
+            if (!firstInitilized)
+            {
+                await RegisterCommandsAsync();
+                firstInitilized = true;
+            }
         }
 
         public async Task OnUserJoined(SocketGuildUser user)

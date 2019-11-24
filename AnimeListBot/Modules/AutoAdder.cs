@@ -113,7 +113,12 @@ namespace AnimeListBot.Modules
                 }
                 else
                 {
-                    Console.WriteLine("Invalid Link: " + message.Content);
+                    string returnMessage = "Invalid Profile Link: " + message.Content;
+                    Console.WriteLine(returnMessage);
+                    await message.Author.SendMessageAsync(returnMessage + "\nPlease use the following link formats:\n" +
+                        "MAL: https://myanimelist.net/profile/[username]\n" +
+                        "Anilist: https://anilist.co/user/[username]");
+                    await message.DeleteAsync();
                     return;
                 }
 

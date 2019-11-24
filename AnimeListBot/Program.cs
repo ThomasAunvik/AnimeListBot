@@ -237,6 +237,7 @@ namespace AnimeListBot
                 if (arg?.Channel?.Id == server?.animeListChannelId)
                 {
                     await AutoAdder.AddUser(arg);
+                    return;
                 }
 
                 int argPos = 0;

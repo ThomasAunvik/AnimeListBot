@@ -139,7 +139,7 @@ namespace AnimeListBot.Handler
         {
             await DatabaseConnection.SendSql(string.Format(
                 @"INSERT INTO public.discord_user (user_id, mal_username, anilist_username, list_preference, anime_days, manga_days) VALUES (
-                    '{0}'::bigint, '{1}'::text, '{2}'::text, '{3}'::integer, '{4}'::double, '{5}'::double)
+                    '{0}'::bigint, '{1}'::text, '{2}'::text, '{3}'::integer, '{4}'::double precision, '{5}'::double precision)
                      returning user_id;",
                 user.userID, user.malProfile?.Username, user.anilistProfile?.name, (int)user.animeList, user.animeDays, user.mangaDays
             ));
@@ -153,8 +153,8 @@ namespace AnimeListBot.Handler
                 list_preference = '{0}'::integer,
                 anilist_username = '{1}'::text,
                 mal_username = '{2}'::text,
-                anime_days = '{4}'::double,
-                manga_days = '{5}'::double
+                anime_days = '{4}'::double precision,
+                manga_days = '{5}'::double precision
                 WHERE user_id = '{3}';",
                 (int)user.animeList, user.anilistProfile?.name, user.malProfile?.Username, user.userID, user.animeDays, user.mangaDays
             ));

@@ -100,7 +100,7 @@ namespace AnimeListBot.Handler
             return true;
         }
 
-        public static async Task<DiscordUser> GetUserById(ulong id)
+        public static async Task<DiscordUser> GetUserById(ulong id, bool update = true)
         {
             DataSet set = await DatabaseConnection.SendSql("SELECT * from public.discord_user where user_id = " + id);
             if (set.Tables[0].Rows.Count <= 0) return null;
@@ -114,8 +114,13 @@ namespace AnimeListBot.Handler
             string mal_username = row.ItemArray[1].ToString();
             string anilist_username = row.ItemArray[2].ToString();
 
-            if (mal_username != string.Empty) await discordUser.UpdateMALInfo(mal_username);
-            if (anilist_username != string.Empty) await discordUser.UpdateAnilistInfo(anilist_username);
+
+
+            if (update)
+            {
+                if (mal_username != string.Empty) await discordUser.UpdateMALInfo(mal_username);
+                if (anilist_username != string.Empty) await discordUser.UpdateAnilistInfo(anilist_username);
+            }
 
             return discordUser;
         }

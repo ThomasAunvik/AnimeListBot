@@ -29,6 +29,9 @@ namespace AnimeListBot.Handler
         
         public AnimeList animeList;
 
+        public decimal animeDays;
+        public decimal mangaDays;
+
         public DiscordUser() { }
 
         // Most of the reasons you do this part is to create a new user and upload it to the db automaticly

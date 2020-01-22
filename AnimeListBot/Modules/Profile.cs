@@ -288,8 +288,8 @@ namespace AnimeListBot.Modules
             await GetProfile(user, "manga");
         }
 
-        
-        [Command("Leaderboard")]
+        // TODO: Temporary Disablement of Leaderboard till days fixed.
+        //[Command("Leaderboard")]
         public async Task Leaderboard(int page = 1)
         {
             EmbedHandler embed = new EmbedHandler(Context.User, "Getting Leaderboard...");
@@ -300,7 +300,7 @@ namespace AnimeListBot.Modules
 
 
             IReadOnlyCollection<IGuildUser> guildUsers = await Context.Guild.GetUsersAsync();
-            List<DiscordUser> globalServerUsers = guildUsers.Select(async x => await DatabaseRequest.GetUserById(x.Id))
+            List<DiscordUser> globalServerUsers = guildUsers.Select(async x => await DatabaseRequest.GetUserById(x.Id, false))
                                                             .Select(t => t.Result)
                                                             .Where(i => i != null)
                                                             .ToList();

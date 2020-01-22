@@ -152,9 +152,9 @@ namespace AnimeListBot.Handler
                 @"UPDATE public.discord_user SET
                 list_preference = '{0}'::integer,
                 anilist_username = '{1}'::text,
-                mal_username = '{2}'::text
-                anime_days = '{4}'::double
-                manga_days = '{5}'::double
+                mal_username = '{2}'::text,
+                anime_days = '{4}'::double,
+                manga_days = '{5}'::double,
                 WHERE user_id = '{3}';",
                 (int)user.animeList, user.anilistProfile?.name, user.malProfile?.Username, user.userID, user.animeDays, user.mangaDays
             ));

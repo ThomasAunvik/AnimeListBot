@@ -149,8 +149,8 @@ namespace AnimeListBot.Modules
         }
 
         [Command("updateranks")]
-        [RequireBotPermission(GuildPermission.ManageRoles)]
-        [RequireUserPermission(GuildPermission.ManageRoles)]
+        //[RequireBotPermission(GuildPermission.ManageRoles)]
+        //[RequireUserPermission(GuildPermission.ManageRoles)]
         public async Task UpdateRanks()
         {
             EmbedHandler embed = new EmbedHandler(Context.User, "Updating user ranks on this server...");

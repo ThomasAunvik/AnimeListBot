@@ -409,34 +409,46 @@ namespace AnimeListBot.Handler
 
         public async Task<bool> UpdateMALInfo(string username)
         {
-            mal_username = username;
-            malProfile = await Program._jikan.GetUserProfile(username);
-            if(animeList == AnimeList.MAL)
+            try
             {
-                mangaDays = (double)decimal.Round(malProfile.MangaStatistics.DaysRead.GetValueOrDefault(), 1);
+                mal_username = username;
+                malProfile = await Program._jikan.GetUserProfile(username);
+                if (animeList == AnimeList.MAL)
+                {
+                    mangaDays = (double)decimal.Round(malProfile.MangaStatistics.DaysRead.GetValueOrDefault(), 1);
 
-                decimal mal_days = malProfile.AnimeStatistics.DaysWatched.GetValueOrDefault();
-                animeDays = (double)decimal.Round(mal_days, 1);
+                    decimal mal_days = malProfile.AnimeStatistics.DaysWatched.GetValueOrDefault();
+                    animeDays = (double)decimal.Round(mal_days, 1);
+                }
+
+                await DatabaseRequest.UpdateUser(this);
+            } catch(Exception e)
+            {
+                await Program._logger.LogError(e);
             }
-
-            await DatabaseRequest.UpdateUser(this);
             return malProfile != null;
         }
 
         public async Task<bool> UpdateAnilistInfo(string username)
         {
-            anilist_username = username;
-            anilistProfile = await AniUserQuery.GetUser(username);
-            if (animeList == AnimeList.Anilist)
+            try
             {
-                double chaptersRead = (double)decimal.Multiply((anilistProfile.statistics?.manga.chaptersRead).GetValueOrDefault(), (decimal)0.00556);
-                mangaDays = Math.Round(chaptersRead, 1);
+                anilist_username = username;
+                anilistProfile = await AniUserQuery.GetUser(username);
+                if (animeList == AnimeList.Anilist)
+                {
+                    double chaptersRead = (double)decimal.Multiply((anilistProfile.statistics?.manga.chaptersRead).GetValueOrDefault(), (decimal)0.00556);
+                    mangaDays = Math.Round(chaptersRead, 1);
 
-                double minutesWatched = (double)anilistProfile.statistics.anime.minutesWatched;
-                animeDays = minutesWatched / 60.0 / 24.0;
+                    double minutesWatched = (double)anilistProfile.statistics.anime.minutesWatched;
+                    animeDays = minutesWatched / 60.0 / 24.0;
+                }
+
+                await DatabaseRequest.UpdateUser(this);
+            } catch (Exception e) {
+                await Program._logger.LogError(e);
             }
 
-            await DatabaseRequest.UpdateUser(this);
             return anilistProfile != null;
         }
     }

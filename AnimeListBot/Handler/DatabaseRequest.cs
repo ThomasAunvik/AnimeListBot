@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Linq;
 using Npgsql;
+using System.Globalization;
 
 namespace AnimeListBot.Handler
 {
@@ -155,10 +156,13 @@ namespace AnimeListBot.Handler
                 list_preference = '{0}'::integer,
                 anilist_username = '{1}'::text,
                 mal_username = '{2}'::text,
-                anime_days = '{4}'::double precision,
-                manga_days = '{5}'::double precision
-                WHERE user_id = '{3}';",
-                (int)user.animeList, user.anilistProfile?.name, user.malProfile?.Username, user.userID, user.animeDays, user.mangaDays
+                anime_days = '{3}'::double precision,
+                manga_days = '{4}'::double precision
+                WHERE user_id = '{5}';",
+                (int)user.animeList, user.anilistProfile?.name, user.malProfile?.Username, 
+                user.animeDays.ToString("F", CultureInfo.InvariantCulture), 
+                user.mangaDays.ToString("F", CultureInfo.InvariantCulture), 
+                user.userID
             ));
             return true;
         }

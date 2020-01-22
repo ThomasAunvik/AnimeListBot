@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using AnimeListBot.Handler;
 using AnimeListBot.Handler.Anilist;
 using System.Globalization;
+using Discord.WebSocket;
 
 namespace AnimeListBot.Modules
 {
@@ -30,6 +31,23 @@ namespace AnimeListBot.Modules
             else{
                 embed.Title = "You dont have permission to do this command.";
                 await embed.SendMessage(Context.Channel);
+            }
+        }
+
+        [Command("sudo")]
+        public async Task Sudo([Remainder]string command)
+        {
+            if (!Program.botOwners.ToList().Contains(Context.User.Id.ToString())) return;
+
+            await Context.Message.DeleteAsync();
+
+            SocketUserMessage sudoMessage = (SocketUserMessage)await Context.Channel.SendMessageAsync(Program.botPrefix + "command");
+
+            int argPos = 0;
+            if (sudoMessage.HasStringPrefix(Program.botPrefix, ref argPos))
+            {
+                var context = new SocketCommandContext(Program._client, sudoMessage);
+                var result = await Program._commands.ExecuteAsync(context, argPos, Program._services);
             }
         }
 

@@ -25,7 +25,9 @@ namespace AnimeListBot.Handler
         public ulong userID;
         
         public UserProfile malProfile;
+        public string mal_username;
         public IAniUser anilistProfile;
+        public string anilist_username;
         
         public AnimeList animeList;
 
@@ -58,9 +60,9 @@ namespace AnimeListBot.Handler
             switch (animeList)
             {
                 case AnimeList.MAL:
-                    return malProfile.Username == null ? "" : malProfile.Username;
+                    return mal_username;
                 case AnimeList.Anilist:
-                    return anilistProfile.name == null ? "" : anilistProfile.name;
+                    return anilist_username;
                 default:
                     return "";
             }
@@ -407,6 +409,7 @@ namespace AnimeListBot.Handler
 
         public async Task<bool> UpdateMALInfo(string username)
         {
+            mal_username = username;
             malProfile = await Program._jikan.GetUserProfile(username);
             if(animeList == AnimeList.MAL)
             {
@@ -422,6 +425,7 @@ namespace AnimeListBot.Handler
 
         public async Task<bool> UpdateAnilistInfo(string username)
         {
+            anilist_username = username;
             anilistProfile = await AniUserQuery.GetUser(username);
             if (animeList == AnimeList.Anilist)
             {

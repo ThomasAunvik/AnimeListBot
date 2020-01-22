@@ -116,6 +116,8 @@ namespace AnimeListBot.Handler
 
             string mal_username = row.ItemArray[1].ToString();
             string anilist_username = row.ItemArray[2].ToString();
+            discordUser.mal_username = mal_username;
+            discordUser.anilist_username = anilist_username;
 
             if (update)
             {

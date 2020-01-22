@@ -154,7 +154,7 @@ namespace AnimeListBot.Handler
                 anilist_username = '{1}'::text,
                 mal_username = '{2}'::text,
                 anime_days = '{4}'::double,
-                manga_days = '{5}'::double,
+                manga_days = '{5}'::double
                 WHERE user_id = '{3}';",
                 (int)user.animeList, user.anilistProfile?.name, user.malProfile?.Username, user.userID, user.animeDays, user.mangaDays
             ));

@@ -415,6 +415,8 @@ namespace AnimeListBot.Handler
                 decimal mal_days = malProfile.AnimeStatistics.DaysWatched.GetValueOrDefault();
                 animeDays = (double)decimal.Round(mal_days, 1);
             }
+
+            await DatabaseRequest.UpdateUser(this);
             return malProfile != null;
         }
 
@@ -429,6 +431,8 @@ namespace AnimeListBot.Handler
                 double minutesWatched = (double)anilistProfile.statistics.anime.minutesWatched;
                 animeDays = minutesWatched / 60.0 / 24.0;
             }
+
+            await DatabaseRequest.UpdateUser(this);
             return anilistProfile != null;
         }
     }

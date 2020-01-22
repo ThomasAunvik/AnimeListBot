@@ -111,15 +111,16 @@ namespace AnimeListBot.Handler
             discordUser.userID = ulong.Parse(row.ItemArray[0].ToString());
             discordUser.animeList = (DiscordUser.AnimeList)((int)row.ItemArray[3]);
 
+            discordUser.animeDays = (double)row.ItemArray[4];
+            discordUser.mangaDays = (double)row.ItemArray[5];
+
             string mal_username = row.ItemArray[1].ToString();
             string anilist_username = row.ItemArray[2].ToString();
 
-
-
             if (update)
             {
-                if (mal_username != string.Empty) await discordUser.UpdateMALInfo(mal_username);
-                if (anilist_username != string.Empty) await discordUser.UpdateAnilistInfo(anilist_username);
+                if (mal_username != string.Empty && mal_username != null) await discordUser.UpdateMALInfo(mal_username);
+                if (anilist_username != string.Empty && anilist_username != null) await discordUser.UpdateAnilistInfo(anilist_username);
             }
 
             return discordUser;
@@ -137,10 +138,10 @@ namespace AnimeListBot.Handler
         public static async Task<bool> CreateUser(DiscordUser user)
         {
             await DatabaseConnection.SendSql(string.Format(
-                @"INSERT INTO public.discord_user (user_id, mal_username, anilist_username, list_preference) VALUES (
-                    '{0}'::bigint, '{1}'::text, '{2}'::text, '{3}'::integer)
+                @"INSERT INTO public.discord_user (user_id, mal_username, anilist_username, list_preference, anime_days, manga_days) VALUES (
+                    '{0}'::bigint, '{1}'::text, '{2}'::text, '{3}'::integer, '{4}'::double, '{5}'::double)
                      returning user_id;",
-                user.userID, user.malProfile?.Username, user.anilistProfile?.name, (int)user.animeList
+                user.userID, user.malProfile?.Username, user.anilistProfile?.name, (int)user.animeList, user.animeDays, user.mangaDays
             ));
             return true;
         }
@@ -152,8 +153,10 @@ namespace AnimeListBot.Handler
                 list_preference = '{0}'::integer,
                 anilist_username = '{1}'::text,
                 mal_username = '{2}'::text
+                anime_days = '{4}'::double
+                manga_days = '{5}'::double
                 WHERE user_id = '{3}';",
-                (int)user.animeList, user.anilistProfile?.name, user.malProfile?.Username, user.userID
+                (int)user.animeList, user.anilistProfile?.name, user.malProfile?.Username, user.userID, user.animeDays, user.mangaDays
             ));
             return true;
         }

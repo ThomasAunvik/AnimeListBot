@@ -29,8 +29,8 @@ namespace AnimeListBot.Handler
         
         public AnimeList animeList;
 
-        public decimal animeDays;
-        public decimal mangaDays;
+        public double animeDays;
+        public double mangaDays;
 
         public DiscordUser() { }
 
@@ -98,7 +98,7 @@ namespace AnimeListBot.Handler
         {
             if (server.animeRoleIds.Count < 1) return (0, 0);
 
-            double animeDays = (double)GetAnimeWatchDays();
+            double animeDays = GetAnimeWatchDays();
             for(int roleIndex = 0; roleIndex < server.animeRoleDays.Count; roleIndex++)
             {
                 if (animeDays < server.animeRoleDays[roleIndex]) {
@@ -110,20 +110,9 @@ namespace AnimeListBot.Handler
             return (server.animeRoleIds[server.animeRoleIds.Count-1], server.animeRoleDays[server.animeRoleIds.Count-1]);
         }
 
-        public decimal GetAnimeWatchDays()
+        public double GetAnimeWatchDays()
         {
-            switch (animeList)
-            {
-                case AnimeList.MAL:
-                    decimal mal_days = malProfile.AnimeStatistics.DaysWatched.GetValueOrDefault();
-                    return decimal.Round(mal_days, 1);
-                case AnimeList.Anilist:
-                    decimal minutesWatched = anilistProfile.statistics.anime.minutesWatched;
-                    decimal ani_days = minutesWatched / (decimal)60.0 / (decimal)24.0;
-                    return decimal.Round(ani_days, 1);
-                default:
-                    return 0;
-            }
+            return animeDays;
         }
 
         public float GetAnimeMeanScore()
@@ -251,7 +240,7 @@ namespace AnimeListBot.Handler
         {
             if (server.mangaRoleIds.Count < 1) return (0, 0);
 
-            double mangaDays = (double)GetMangaReadDays();
+            double mangaDays = GetMangaReadDays();
             for (int roleIndex = 0; roleIndex < server.mangaRoleDays.Count; roleIndex++)
             {
                 if (mangaDays < server.mangaRoleDays[roleIndex])
@@ -264,20 +253,9 @@ namespace AnimeListBot.Handler
             return (server.mangaRoleIds[server.mangaRoleIds.Count-1], server.mangaRoleDays[server.mangaRoleIds.Count-1]);
         }
 
-        public decimal GetMangaReadDays()
+        public double GetMangaReadDays()
         {
-            switch (animeList)
-            {
-                case AnimeList.MAL:
-                    decimal mal_mangaRead = decimal.Round(malProfile.MangaStatistics.DaysRead.GetValueOrDefault(), 1);
-                    return mal_mangaRead;
-                case AnimeList.Anilist:
-                    // Average days it takes to read 1 chapter
-                    decimal chaptersRead = decimal.Multiply((anilistProfile.statistics?.manga.chaptersRead).GetValueOrDefault(), (decimal)0.00556);
-                    return Math.Round(chaptersRead, 1);
-                default:
-                    return 0;
-            }
+            return mangaDays;
         }
 
         public float GetMangaMeanScore()
@@ -430,12 +408,27 @@ namespace AnimeListBot.Handler
         public async Task<bool> UpdateMALInfo(string username)
         {
             malProfile = await Program._jikan.GetUserProfile(username);
+            if(animeList == AnimeList.MAL)
+            {
+                mangaDays = (double)decimal.Round(malProfile.MangaStatistics.DaysRead.GetValueOrDefault(), 1);
+
+                decimal mal_days = malProfile.AnimeStatistics.DaysWatched.GetValueOrDefault();
+                animeDays = (double)decimal.Round(mal_days, 1);
+            }
             return malProfile != null;
         }
 
         public async Task<bool> UpdateAnilistInfo(string username)
         {
             anilistProfile = await AniUserQuery.GetUser(username);
+            if (animeList == AnimeList.Anilist)
+            {
+                double chaptersRead = (double)decimal.Multiply((anilistProfile.statistics?.manga.chaptersRead).GetValueOrDefault(), (decimal)0.00556);
+                mangaDays = Math.Round(chaptersRead, 1);
+
+                double minutesWatched = (double)anilistProfile.statistics.anime.minutesWatched;
+                animeDays = minutesWatched / 60.0 / 24.0;
+            }
             return anilistProfile != null;
         }
     }

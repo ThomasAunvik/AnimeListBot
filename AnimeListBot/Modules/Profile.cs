@@ -289,7 +289,7 @@ namespace AnimeListBot.Modules
         }
 
         // TODO: Temporary Disablement of Leaderboard till days fixed.
-        /*[Command("Leaderboard")]
+        [Command("Leaderboard")]
         public async Task Leaderboard(int page = 1)
         {
             EmbedHandler embed = new EmbedHandler(Context.User, "Getting Leaderboard...");
@@ -398,6 +398,5 @@ namespace AnimeListBot.Modules
             
             await embed.UpdateEmbed();
         }
-        */
     }
 }

@@ -37,9 +37,6 @@ namespace AnimeListBot
 
         public static readonly HttpClient httpClient = new HttpClient();
 
-        public static List<DiscordServer> discordServers;
-        public static List<GlobalUser> globalUsers;
-
         public static string[] botOwners;
         public static string currentCommit;
         public static string gitStatus;
@@ -51,64 +48,14 @@ namespace AnimeListBot
 
         public async Task OnJoinedGuild(SocketGuild guild)
         {
-            DiscordServer newServer = new DiscordServer(guild);
-            discordServers.Add(newServer);
-            try
-            {
-                newServer.isUpdatingRoles = true;
-                await Ranks.UpdateUserRoles(newServer, null);
-                newServer.isUpdatingRoles = false;
+            if ((await DatabaseRequest.GetServerById(guild.Id)) == null) {
+                await DatabaseRequest.CreateServer(new DiscordServer(guild));
             }
-            catch (Exception e)
-            {
-                newServer.isUpdatingRoles = false;
-                await _logger.LogError(e);
-            }
-        }
-
-        public Task OnLeftGuild(SocketGuild guild)
-        {
-            DiscordServer server = DiscordServer.GetServerFromID(guild.Id);
-            if (server != null)
-            {
-                DiscordServer.DeleteServerFile(guild);
-                discordServers.Remove(server);
-            }
-            return Task.CompletedTask;
         }
 
         public async Task OnReadyAsync()
         {
             await Stats.LoadStats();
-
-            globalUsers = new List<GlobalUser>();
-            discordServers = new List<DiscordServer>();
-            foreach (SocketGuild guild in _client.Guilds)
-            {
-                DiscordServer newServer = new DiscordServer(guild);
-                discordServers.Add(newServer);
-
-                foreach (SocketUser user in newServer.Guild.Users)
-                {
-                    if (!user.IsBot)
-                    {
-                        if (globalUsers.Find(x => x.userID == user.Id) == null)
-                            globalUsers.Add(new GlobalUser(user));
-                    }
-                }
-
-                try
-                {
-                    newServer.isUpdatingRoles = true;
-                    await Ranks.UpdateUserRoles(newServer, null);
-                    newServer.isUpdatingRoles = false;
-                }
-                catch (Exception e)
-                {
-                    newServer.isUpdatingRoles = false;
-                    await _logger.LogError(e);
-                }
-            }
 
             if (!firstInitilized)
             {
@@ -119,19 +66,16 @@ namespace AnimeListBot
 
         public async Task OnUserJoined(SocketGuildUser user)
         {
-            DiscordServer server = DiscordServer.GetServerFromID(user.Guild.Id);
-            if (server != null)
-            {
-                server.Users.Add(new ServerUser(user));
-            }
 
-            if(globalUsers.Find(x => x.userID == user.Id) != null)
-            {
-                GlobalUser gUser = new GlobalUser(user);
-                globalUsers.Add(gUser);
-            }
+            // CREATE NEW USER IN DATABASE
+            DiscordUser discordUser;
+            if (!await DatabaseRequest.DoesUserIdExist(user.Id))
+                await DatabaseRequest.CreateUser(discordUser = new DiscordUser(user));
+            else discordUser = await DatabaseRequest.GetUserById(user.Id);
 
-            await Ranks.UpdateUserRole(user, null);
+            DiscordServer server = await DatabaseRequest.GetServerById(user.Guild.Id);
+
+            await Ranks.UpdateUserRole(server, discordUser, null);
         }
 
         public async Task RegisterCommandsAsync()
@@ -192,7 +136,6 @@ namespace AnimeListBot
             _client.Log += Log;
 
             _client.Ready += OnReadyAsync;
-            _client.LeftGuild += OnLeftGuild;
             _client.JoinedGuild += OnJoinedGuild;
             _client.UserJoined += OnUserJoined;
 
@@ -229,14 +172,11 @@ namespace AnimeListBot
                 IDMChannel dmChannel = await arg.Author.GetOrCreateDMChannelAsync();
                 if (arg.Channel.Id == dmChannel?.Id) return;
 
-                GlobalUser user = globalUsers.FirstOrDefault(x => x.userID == arg.Author.Id);
-                if (user == default(GlobalUser)) globalUsers.Add(new GlobalUser(arg.Author));
-                
                 ulong guildId = ((IGuildChannel)arg.Channel).Guild.Id;
-                DiscordServer server = DiscordServer.GetServerFromID(guildId);
+                DiscordServer server = await DatabaseRequest.GetServerById(guildId);
                 if (arg?.Channel?.Id == server?.animeListChannelId)
                 {
-                    await AutoAdder.AddUser(arg);
+                    await AutoAdder.AddUser(arg, server);
                 }
 
                 int argPos = 0;

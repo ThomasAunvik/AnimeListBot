@@ -19,14 +19,13 @@ namespace AnimeListBot.Modules
             EmbedHandler embed = new EmbedHandler(user, "Loading Favorite Anime...");
             await embed.SendMessage(Context.Channel);
 
-            GlobalUser gUser = Program.globalUsers.Find(x => x.userID == user.Id);
+            DiscordUser gUser = await DatabaseRequest.GetUserById(user.Id);
 
-            DiscordServer server = DiscordServer.GetServerFromID(Context.Guild.Id);
-            ServerUser sUser = server.GetUserFromId(user.Id);
+            DiscordServer server = await DatabaseRequest.GetServerById(Context.Guild.Id);
 
             if (gUser != null && !string.IsNullOrWhiteSpace(gUser.GetAnimelistUsername()))
             {
-                await gUser.UpdateCurrentAnimelist();
+                await gUser.UpdateUserInfo();
                 UserProfile profile = gUser.malProfile;
                 List<MALImageSubItem> favAnimeList = profile.Favorites.Anime.ToList();
                 embed.Title = "Favorite Anime";

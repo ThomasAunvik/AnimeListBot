@@ -241,7 +241,7 @@ namespace AnimeListBot.Modules
                     "\nAired: " + GetDate(media.startDate, media.endDate)
             );
 
-            if (globalUser != null && !string.IsNullOrWhiteSpace(globalUser.anilistProfile.name))
+            if (globalUser != null && !string.IsNullOrWhiteSpace(globalUser.anilistProfile?.name))
             {
                 IAniMediaList list = await AniMediaListQuery.GetMediaList(globalUser.anilistProfile.name, media.id.GetValueOrDefault(), AniMediaType.ANIME);
                 if (list != null)
@@ -330,7 +330,7 @@ namespace AnimeListBot.Modules
                     "\nAired: " + GetDate(media.startDate, media.endDate)
             );
 
-            if (globalUser != null && !string.IsNullOrWhiteSpace(globalUser.anilistProfile.name))
+            if (globalUser != null && !string.IsNullOrWhiteSpace(globalUser.anilistProfile?.name))
             {
                 IAniMediaList list = await AniMediaListQuery.GetMediaList(globalUser.anilistProfile.name, media.id.GetValueOrDefault(), AniMediaType.MANGA);
                 if (list != null)

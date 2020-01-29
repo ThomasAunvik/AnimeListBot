@@ -415,7 +415,8 @@ namespace AnimeListBot.Handler
                 malProfile = await Program._jikan.GetUserProfile(username);
                 if (animeList == AnimeList.MAL)
                 {
-                    mangaDays = (double)decimal.Round(malProfile.MangaStatistics.DaysRead.GetValueOrDefault(), 1);
+                    decimal? malMangaDays = malProfile.MangaStatistics?.DaysRead.GetValueOrDefault();
+                    mangaDays = (double)decimal.Round(malMangaDays.GetValueOrDefault(), 1);
 
                     decimal mal_days = malProfile.AnimeStatistics.DaysWatched.GetValueOrDefault();
                     animeDays = (double)decimal.Round(mal_days, 1);

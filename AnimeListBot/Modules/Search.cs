@@ -201,7 +201,9 @@ namespace AnimeListBot.Modules
             await globalUser.UpdateUserInfo();
             if (globalUser != null && !string.IsNullOrWhiteSpace(globalUser.malProfile.Username))
             {
-                UserAnimeList animeList = await Program._jikan.GetUserAnimeList(globalUser.malProfile.Username);
+                UserListAnimeSearchConfig config = new UserListAnimeSearchConfig();
+                config.Query = entry.Title;
+                UserAnimeList animeList = await Program._jikan.GetUserAnimeList(globalUser.malProfile.Username, config);
                 AnimeListEntry malEntry = animeList?.Anime?.ToList().Find(x => x.MalId == entry.MalId);
                 if (malEntry != null)
                 {
@@ -288,7 +290,9 @@ namespace AnimeListBot.Modules
             await globalUser.UpdateUserInfo();
             if (globalUser != null && !string.IsNullOrWhiteSpace(globalUser.malProfile.Username))
             {
-                UserMangaList mangaList = await Program._jikan.GetUserMangaList(globalUser.malProfile.Username);
+                UserListMangaSearchConfig config = new UserListMangaSearchConfig();
+                config.Query = entry.Title;
+                UserMangaList mangaList = await Program._jikan.GetUserMangaList(globalUser.malProfile.Username, config);
                 MangaListEntry malEntry = mangaList?.Manga?.ToList().Find(x => x.MalId == entry.MalId);
                 if (malEntry != null)
                 {

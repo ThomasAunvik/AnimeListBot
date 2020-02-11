@@ -9,9 +9,10 @@ environment:
 
 install:
   - choco install gitversion.portable -pre -y
+  - ps: New-Item -Name ".tmp" -ItemType "directory"
   - ps: "[Net.ServicePointManager]::SecurityProtocol = 'Tls12'"
-  - ps: Invoke-WebRequest https://dot.net/v1/dotnet-install.ps1 -OutFile dotnet-install.ps1
-  - ps: if ((-Not (Test-Path dotnet\dotnet.exe)) -or (((dotnet\dotnet.exe --version) -Join '') -ne $Env:_DOTNET_VERSION)) { dotnet-install.ps1 -Version $Env:_DOTNET_VERSION -InstallDir dotnet } else { $Env:path = $Env:APPVEYOR_BUILD_FOLDER + "\dotnet\dotnet.exe;" + $Env:path }
+  - ps: Invoke-WebRequest https://dot.net/v1/dotnet-install.ps1 -OutFile .tmp\dotnet-install.ps1
+  - ps: if ((-Not (Test-Path .tmp\dotnet\dotnet.exe)) -or (((.tmp\dotnet\dotnet.exe --version) -Join '') -ne $Env:_DOTNET_VERSION)) { .tmp\dotnet-install.ps1 -Version $Env:_DOTNET_VERSION -InstallDir dotnet } else { $Env:path = $Env:APPVEYOR_BUILD_FOLDER + "\.tmp\dotnet\dotnet.exe;" + $Env:path }
 
 before_build:
   - ps: gitversion $env:APPVEYOR_BUILD_FOLDER /l console /output buildserver /updateAssemblyInfo /nofetch /b $env:APPVEYOR_REPO_BRANCH

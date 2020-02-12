@@ -44,7 +44,7 @@ namespace AnimeListBot.Modules
                     embed.AddEmojiAction(emote, async () => {
                         embed.Fields.Clear();
                         embed.RemoveAllEmojiActions();
-                        await Search.SearchAnime(embed, user, subItem.Name); 
+                        await Search.GetAnime(embed, user, subItem.MalId); 
                     });
                 }
 
@@ -86,7 +86,7 @@ namespace AnimeListBot.Modules
                     embed.AddEmojiAction(emote, async () => {
                         embed.Fields.Clear();
                         embed.RemoveAllEmojiActions();
-                        await Search.SearchManga(embed, user, subItem.Name);
+                        await Search.GetManga(embed, user, subItem.MalId);
                     });
                 }
 

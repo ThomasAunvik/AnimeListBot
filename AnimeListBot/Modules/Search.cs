@@ -9,6 +9,7 @@ using JikanDotNet;
 using System.Globalization;
 using Discord;
 using AnimeListBot.Handler.Anilist;
+using AnimeListBot.Handler.Misc;
 
 namespace AnimeListBot.Modules
 {
@@ -29,6 +30,21 @@ namespace AnimeListBot.Modules
             await SearchAnime(Context.User, search);
         }
 
+        [Command("midanime")]
+        public static async Task GetAnime(EmbedHandler embed, IUser targetUser, long id)
+        {
+            DiscordUser globalUser = await DatabaseRequest.GetUserById(targetUser.Id);
+
+            Anime malAnime = await Program._jikan.GetAnime(id);
+
+            embed.Title = "No Anime Found";
+
+            AnimeSearchEntry entry = MalClassTransfer.AnimeToSearchEntry(malAnime);
+            await SetAnimeMalInfo(entry, embed, globalUser, targetUser);
+
+            await embed.UpdateEmbed();
+        }
+
         public static async Task SearchAnime(EmbedHandler embed, IUser targetUser, string search)
         {
             embed.Title = "Searching for " + search + "...";
@@ -44,7 +60,9 @@ namespace AnimeListBot.Modules
             bool mal = globalUser.animeList == DiscordUser.AnimeList.MAL;
             if (mal && (searchResult != null && searchResult.Results.Count > 0))
             {
-                await SetAnimeMalInfo(searchResult, embed, globalUser, targetUser);
+                List<AnimeSearchEntry> results = searchResult.Results.ToList();
+                AnimeSearchEntry entry = results[0];
+                await SetAnimeMalInfo(entry, embed, globalUser, targetUser);
             }
             else if (mal && media != null)
             {
@@ -57,7 +75,9 @@ namespace AnimeListBot.Modules
             }
             else if (!mal && (searchResult != null && searchResult.Results.Count > 0))
             {
-                await SetAnimeMalInfo(searchResult, embed, globalUser, targetUser);
+                List<AnimeSearchEntry> results = searchResult.Results.ToList();
+                AnimeSearchEntry entry = results[0];
+                await SetAnimeMalInfo(entry, embed, globalUser, targetUser);
             }
             await embed.UpdateEmbed();
         }
@@ -77,7 +97,9 @@ namespace AnimeListBot.Modules
             bool mal = globalUser.animeList == DiscordUser.AnimeList.MAL;
             if (mal && (searchResult != null && searchResult.Results.Count > 0))
             {
-                await SetMangaMalInfo(searchResult, embed, globalUser, targetUser);
+                List<MangaSearchEntry> results = searchResult.Results.ToList();
+                MangaSearchEntry entry = results[0];
+                await SetMangaMalInfo(entry, embed, globalUser, targetUser);
             }
             else if (mal && media != null)
             {
@@ -90,8 +112,25 @@ namespace AnimeListBot.Modules
             }
             else if (!mal && (searchResult != null && searchResult.Results.Count > 0))
             {
-                await SetMangaMalInfo(searchResult, embed, globalUser, targetUser);
+                List<MangaSearchEntry> results = searchResult.Results.ToList();
+                MangaSearchEntry entry = results[0];
+                await SetMangaMalInfo(entry, embed, globalUser, targetUser);
             }
+
+            await embed.UpdateEmbed();
+        }
+
+        [Command("midmanga")]
+        public static async Task GetManga(EmbedHandler embed, IUser targetUser, long id)
+        {
+            DiscordUser globalUser = await DatabaseRequest.GetUserById(targetUser.Id);
+
+            Manga malManga = await Program._jikan.GetManga(id);
+            
+            embed.Title = "No Manga Found";
+
+            MangaSearchEntry entry = MalClassTransfer.MangaToSearchEntry(malManga);
+            await SetMangaMalInfo(entry, embed, globalUser, targetUser);
 
             await embed.UpdateEmbed();
         }
@@ -189,11 +228,8 @@ namespace AnimeListBot.Modules
             await embed.UpdateEmbed();
         }
 
-        private static async Task SetAnimeMalInfo(AnimeSearchResult searchResult, EmbedHandler embed, DiscordUser globalUser, IUser targetUser)
+        private static async Task SetAnimeMalInfo(AnimeSearchEntry entry, EmbedHandler embed, DiscordUser globalUser, IUser targetUser)
         {
-            List<AnimeSearchEntry> results = searchResult.Results.ToList();
-            AnimeSearchEntry entry = results[0];
-
             embed.Title = entry.Title;
             embed.Description = EmbedHandler.SecureEmbedText(entry.Description);
             embed.Url = entry.URL;
@@ -278,10 +314,8 @@ namespace AnimeListBot.Modules
             }
         }
 
-        private static async Task SetMangaMalInfo(MangaSearchResult searchResult, EmbedHandler embed, DiscordUser globalUser, IUser targetUser)
+        private static async Task SetMangaMalInfo(MangaSearchEntry entry, EmbedHandler embed, DiscordUser globalUser, IUser targetUser)
         {
-            List<MangaSearchEntry> results = searchResult.Results.ToList();
-            MangaSearchEntry entry = results[0];
             embed.Title = entry.Title;
             embed.Description = EmbedHandler.SecureEmbedText(entry.Description);
             embed.Url = entry.URL;

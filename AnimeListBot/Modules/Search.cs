@@ -22,6 +22,12 @@ namespace AnimeListBot.Modules
 
             await SearchAnime(embed, targetUser, search);
         }
+        
+        [Command("anime")]
+        public async Task SearchAnime([Remainder]string search)
+        {
+            await SearchAnime(Context.User, search);
+        }
 
         public static async Task SearchAnime(EmbedHandler embed, IUser targetUser, string search)
         {
@@ -56,18 +62,11 @@ namespace AnimeListBot.Modules
             await embed.UpdateEmbed();
         }
 
-        [Command("anime")]
-        public async Task SearchAnime([Remainder]string search)
-        {
-            await SearchAnime(Context.User, search);
-        }
+        
 
         [Command("manga")]
-        public async Task SearchManga(IUser targetUser, [Remainder]string search)
+        public static async Task SearchManga(EmbedHandler embed, IUser targetUser, [Remainder]string search)
         {
-            EmbedHandler embed = new EmbedHandler(targetUser, "Searching for " + search + "...");
-            await embed.SendMessage(Context.Channel);
-
             DiscordUser globalUser = await DatabaseRequest.GetUserById(targetUser.Id);
 
             MangaSearchResult searchResult = await Program._jikan.SearchManga(search);
@@ -95,6 +94,15 @@ namespace AnimeListBot.Modules
             }
 
             await embed.UpdateEmbed();
+        }
+
+        [Command("manga")]
+        public async Task SearchManga(IUser targetUser, [Remainder]string search)
+        {
+            EmbedHandler embed = new EmbedHandler(targetUser, "Searching for " + search + "...");
+            await embed.SendMessage(Context.Channel);
+
+            await SearchManga(embed, targetUser, search);
         }
 
         [Command("manga")]

@@ -15,7 +15,7 @@ namespace AnimeListBot.Handler
         IUser user;
         IUserMessage embedMessage;
 
-        private static List<EmbedHandler> activatedEmoteActions = new List<EmbedHandler>();
+        private static List<EmbedHandler> activatedEmoteActions;
         private List<(IEmote, Action)> emojiActions = new List<(IEmote, Action)>();
         private DateTime emoteTimeout;
 
@@ -48,12 +48,13 @@ namespace AnimeListBot.Handler
             if (embedMessage != null)
             {
                 await embedMessage.ModifyAsync(x => x.Embed = Build());
+                await embedMessage.RemoveAllReactionsAsync();
 
-                IEmote[] newEmotes = emojiActions.Select(x => x.Item1).ToArray();
-                if (newEmotes.Length > 0 && embedMessage.Reactions.Select(x => x.Key) != newEmotes)
+                List<IEmote> allEmotes = embedMessage.Reactions.Keys.ToList();
+                List<(IEmote, Action)> newEmotes = emojiActions.FindAll(x => allEmotes.Find(y=> y.Name == x.Item1.Name) == null);
+                if (newEmotes.Count > 0 && embedMessage.Reactions.Select(x => x.Key) != newEmotes)
                 {
-                    await embedMessage.RemoveAllReactionsAsync();
-                    await embedMessage.AddReactionsAsync(newEmotes);
+                    if(newEmotes.Count > 0) await embedMessage.AddReactionsAsync(newEmotes.Select(x=>x.Item1).ToArray());
                     emoteTimeout = DateTime.Now.AddSeconds(120);
 
                     CheckTimeouts();
@@ -108,6 +109,8 @@ namespace AnimeListBot.Handler
 
         public async Task AddEmojiActions(List<(IEmote, Action)> actions)
         {
+            if (activatedEmoteActions == null) activatedEmoteActions = new List<EmbedHandler>();
+
             if (!activatedEmoteActions.Contains(this))
             {
                 activatedEmoteActions.Add(this);
@@ -119,6 +122,8 @@ namespace AnimeListBot.Handler
 
         public void AddEmojiAction(IEmote emote, Action action)
         {
+            if (activatedEmoteActions == null) activatedEmoteActions = new List<EmbedHandler>();
+
             if (!activatedEmoteActions.Contains(this))
             {
                 activatedEmoteActions.Add(this);
@@ -126,13 +131,21 @@ namespace AnimeListBot.Handler
             emojiActions.Add((emote, action));
         }
 
-        public static void ExecuteAnyEmoteAction(IEmote emote, IMessage message)
+        public void RemoveAllEmojiActions()
         {
+            emojiActions.Clear();
+            activatedEmoteActions.Remove(this);
+        }
+
+        public static void ExecuteAnyEmoteAction(IEmote emote, ulong messageId)
+        {
+            if (activatedEmoteActions == null) return;
+
             CheckTimeouts();
-            EmbedHandler embed = activatedEmoteActions.Find(x => x.embedMessage?.Id == message.Id);
+            EmbedHandler embed = activatedEmoteActions.Find(x => x.embedMessage?.Id == messageId);
             if (embed == null) return;
 
-            (IEmote, Action) actionEmote = embed.emojiActions.Find(x => x.Item1 == emote);
+            (IEmote, Action) actionEmote = embed.emojiActions.Find(x => x.Item1.Name == emote.Name);
             if(actionEmote != (null, null))
             {
                 actionEmote.Item2();
@@ -141,6 +154,8 @@ namespace AnimeListBot.Handler
 
         public static void CheckTimeouts()
         {
+            if (activatedEmoteActions == null) return;
+
             activatedEmoteActions.ToList().ForEach(x =>
             {
                 if(x.emoteTimeout < DateTime.Now)

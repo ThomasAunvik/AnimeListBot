@@ -156,7 +156,9 @@ namespace AnimeListBot
 
         private Task OnReactionAdded(Cacheable<IUserMessage, ulong> arg1, ISocketMessageChannel arg2, SocketReaction arg3)
         {
-            EmbedHandler.ExecuteAnyEmoteAction(arg3.Emote, arg1.Value);
+            if (arg3.UserId == _client.CurrentUser.Id) return Task.CompletedTask;
+
+            EmbedHandler.ExecuteAnyEmoteAction(arg3.Emote, arg3.MessageId);
             return Task.CompletedTask;
         }
 

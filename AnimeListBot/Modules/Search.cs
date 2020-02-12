@@ -39,8 +39,11 @@ namespace AnimeListBot.Modules
 
             embed.Title = "No Anime Found";
 
-            AnimeSearchEntry entry = MalClassTransfer.AnimeToSearchEntry(malAnime);
-            await SetAnimeMalInfo(entry, embed, globalUser, targetUser);
+            if (malAnime != null)
+            {
+                AnimeSearchEntry entry = MalClassTransfer.AnimeToSearchEntry(malAnime);
+                await SetAnimeMalInfo(entry, embed, globalUser, targetUser);
+            }
 
             await embed.UpdateEmbed();
         }
@@ -129,9 +132,11 @@ namespace AnimeListBot.Modules
             
             embed.Title = "No Manga Found";
 
-            MangaSearchEntry entry = MalClassTransfer.MangaToSearchEntry(malManga);
-            await SetMangaMalInfo(entry, embed, globalUser, targetUser);
-
+            if (malManga != null)
+            {
+                MangaSearchEntry entry = MalClassTransfer.MangaToSearchEntry(malManga);
+                await SetMangaMalInfo(entry, embed, globalUser, targetUser);
+            }
             await embed.UpdateEmbed();
         }
 

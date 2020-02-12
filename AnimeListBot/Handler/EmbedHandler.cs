@@ -13,6 +13,7 @@ namespace AnimeListBot.Handler
         const int MAX_FIELD_VALUE_LENGTH = 2048;
 
         IUser user;
+        IUser owner;
         IUserMessage embedMessage;
 
         private static List<EmbedHandler> activatedEmoteActions;
@@ -32,6 +33,11 @@ namespace AnimeListBot.Handler
             }
 
             Color = Program.embedColor;
+        }
+
+        public void SetOwner(IUser user)
+        {
+            owner = user;
         }
 
         public async Task SendMessage(IMessageChannel channel, string message = "")
@@ -137,15 +143,17 @@ namespace AnimeListBot.Handler
             activatedEmoteActions.Remove(this);
         }
 
-        public static void ExecuteAnyEmoteAction(IEmote emote, ulong messageId)
+        public static void ExecuteAnyEmoteAction(SocketReaction socketReaction)
         {
             if (activatedEmoteActions == null) return;
 
             CheckTimeouts();
-            EmbedHandler embed = activatedEmoteActions.Find(x => x.embedMessage?.Id == messageId);
+            EmbedHandler embed = activatedEmoteActions.Find(x => x.embedMessage?.Id == socketReaction.MessageId);
             if (embed == null) return;
 
-            (IEmote, Action) actionEmote = embed.emojiActions.Find(x => x.Item1.Name == emote.Name);
+            if (socketReaction.UserId != embed.owner.Id) return;
+
+            (IEmote, Action) actionEmote = embed.emojiActions.Find(x => x.Item1.Name == socketReaction.Emote.Name);
             if(actionEmote != (null, null))
             {
                 actionEmote.Item2();

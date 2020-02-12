@@ -158,7 +158,7 @@ namespace AnimeListBot
         {
             if (arg3.UserId == _client.CurrentUser.Id) return Task.CompletedTask;
 
-            EmbedHandler.ExecuteAnyEmoteAction(arg3.Emote, arg3.MessageId);
+            EmbedHandler.ExecuteAnyEmoteAction(arg3);
             return Task.CompletedTask;
         }
 

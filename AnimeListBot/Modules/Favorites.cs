@@ -17,6 +17,7 @@ namespace AnimeListBot.Modules
         {
             if (user == null) user = Context.User;
             EmbedHandler embed = new EmbedHandler(user, "Loading Favorite Anime...");
+            embed.SetOwner(Context.User);
             await embed.SendMessage(Context.Channel);
 
             DiscordUser gUser = await DatabaseRequest.GetUserById(user.Id);
@@ -58,6 +59,7 @@ namespace AnimeListBot.Modules
         {
             if (user == null) user = Context.User;
             EmbedHandler embed = new EmbedHandler(user, "Loading Favorite Manga...");
+            embed.SetOwner(Context.User);
             await embed.SendMessage(Context.Channel);
 
             DiscordUser gUser = await DatabaseRequest.GetUserById(user.Id);

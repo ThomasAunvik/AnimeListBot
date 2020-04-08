@@ -9,10 +9,12 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using System.Linq;
+using System.Data;
+using System.Data.SqlClient;
 
 namespace AnimeListBot.Handler
 {
-    public class GlobalUser
+    public class DiscordUser
     {
         public enum AnimeList
         {
@@ -20,35 +22,37 @@ namespace AnimeListBot.Handler
             Anilist
         }
 
-        public SaveDiscordUser savedUser;
-        public string Username;
-
         public ulong userID;
-        public List<ServerUser> serverUsers = new List<ServerUser>();
         
         public UserProfile malProfile;
+        public string mal_username;
         public IAniUser anilistProfile;
+        public string anilist_username;
         
         public AnimeList animeList;
 
-        public string MAL_Username = string.Empty;
-        public string Anilist_Username = string.Empty;
+        public double animeDays;
+        public double mangaDays;
 
-        public string MAL_imageURL;
-        public decimal? MAL_daysWatchedAnime = 0;
-        public decimal? MAL_daysReadManga = 0;
+        public DiscordUser() { }
 
-        public string Anilist_imageURL;
-        public decimal Anilist_minutesWatchedAnime = 0;
-        public decimal Anilist_daysChaptersRead = 0;
-
-        public GlobalUser(IUser user)
-        {
-            Username = user.Username;
+        // Most of the reasons you do this part is to create a new user and upload it to the db automaticly
+        public DiscordUser(IUser user) {
             userID = user.Id;
+        }
+        public IUser GetUser() { return Program._client.GetUser(userID); }
 
-            LoadData();
-            SaveData();
+        public async Task CreateUserDatabase()
+        {
+            if (!await DatabaseRequest.DoesUserIdExist(userID))
+                await DatabaseRequest.CreateUser(this);
+            else await UpdateDatabase();
+        }
+
+        public async Task UpdateDatabase()
+        {
+            if (await DatabaseRequest.DoesUserIdExist(userID))
+                await DatabaseRequest.UpdateUser(this);
         }
 
         public string GetAnimelistUsername()
@@ -56,9 +60,9 @@ namespace AnimeListBot.Handler
             switch (animeList)
             {
                 case AnimeList.MAL:
-                    return MAL_Username == null ? "" : MAL_Username;
+                    return mal_username;
                 case AnimeList.Anilist:
-                    return Anilist_Username == null ? "" : Anilist_Username;
+                    return anilist_username;
                 default:
                     return "";
             }
@@ -69,9 +73,9 @@ namespace AnimeListBot.Handler
             switch (animeList)
             {
                 case AnimeList.MAL:
-                    return MAL_imageURL;
+                    return malProfile.ImageURL;
                 case AnimeList.Anilist:
-                    return Anilist_imageURL;
+                    return anilistProfile.Avatar?.large;
                 default:
                     return "";
             }
@@ -92,19 +96,25 @@ namespace AnimeListBot.Handler
 
         #region AnimeStats
 
-        public decimal GetAnimeWatchDays()
+        public (ulong, double) GetAnimeServerRank(DiscordServer server)
         {
-            switch (animeList)
+            if (server.animeRoleIds.Count < 1) return (0, 0);
+
+            double animeDays = GetAnimeWatchDays();
+            for(int roleIndex = 0; roleIndex < server.animeRoleDays.Count; roleIndex++)
             {
-                case AnimeList.MAL:
-                    decimal mal_days = MAL_daysWatchedAnime.GetValueOrDefault();
-                    return decimal.Round(mal_days, 1);
-                case AnimeList.Anilist:
-                    decimal ani_days = Anilist_minutesWatchedAnime / (decimal)60.0 / (decimal)24.0;
-                    return decimal.Round(ani_days, 1);
-                default:
-                    return 0;
+                if (animeDays < server.animeRoleDays[roleIndex]) {
+                    if (roleIndex < 1) return (0,0);
+                    roleIndex--;
+                    return (server.animeRoleIds[roleIndex], server.animeRoleDays[roleIndex]);
+                }
             }
+            return (server.animeRoleIds[server.animeRoleIds.Count-1], server.animeRoleDays[server.animeRoleIds.Count-1]);
+        }
+
+        public double GetAnimeWatchDays()
+        {
+            return animeDays;
         }
 
         public float GetAnimeMeanScore()
@@ -228,18 +238,26 @@ namespace AnimeListBot.Handler
 
         #region MangaStats
 
-        public decimal GetMangaReadDays()
+        public (ulong, double) GetMangaServerRank(DiscordServer server)
         {
-            switch (animeList)
+            if (server.mangaRoleIds.Count < 1) return (0, 0);
+
+            double mangaDays = GetMangaReadDays();
+            for (int roleIndex = 0; roleIndex < server.mangaRoleDays.Count; roleIndex++)
             {
-                case AnimeList.MAL:
-                    decimal mal_mangaRead = decimal.Round(MAL_daysReadManga.GetValueOrDefault(), 1);
-                    return mal_mangaRead;
-                case AnimeList.Anilist:
-                    return Math.Round(Anilist_daysChaptersRead, 1);
-                default:
-                    return 0;
+                if (mangaDays < server.mangaRoleDays[roleIndex])
+                {
+                    if (roleIndex < 1) return (0,0);
+                    roleIndex--;
+                    return (server.mangaRoleIds[roleIndex], server.mangaRoleDays[roleIndex]);
+                }
             }
+            return (server.mangaRoleIds[server.mangaRoleIds.Count-1], server.mangaRoleDays[server.mangaRoleIds.Count-1]);
+        }
+
+        public double GetMangaReadDays()
+        {
+            return mangaDays;
         }
 
         public float GetMangaMeanScore()
@@ -374,112 +392,65 @@ namespace AnimeListBot.Handler
 
         #endregion
 
-        public async Task UpdateCurrentAnimelist()
+        public async Task<bool> UpdateUserInfo()
         {
             switch (animeList)
             {
                 case AnimeList.MAL:
-                    await UpdateMALInfo();
-                    break;
+                    if (malProfile == null) return false;
+                    return await UpdateMALInfo(malProfile.Username);
                 case AnimeList.Anilist:
-                    await UpdateAnilistInfo();
-                    break;
+                    if (anilistProfile == null) return false;
+                    return await UpdateAnilistInfo(anilistProfile.name);
+                default:
+                    return false;
             }
         }
 
-        public async Task UpdateMALInfo()
+        public async Task<bool> UpdateMALInfo(string username)
         {
-            if (string.IsNullOrEmpty(MAL_Username))
+            try
             {
-                malProfile = null;
-                return;
-            }
-
-            this.malProfile = null;
-            UserProfile profile = await Program._jikan.GetUserProfile(MAL_Username);
-            if (profile != null)
-            {
-                this.malProfile = profile;
-                MAL_Username = profile.Username;
-                MAL_daysWatchedAnime = profile.AnimeStatistics.DaysWatched;
-                MAL_daysReadManga = profile.MangaStatistics.DaysRead;
-                MAL_imageURL = profile.ImageURL;
-            }
-
-            SaveData();
-        }
-
-        public async Task UpdateAnilistInfo()
-        {
-            if (string.IsNullOrEmpty(Anilist_Username))
-            {
-                anilistProfile = null;
-                return;
-            }
-
-            this.anilistProfile = null;
-            IAniUser anilistUser = await AniUserQuery.GetUser(Anilist_Username);
-            if(anilistUser != null)
-            {
-                anilistProfile = anilistUser;
-                Anilist_Username = anilistUser.name;
-
-                Anilist_minutesWatchedAnime = (anilistUser.statistics?.anime.minutesWatched).GetValueOrDefault();
-                Anilist_daysChaptersRead = decimal.Multiply((anilistUser.statistics?.manga.chaptersRead).GetValueOrDefault(), (decimal)0.00556);
-                Anilist_imageURL = anilistUser.Avatar?.large;
-            }
-        }
-
-        public SaveDiscordUser LoadData()
-        {
-            if(File.Exists("DiscordUserFiles/" + userID + ".json"))
-            {
-                string JSONstring = File.ReadAllText("DiscordUserFiles/" + userID + ".json");
-                SaveDiscordUser save = JsonConvert.DeserializeObject<SaveDiscordUser>(JSONstring);
-                if(save != null)
+                mal_username = username;
+                malProfile = await Program._jikan.GetUserProfile(username);
+                if (animeList == AnimeList.MAL)
                 {
-                    Username = save.Username;
-                    userID = save.UserID;
+                    decimal? malMangaDays = malProfile.MangaStatistics?.DaysRead.GetValueOrDefault();
+                    mangaDays = (double)decimal.Round(malMangaDays.GetValueOrDefault(), 1);
 
-                    animeList = save.animeList;
-                    if (save.toggleAnilist) animeList = AnimeList.Anilist;
-
-                    MAL_Username = save.MAL_Username;
-                    MAL_daysWatchedAnime = save.MAL_daysWatchedAnime;
-                    MAL_daysReadManga = save.MAL_daysReadManga;
-
-                    Anilist_Username = save.Anilist_Username;
-                    Anilist_minutesWatchedAnime = save.Anilist_minutesWatchedAnime;
-                    Anilist_daysChaptersRead = save.Anilist_daysChaptersRead;
-                    return save;
+                    decimal mal_days = malProfile.AnimeStatistics.DaysWatched.GetValueOrDefault();
+                    animeDays = (double)decimal.Round(mal_days, 1);
                 }
+
+                await DatabaseRequest.UpdateUser(this);
+            } catch(Exception e)
+            {
+                await Program._logger.LogError(e);
             }
-            return null;
+            return malProfile != null;
         }
 
-        public void SaveData()
+        public async Task<bool> UpdateAnilistInfo(string username)
         {
-            savedUser = new SaveDiscordUser(this);
+            try
+            {
+                anilist_username = username;
+                anilistProfile = await AniUserQuery.GetUser(username);
+                if (animeList == AnimeList.Anilist)
+                {
+                    double chaptersRead = (double)decimal.Multiply((anilistProfile.statistics?.manga.chaptersRead).GetValueOrDefault(), (decimal)0.00556);
+                    mangaDays = Math.Round(chaptersRead, 1);
 
-            string outputJSON = JsonConvert.SerializeObject(savedUser);
+                    double minutesWatched = (double)anilistProfile.statistics.anime.minutesWatched;
+                    animeDays = minutesWatched / 60.0 / 24.0;
+                }
 
-            string jsonFormatted = JToken.Parse(outputJSON).ToString(Formatting.Indented);
+                await DatabaseRequest.UpdateUser(this);
+            } catch (Exception e) {
+                await Program._logger.LogError(e);
+            }
 
-            FileStream stream = null;
-            if (!Directory.Exists("DiscordUserFiles/"))
-                Directory.CreateDirectory("DiscordUserFiles/");
-            if (!File.Exists("DiscordUserFiles/" + userID + ".json"))
-                stream = File.Create("DiscordUserFiles/" + userID + ".json");
-
-            if(stream != null)
-                stream.Close();
-            File.WriteAllText("DiscordUserFiles/" + userID + ".json", jsonFormatted);
-        }
-
-        public static void DeleteServerFile(SocketUser user)
-        {
-            if(File.Exists("DiscordUserFiles / " + user.Id + ".json"))
-                File.Delete("DiscordUserFiles / " + user.Id + ".json");
+            return anilistProfile != null;
         }
     }
 }

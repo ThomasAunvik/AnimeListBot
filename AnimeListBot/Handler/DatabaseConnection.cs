@@ -19,6 +19,15 @@ namespace AnimeListBot.Handler
             public string catalog;
             public string userid;
             public string password;
+
+            public DataBaseLogin(string ip, string port, string catalog, string userid, string password)
+            {
+                this.ip = ip;
+                this.port = port;
+                this.catalog = catalog;
+                this.userid = userid;
+                this.password = password;
+            }
         }
 
         private static DataBaseLogin login;

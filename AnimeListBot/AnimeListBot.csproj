@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>netcoreapp2.0</TargetFramework>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
     <RootNamespace>AnimeListBot</RootNamespace>
     <Authors>Thomas Aunvik</Authors>
     <Company />
@@ -19,9 +19,12 @@
   <ItemGroup>
     <PackageReference Include="Discord.Net" Version="2.2.0-dev-20190730.2" />
     <PackageReference Include="GraphQL.Client" Version="2.0.0-alpha.3" />
-    <PackageReference Include="JikanDotNet" Version="1.3.1" />
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.2" />
+    <PackageReference Include="JikanDotNet" Version="1.3.2" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+    <PackageReference Include="Npgsql" Version="4.1.2" />
     <PackageReference Include="SixLabors.ImageSharp" Version="1.0.0-beta0006" />
+    <PackageReference Include="System.Data.Common" Version="4.3.0" />
+    <PackageReference Include="System.Data.SqlClient" Version="4.8.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -33,9 +36,12 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="botToken.txt">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
     <None Update="cleverbotToken.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="database_login.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="emailPassword.txt">
@@ -46,8 +52,8 @@
     </None>
   </ItemGroup>
 
-  <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
-    <Exec Command="echo -- PRE BUILD START --&#xD;&#xA;&#xD;&#xA;echo Target Dir: $(TargetDir)&#xD;&#xA;echo Out Dir: $(OutDir)&#xD;&#xA;&#xD;&#xA;echo Current Commit:&#xD;&#xA;git rev-parse HEAD&#xD;&#xA;&#xD;&#xA;break&gt;$(OutDir)current_commit.txt&#xD;&#xA;git rev-parse HEAD &gt;&gt; $(OutDir)current_commit.txt&#xD;&#xA;&#xD;&#xA;echo Git Status:&#xD;&#xA;git status&#xD;&#xA;&#xD;&#xA;break&gt;$(OutDir)git_status.txt&#xD;&#xA;git status &gt;&gt; $(OutDir)git_status.txt&#xD;&#xA;&#xD;&#xA;echo -- PRE BUILD END --" />
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="echo -- POST BUILD START --&#xD;&#xA;echo Current Commit:&#xD;&#xA;git rev-parse HEAD&#xD;&#xA;&#xD;&#xA;break&gt;$(PublishDir)\current_commit.txt&#xD;&#xA;git rev-parse HEAD &gt;&gt; $(PublishDir)\current_commit.txt&#xD;&#xA;&#xD;&#xA;echo Git Status:&#xD;&#xA;git status&#xD;&#xA;&#xD;&#xA;break&gt;$(PublishDir)\git_status.txt&#xD;&#xA;git status &gt;&gt; $(PublishDir)\git_status.txt&#xD;&#xA;&#xD;&#xA;echo -- PRE BUILD END --" />
   </Target>
 
 </Project>

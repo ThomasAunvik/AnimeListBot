@@ -21,8 +21,9 @@ namespace AnimeListBot.Modules
             public int totalCommands;
         }
 
-        private static SavedStats stats = new SavedStats();
+        private static SavedStats stats;
         public static async Task CommandUsed() {
+            await LoadStats();
             stats.totalCommands++;
             await SaveStats();
         }

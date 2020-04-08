@@ -21,8 +21,9 @@ namespace AnimeListBot.Modules
         {
             DiscordServer server = await DatabaseRequest.GetServerById(Context.Guild.Id);
             server.animeListChannelId = channel.Id;
+            await server.UpdateDatabase();
 
-            EmbedHandler embed = new EmbedHandler(Context.User, "Set auto anime list channel to <# " + channel.Id + ">...");
+            EmbedHandler embed = new EmbedHandler(Context.User, "Set auto anime list channel to:", "<#" + channel.Id + ">...");
             await embed.SendMessage(Context.Channel);
             await Update();
         }
@@ -39,11 +40,13 @@ namespace AnimeListBot.Modules
 
             IEnumerable<IMessage> messages = await channel.GetMessagesAsync().FlattenAsync();
             List<IMessage> listMessages = messages.ToList();
-
-            listMessages.ForEach(async x =>
+            if (listMessages.Count > 0)
             {
-                await AddUser(x, server);
-            });
+                listMessages.ForEach(async x =>
+                {
+                    await AddUser(x, server);
+                });
+            }
 
             embed.Title = "Anime Lists Updated.";
             await embed.UpdateEmbed();

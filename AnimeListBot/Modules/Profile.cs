@@ -159,8 +159,6 @@ namespace AnimeListBot.Modules
 
             if (user != null && !string.IsNullOrWhiteSpace(user.GetAnimelistUsername()))
             {
-                await user.UpdateUserInfo();
-
                 embed.ThumbnailUrl = user.GetAnimelistThumbnail();
                 embed.Url = user.GetAnimelistLink();
 

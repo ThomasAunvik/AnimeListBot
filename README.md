@@ -26,6 +26,8 @@ Use `.setlist MAL/Anilist` to choose which one to use.
 
 `.setlist` allow you to swap between profiles, from MAL to Anilist without reapplying profile settings.
 
+`.resetuser [Y]` removes all stored user data that the bot currently holds. Use the argument "Y" to confirm deletion of data. Warning: This is not reversible.
+
 ## Ranks
 
 Ranks in this bot are setup this way if you have enough days you gain a role.

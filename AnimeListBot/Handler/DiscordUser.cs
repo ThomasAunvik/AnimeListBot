@@ -42,6 +42,14 @@ namespace AnimeListBot.Handler
         }
         public IUser GetUser() { return Program._client.GetUser(userID); }
 
+        public static async Task CheckAndCreateUser(ulong user_id)
+        {
+            DiscordUser discordUser;
+            if (!await DatabaseRequest.DoesUserIdExist(user_id))
+                await DatabaseRequest.CreateUser(discordUser = new DiscordUser(Program._client.GetUser(user_id)));
+            else discordUser = await DatabaseRequest.GetUserById(user_id);
+        }
+
         public async Task CreateUserDatabase()
         {
             if (!await DatabaseRequest.DoesUserIdExist(userID))

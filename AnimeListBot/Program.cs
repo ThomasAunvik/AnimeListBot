@@ -64,20 +64,6 @@ namespace AnimeListBot
             }
         }
 
-        public async Task OnUserJoined(SocketGuildUser user)
-        {
-
-            // CREATE NEW USER IN DATABASE
-            DiscordUser discordUser;
-            if (!await DatabaseRequest.DoesUserIdExist(user.Id))
-                await DatabaseRequest.CreateUser(discordUser = new DiscordUser(user));
-            else discordUser = await DatabaseRequest.GetUserById(user.Id);
-
-            DiscordServer server = await DatabaseRequest.GetServerById(user.Guild.Id);
-
-            await Ranks.UpdateUserRole(server, discordUser, null);
-        }
-
         public async Task RegisterCommandsAsync()
         {
             await _commands.AddModulesAsync(Assembly.GetEntryAssembly(), _services);
@@ -138,7 +124,6 @@ namespace AnimeListBot
             _client.Ready += OnReadyAsync;
             _client.JoinedGuild += OnJoinedGuild;
             _client.LeftGuild += OnLeftGuild;
-            _client.UserJoined += OnUserJoined;
 
             _client.ReactionAdded += OnReactionAdded;
             
@@ -178,6 +163,7 @@ namespace AnimeListBot
         {
             try
             {
+
                 var message = arg as SocketUserMessage;
                 if (message is null || message.Author.IsBot) return;
                 
@@ -195,6 +181,8 @@ namespace AnimeListBot
                 int argPos = 0;
                 if (message.HasStringPrefix(server.prefix, ref argPos))
                 {
+                    await DiscordUser.CheckAndCreateUser(message.Author.Id);
+
                     var context = new SocketCommandContext(_client, message);
                     var result = await _commands.ExecuteAsync(context, argPos, _services);
                 }

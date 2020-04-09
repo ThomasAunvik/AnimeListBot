@@ -72,7 +72,7 @@ namespace AnimeListBot.Handler
             await DatabaseConnection.SendSql(string.Format(
                 @"INSERT INTO public.discord_server (
                 server_id, register_channel_id, animerole_id, animerole_days, mangarole_id, mangarole_days) VALUES (
-                '{0}'::bigint, '{1}'::bigint, '{2}'::bigint[], '{3}'::double precision[], '{4}'::bigint[], '{5}'::double precision[], '{6}::text)
+                '{0}'::bigint, '{1}'::bigint, '{2}'::bigint[], '{3}'::double precision[], '{4}'::bigint[], '{5}'::double precision[], '{6}'::text)
                  returning server_id;",
                 server.id.ToString(), server.animeListChannelId.ToString(),
                 "{" + string.Join(", ", server.animeRoleIds) + "}",

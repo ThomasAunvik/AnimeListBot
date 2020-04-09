@@ -74,7 +74,6 @@ namespace AnimeListBot.Modules
 
             try
             {
-
                 DiscordUser user = await DatabaseRequest.GetUserById(message.Author.Id);
                 if(user == null)
                 {

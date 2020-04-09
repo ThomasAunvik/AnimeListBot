@@ -183,7 +183,7 @@ namespace AnimeListBot
                 }
 
                 int argPos = 0;
-                if (message.HasStringPrefix(botPrefix, ref argPos))
+                if (message.HasStringPrefix(server.prefix, ref argPos))
                 {
                     var context = new SocketCommandContext(_client, message);
                     var result = await _commands.ExecuteAsync(context, argPos, _services);
@@ -197,6 +197,8 @@ namespace AnimeListBot
         private async Task OnCommandExecuted(Optional<CommandInfo> info, ICommandContext context, IResult result)
         {
             await Stats.CommandUsed();
+
+            DiscordServer server = await DatabaseRequest.GetServerById(context.Guild.Id);
 
             if (result is ExecuteResult)
             {
@@ -216,7 +218,7 @@ namespace AnimeListBot
                 if (!parseResult.IsSuccess)
                 {
                     string message = context.Message.Content;
-                    message = message.Remove(0, botPrefix.Length);
+                    message = message.Remove(0, server.prefix.Length);
                     message = message.Split(" ")[0];
                     EmbedHandler embed = HelpModule.GetCommandHelp(message, context);
                     await embed.SendMessage(context.Channel);

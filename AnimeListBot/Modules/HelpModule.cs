@@ -109,8 +109,11 @@ namespace AnimeListBot.Modules
         {
             var foo = await Context.Client.GetApplicationInfoAsync();
 
+            DiscordServer server = await DatabaseRequest.GetServerById(Context.Guild.Id);
+
             var builder = GetHelpEmbed();
-            
+            builder.Description = $"These are the commands you can use \nFor more detailed command explanations type `{server.prefix}help <command>`";
+
             await builder.SendMessage(Context.Channel);
         }
 

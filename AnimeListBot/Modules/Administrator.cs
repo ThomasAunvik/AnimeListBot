@@ -35,23 +35,6 @@ namespace AnimeListBot.Modules
             }
         }
 
-        [Command("sudo")]
-        public async Task Sudo([Remainder]string command)
-        {
-            if (!Program.botOwners.ToList().Contains(Context.User.Id.ToString())) return;
-
-            await Context.Message.DeleteAsync();
-
-            IUserMessage sudoMessage = await Context.Channel.SendMessageAsync(Program.botPrefix + command);
-
-            int argPos = 0;
-            if (sudoMessage.HasStringPrefix(Program.botPrefix, ref argPos))
-            {
-                var context = new CommandContext(Program._client, sudoMessage);
-                var result = await Program._commands.ExecuteAsync(context, argPos, Program._services);
-            }
-        }
-
         [Command("errortest")]
         public async Task SendErrorTest([Remainder]string message)
         {
@@ -155,6 +138,44 @@ namespace AnimeListBot.Modules
 
             embed.AddFieldSecure("Commit", commitText);
             embed.AddFieldSecure("Status", string.IsNullOrEmpty(Program.gitStatus) ? "None" : Program.gitStatus);
+            await embed.SendMessage(Context.Channel);
+        }
+
+        [Command("prefix")]
+        public async Task Prefix(string newPrefix = "")
+        {
+            EmbedHandler embed = new EmbedHandler(Context.User);
+            DiscordServer server = await DatabaseRequest.GetServerById(Context.Guild.Id);
+
+            IGuildUser user = await Context.Guild.GetUserAsync(Context.User.Id);
+            if (!user.GuildPermissions.Administrator)
+            {
+                if (!Program.botOwners.Contains(Context.User.Id.ToString()))
+                {
+                    newPrefix = string.Empty;
+                }
+            }
+
+            if (string.IsNullOrEmpty(newPrefix))
+            {
+                embed.Title = "Current Prefix";
+                embed.Description = "`" + server.prefix + "`";
+                await embed.SendMessage(Context.Channel);
+                return;
+            }
+
+            if (newPrefix.Length > 2)
+            {
+                embed.Title = "Prefix length is too large (Max 2 characters)";
+                await embed.SendMessage(Context.Channel);
+                return;
+            }
+
+            server.prefix = newPrefix;
+            await server.UpdateDatabase();
+
+            embed.Title = "Prefix Set to";
+            embed.Description = "`" + server.prefix + "`";
             await embed.SendMessage(Context.Channel);
         }
     }

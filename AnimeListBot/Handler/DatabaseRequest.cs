@@ -57,6 +57,8 @@ namespace AnimeListBot.Handler
                 discordServer.animeRoleDays = ((double[])row.ItemArray[3]).ToList();
                 discordServer.mangaRoleIds = ((long[])row.ItemArray[4]).ToList().ConvertAll(i => (ulong)i);
                 discordServer.mangaRoleDays = ((double[])row.ItemArray[5]).ToList();
+
+                discordServer.prefix = row.ItemArray[6].ToString();
                 return discordServer;
             }
             catch (Exception e) {
@@ -70,13 +72,14 @@ namespace AnimeListBot.Handler
             await DatabaseConnection.SendSql(string.Format(
                 @"INSERT INTO public.discord_server (
                 server_id, register_channel_id, animerole_id, animerole_days, mangarole_id, mangarole_days) VALUES (
-                '{0}'::bigint, '{1}'::bigint, '{2}'::bigint[], '{3}'::double precision[], '{4}'::bigint[], '{5}'::double precision[])
+                '{0}'::bigint, '{1}'::bigint, '{2}'::bigint[], '{3}'::double precision[], '{4}'::bigint[], '{5}'::double precision[], '{6}::text)
                  returning server_id;",
                 server.id.ToString(), server.animeListChannelId.ToString(),
                 "{" + string.Join(", ", server.animeRoleIds) + "}",
                 "{" + string.Join(", ", server.animeRoleDays) + "}",
                 "{" + string.Join(", ", server.mangaRoleIds) + "}",
-                "{" + string.Join(", ", server.mangaRoleDays) + "}"
+                "{" + string.Join(", ", server.mangaRoleDays) + "}",
+                server.prefix
             ));
             return true;
         }
@@ -89,13 +92,15 @@ namespace AnimeListBot.Handler
                 animerole_id = '{1}'::bigint[],
                 animerole_days = '{2}'::double precision[],
                 mangarole_id = '{3}'::bigint[],
-                mangarole_days = '{4}'::double precision[] 
-                WHERE server_id = '{5}';",
+                mangarole_days = '{4}'::double precision[],
+                prefix = '{5}'::text
+                WHERE server_id = '{6}';",
                 server.animeListChannelId.ToString(),
                 "{" + string.Join(", ", server.animeRoleIds) + "}",
                 "{" + string.Join(", ", server.animeRoleDays) + "}",
                 "{" + string.Join(", ", server.mangaRoleIds) + "}",
                 "{" + string.Join(", ", server.mangaRoleDays) + "}",
+                server.prefix,
                 server.id
             ));
             return true;

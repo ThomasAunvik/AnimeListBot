@@ -14,6 +14,7 @@ namespace AnimeListBot.Handler
         public static List<ulong> rolesUpdating = new List<ulong>();
 
         public ulong id;
+        public string prefix = ".";
         public ulong animeListChannelId = 0;
 
         public List<ulong> animeRoleIds = new List<ulong>();

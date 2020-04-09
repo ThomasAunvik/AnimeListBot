@@ -114,6 +114,8 @@ Extra Info: As a bot owner, you get to have the exlusive right to be able to get
 
 To be able to use the bot, you would have to have a database setup. And at the moment, the database currently used is **PostgreSQL**.
 
+To connect your PostgreSQL database to the server, make sure you have the tables correctly set up as shown below, and edit the `database_login_template.json` to the correct login information, and change the file name to `database_login.json`.
+
 ### Database Table Structure
 
 discord_server

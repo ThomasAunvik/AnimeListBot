@@ -106,6 +106,15 @@ namespace AnimeListBot.Handler
             return true;
         }
 
+        public static async Task<bool> RemoveServer(DiscordServer server)
+        {
+            await DatabaseConnection.SendSql(string.Format(
+                @"DELETE FROM public.discord_server WHERE server_id = '{0}';",
+                server.id.ToString()
+            ));
+            return true;
+        }
+
         public static async Task<DiscordUser> GetUserById(ulong id, bool update = true)
         {
             DataSet set = await DatabaseConnection.SendSql("SELECT * from public.discord_user where user_id = " + id);
@@ -150,6 +159,15 @@ namespace AnimeListBot.Handler
                     '{0}'::bigint, '{1}'::text, '{2}'::text, '{3}'::integer, '{4}'::double precision, '{5}'::double precision)
                      returning user_id;",
                 user.userID, user.malProfile?.Username, user.anilistProfile?.name, (int)user.animeList, user.animeDays, user.mangaDays
+            ));
+            return true;
+        }
+
+        public static async Task<bool> RemoveUser(DiscordUser user)
+        {
+            await DatabaseConnection.SendSql(string.Format(
+                @"DELETE FROM public.discord_user WHERE user_id = '{0}';",
+                user.userID.ToString()
             ));
             return true;
         }

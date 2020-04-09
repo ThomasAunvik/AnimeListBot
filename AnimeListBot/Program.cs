@@ -137,6 +137,7 @@ namespace AnimeListBot
 
             _client.Ready += OnReadyAsync;
             _client.JoinedGuild += OnJoinedGuild;
+            _client.LeftGuild += OnLeftGuild;
             _client.UserJoined += OnUserJoined;
 
             _client.ReactionAdded += OnReactionAdded;
@@ -152,6 +153,15 @@ namespace AnimeListBot
 
             await _logger.Log("Stopping Bot...");
             return;
+        }
+
+        private async Task OnLeftGuild(SocketGuild arg)
+        {
+            DiscordServer server = await DatabaseRequest.GetServerById(arg.Id);
+            if(server != null)
+            {
+                await DatabaseRequest.RemoveServer(server);
+            }
         }
 
         private Task OnReactionAdded(Cacheable<IUserMessage, ulong> arg1, ISocketMessageChannel arg2, SocketReaction arg3)

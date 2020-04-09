@@ -396,5 +396,30 @@ namespace AnimeListBot.Modules
             
             await embed.UpdateEmbed();
         }
+
+        [Command("resetuser")]
+        public async Task RemoveUser(string confirm = "n")
+        {
+            DiscordUser user = await DatabaseRequest.GetUserById(Context.User.Id);
+
+            EmbedHandler embed = new EmbedHandler(Context.User);
+            if(user == null)
+            {
+                embed.Title = "User does not exist in the database.";
+                await embed.SendMessage(Context.Channel);
+                return;
+            }
+
+            if(confirm == "Y")
+            {
+                embed.Title = "Your user info is removed from the bot.";
+                await DatabaseRequest.RemoveUser(user);
+            }
+            else
+            {
+                embed.Title = "Confirm your user info deletion from bot with the argument 'Y'";
+            }
+            await embed.SendMessage(Context.Channel);
+        }
     }
 }

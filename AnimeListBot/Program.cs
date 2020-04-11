@@ -15,6 +15,7 @@ using AnimeListBot.Handler;
 using AnimeListBot.Modules;
 using System.Threading;
 using System.Net.Http;
+using Discord.Net;
 
 namespace AnimeListBot
 {
@@ -163,17 +164,19 @@ namespace AnimeListBot
         {
             try
             {
-
                 var message = arg as SocketUserMessage;
                 if (message is null || message.Author.IsBot) return;
-                
-                IDMChannel dmChannel = await arg.Author.GetOrCreateDMChannelAsync();
-                if (arg.Channel.Id == dmChannel?.Id) return;
+
+                try {
+                    IDMChannel dmChannel = await arg.Author.GetOrCreateDMChannelAsync();
+                    if (arg.Channel.Id == dmChannel?.Id) return;
+                } catch (HttpException) { return; }
 
                 ulong guildId = ((IGuildChannel)arg.Channel).Guild.Id;
                 DiscordServer server = await DatabaseRequest.GetServerById(guildId);
                 if (arg?.Channel?.Id == server?.animeListChannelId)
                 {
+                    await DiscordUser.CheckAndCreateUser(message.Author.Id);
                     await AutoAdder.AddUser(arg, server);
                     return;
                 }

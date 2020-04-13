@@ -1,4 +1,4 @@
-# AnimeList Bot [![CodeFactor](https://www.codefactor.io/repository/github/thomasaunvik/animelistbot/badge)](https://www.codefactor.io/repository/github/thomasaunvik/animelistbot) [![Build status](https://ci.appveyor.com/api/projects/status/0qse6o8yrx64gjf1?svg=true)](https://ci.appveyor.com/project/ThomasAunvik/animelistbot)
+# AnimeList Bot [![CodeFactor](https://www.codefactor.io/repository/github/thomasaunvik/animelistbot/badge)](https://www.codefactor.io/repository/github/thomasaunvik/animelistbot) [![Build status](https://ci.appveyor.com/api/projects/status/0qse6o8yrx64gjf1?svg=true)](https://ci.appveyor.com/project/ThomasAunvik/animelistbot) ![.NET Core](https://github.com/ThomasAunvik/AnimeListBot/workflows/.NET%20Core/badge.svg)
 This bot is made in [
 RogueException/Discord.Net](https://github.com/RogueException/Discord.Net) C#, and is built in dotnet core.
 

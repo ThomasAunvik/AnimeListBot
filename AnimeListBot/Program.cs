@@ -229,11 +229,12 @@ namespace AnimeListBot
 
         private async Task Log(LogMessage arg)
         {
-            await _logger.Log(arg.Message);
             if (arg.Exception != null)
             {
-                await _logger.LogError(arg.Exception);
+                await _logger.LogError(arg);
+                return;
             }
+            await _logger.Log(arg.Message);
         }
     }
 }

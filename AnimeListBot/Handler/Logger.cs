@@ -96,6 +96,17 @@ namespace AnimeListBot.Handler
             await LogError(errorMessage, embed);
         }
 
+        public async Task LogError(LogMessage message)
+        {
+            EmbedHandler embed = new EmbedHandler(null, "Exception", string.Empty, true);
+            embed.AddFieldSecure("Severity", Enum.GetName(typeof(LogSeverity), message.Severity));
+            embed.AddFieldSecure("Source", message.Source);
+            embed.AddFieldSecure("Exception Message", message.Exception.Message);
+            embed.AddFieldSecure("Type", message.Exception.GetType().FullName);
+            embed.AddFieldSecure("Stacktrace", TrancuateStacktrace(message.Exception.StackTrace));
+            await LogError(message.Exception, embed);
+        }
+
         public async Task LogError(Exception exception, IUser user = null, IGuildChannel guildChannel = null)
         {
             EmbedHandler embed = new EmbedHandler(user, "Exception", string.Empty, true);

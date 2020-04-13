@@ -96,7 +96,7 @@ function GetProxyEnabledWebClient
     return $wc
 }
 
-Write-Host "Preparing to run build script..."
+Write-Output "Preparing to run build script..."
 
 if(!$PSScriptRoot){
     $PSScriptRoot = Split-Path $MyInvocation.MyCommand.Path -Parent
@@ -246,6 +246,6 @@ if ($DryRun) { $cakeArguments += "-dryrun" }
 $cakeArguments += $ScriptArgs
 
 # Start Cake
-Write-Host "Running build script..."
+Write-Output "Running build script..."
 Invoke-Expression "& $CAKE_EXE_INVOCATION $($cakeArguments -join " ")"
 exit $LASTEXITCODE

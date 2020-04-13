@@ -3,7 +3,7 @@ image: Visual Studio 2019
 cache:
   - packages -> **\packages.config, nuget.config
   - tools -> build.cake, build.ps1
-  
+
 environment:
   _DOTNET_VERSION: "3.1.101"
 
@@ -32,7 +32,6 @@ test: off
 artifacts:
   - path: ./msbuild.log
     name: Build Log
-    
   - path: ./AnimeListBot.zip
     name: AnimeListBot
     type: zip

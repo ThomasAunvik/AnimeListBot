@@ -119,6 +119,10 @@ namespace AnimeListBot.Handler
                 Exception e = ((ExecuteResult)result).Exception;
 
                 EmbedHandler embed = new EmbedHandler(context.User, "Command Exception", string.Empty, true);
+                embed.AddFieldSecure("Channel Info",
+                    "Server Id: " + ((IGuildChannel)context.Channel).GuildId +
+                    "\nChannel Id: <#" + context.Channel.Id + ">"
+                );
                 embed.AddFieldSecure("Command Used", context.Message.Content);
                 embed.AddFieldSecure("Exception Message", e.Message);
                 embed.AddFieldSecure("Type", e.GetType().FullName);

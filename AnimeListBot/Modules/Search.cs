@@ -85,8 +85,6 @@ namespace AnimeListBot.Modules
             await embed.UpdateEmbed();
         }
 
-        
-
         [Command("manga")]
         public static async Task SearchManga(EmbedHandler embed, IUser targetUser, [Remainder]string search)
         {

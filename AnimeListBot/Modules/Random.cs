@@ -11,6 +11,11 @@ namespace AnimeListBot.Modules
 {
     public class Random : ModuleBase<ICommandContext>
     {
+        class ListRequest
+        {
+            public List<long> sfw = new List<long>();
+        }
+
         const string AnimeCache = "https://raw.githubusercontent.com/seanbreckenridge/mal-id-cache/master/cache/anime_cache.json";
         const string MangaCache = "https://raw.githubusercontent.com/seanbreckenridge/mal-id-cache/master/cache/manga_cache.json";
 
@@ -45,10 +50,5 @@ namespace AnimeListBot.Modules
 
             await Search.GetManga(embed, Context.User, ids.sfw[rndNumber]);
         }
-    }
-
-    class ListRequest
-    {
-        public List<long> sfw = new List<long>();
     }
 }

@@ -2,7 +2,7 @@
 This bot is made in [
 RogueException/Discord.Net](https://github.com/RogueException/Discord.Net) C#, and is built in dotnet core.
 
-You can invite my bot to your discord server by clicking: [here](https://discordapp.com/api/oauth2/authorize?client_id=377558188826034216&permissions=0&scope=bot)!
+You can invite my bot to your discord server by clicking: [here](https://discordapp.com/oauth2/authorize?client_id=515269277553655823&scope=bot&permissions=287808)!
 
 If you want to contact me via discord, use the `.contact [message]` command, or add me as friend: `Thaun_#0001`
 

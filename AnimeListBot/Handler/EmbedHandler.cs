@@ -20,7 +20,7 @@ namespace AnimeListBot.Handler
         private List<(IEmote, Action)> emojiActions = new List<(IEmote, Action)>();
         private DateTime emoteTimeout;
 
-        public EmbedHandler(IUser user, string title = "", string description = "")
+        public EmbedHandler(IUser user, string title = "", string description = "", bool debug = false)
         {
             this.user = user;
 

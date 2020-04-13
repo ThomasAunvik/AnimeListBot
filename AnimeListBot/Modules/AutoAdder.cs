@@ -117,9 +117,11 @@ namespace AnimeListBot.Modules
                 {
                     string returnMessage = "Invalid Profile Link: " + message.Content;
                     Console.WriteLine(returnMessage);
-                    await message.Author.SendMessageAsync(returnMessage + "\nPlease use the following link formats:\n" +
-                        "MAL: https://myanimelist.net/profile/[username]\n" +
-                        "Anilist: https://anilist.co/user/[username]");
+                    await message.Author.SendMessageAsync(returnMessage +
+                        "Channel: <#" + message.Channel.Id + ">" +
+                        "\nPlease use the following link formats:\n" +
+                        "MAL: `https://myanimelist.net/profile/[username]` \n" +
+                        "Anilist: `https://anilist.co/user/[username]`");
                     await message.DeleteAsync();
                     return;
                 }
@@ -149,7 +151,7 @@ namespace AnimeListBot.Modules
             }
             catch(Exception e)
             {
-                await Program._logger.LogError(e);
+                await Program._logger.LogError(e, message.Author, (IGuildChannel)message.Channel);
             }
         }
     }

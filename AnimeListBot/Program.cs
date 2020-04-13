@@ -191,7 +191,7 @@ namespace AnimeListBot
                 }
             }catch(Exception e)
             {
-                await _logger.LogError(e, arg.Author);
+                await _logger.LogError(e, arg.Author, (IGuildChannel)arg.Channel);
             }
         }
 

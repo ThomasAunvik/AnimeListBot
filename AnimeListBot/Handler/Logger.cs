@@ -76,9 +76,16 @@ namespace AnimeListBot.Handler
             await owner.SendMessageAsync("", false, sendEmbed.Build());
         }
 
-        public async Task LogError(string errorMessage, IUser user = null)
+        public async Task LogError(string errorMessage, IUser user = null, IGuildChannel guildChannel = null)
         {
-            EmbedHandler embed = new EmbedHandler(user, "Error");
+            EmbedHandler embed = new EmbedHandler(user, "Error", string.Empty, true);
+            if (guildChannel != null)
+            {
+                embed.AddFieldSecure("Channel Info",
+                    "Server Id: " + guildChannel.GuildId +
+                    "\nChannel Id: <#" + guildChannel.Id + ">"
+                );
+            }
             embed.AddFieldSecure("ErrorMessage", errorMessage);
             await LogError(errorMessage, embed);
         }
@@ -89,9 +96,16 @@ namespace AnimeListBot.Handler
             await LogError(errorMessage, embed);
         }
 
-        public async Task LogError(Exception exception, IUser user = null)
+        public async Task LogError(Exception exception, IUser user = null, IGuildChannel guildChannel = null)
         {
-            EmbedHandler embed = new EmbedHandler(user, "Exception");
+            EmbedHandler embed = new EmbedHandler(user, "Exception", string.Empty, true);
+            if (guildChannel != null)
+            {
+                embed.AddFieldSecure("Channel Info",
+                    "Server Id: " + guildChannel.GuildId +
+                    "\nChannel Id: <#" + guildChannel.Id + ">"
+                );
+            }
             embed.AddFieldSecure("Exception Message", exception.Message);
             embed.AddFieldSecure("Type", exception.GetType().FullName);
             embed.AddFieldSecure("Stacktrace", TrancuateStacktrace(exception.StackTrace));
@@ -102,10 +116,9 @@ namespace AnimeListBot.Handler
         {
             if(result is ExecuteResult)
             {
-                ExecuteResult executeResult = (ExecuteResult)result;
-                Exception e = executeResult.Exception;
+                Exception e = ((ExecuteResult)result).Exception;
 
-                EmbedHandler embed = new EmbedHandler(context.User, "Command Exception");
+                EmbedHandler embed = new EmbedHandler(context.User, "Command Exception", string.Empty, true);
                 embed.AddFieldSecure("Command Used", context.Message.Content);
                 embed.AddFieldSecure("Exception Message", e.Message);
                 embed.AddFieldSecure("Type", e.GetType().FullName);

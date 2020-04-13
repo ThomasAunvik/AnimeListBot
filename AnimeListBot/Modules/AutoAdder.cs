@@ -35,7 +35,7 @@ namespace AnimeListBot.Modules
             DiscordServer server = await DatabaseRequest.GetServerById(Context.Guild.Id);
             ITextChannel channel = await Context.Guild.GetChannelAsync(server.animeListChannelId) as ITextChannel;
 
-            EmbedHandler embed = new EmbedHandler(Context.User, "Updating Anime Lists from <# " + channel.Id + ">...");
+            EmbedHandler embed = new EmbedHandler(Context.User, "Updating Anime Lists from channel", "<#" + channel.Id + ">");
             await embed.SendMessage(Context.Channel);
 
             IEnumerable<IMessage> messages = await channel.GetMessagesAsync().FlattenAsync();
@@ -59,7 +59,8 @@ namespace AnimeListBot.Modules
             EmbedHandler embed = new EmbedHandler(Context.User);
             if (server.animeListChannelId != 0)
             {
-                embed.Title = "Auto AnimeList is set to channel: <#" + server.animeListChannelId + ">";
+                embed.Title = "Auto AnimeList is set to channel";
+                embed.Description = "<#" + server.animeListChannelId + ">";
             }
             else
             {

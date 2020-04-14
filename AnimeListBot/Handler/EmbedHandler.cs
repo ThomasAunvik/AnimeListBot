@@ -12,8 +12,8 @@ namespace AnimeListBot.Handler
     {
         const int MAX_FIELD_VALUE_LENGTH = 2048;
 
-        IUser user;
-        IUser owner;
+        IGuildUser user;
+        IGuildUser owner;
         IUserMessage embedMessage;
 
         private static List<EmbedHandler> activatedEmoteActions;
@@ -22,7 +22,7 @@ namespace AnimeListBot.Handler
 
         public EmbedHandler(IUser user, string title = "", string description = "", bool debug = false)
         {
-            this.user = user;
+            this.user = (IGuildUser)user;
 
             Title = title;
             Description = description;
@@ -37,7 +37,7 @@ namespace AnimeListBot.Handler
 
         public void SetOwner(IUser user)
         {
-            owner = user;
+            owner = (IGuildUser)user;
         }
 
         public async Task SendMessage(IMessageChannel channel, string message = "")
@@ -54,7 +54,17 @@ namespace AnimeListBot.Handler
             if (embedMessage != null)
             {
                 await embedMessage.ModifyAsync(x => x.Embed = Build());
-                await embedMessage.RemoveAllReactionsAsync();
+                
+                if(embedMessage.Channel is IGuildChannel)
+                {
+                    IGuildChannel guildChannel = (IGuildChannel)embedMessage.Channel;
+                    IGuildUser serverUser = await guildChannel.Guild.GetCurrentUserAsync();
+                    if (serverUser.GuildPermissions.Has(GuildPermission.ManageMessages))
+                    {
+                        await embedMessage.RemoveAllReactionsAsync();
+                    }
+                }
+                else await embedMessage.RemoveAllReactionsAsync();
 
                 List<IEmote> allEmotes = embedMessage.Reactions.Keys.ToList();
                 List<(IEmote, Action)> newEmotes = emojiActions.FindAll(x => allEmotes.Find(y=> y.Name == x.Item1.Name) == null);

@@ -18,7 +18,7 @@ namespace AnimeListBot.Modules
         [Command("stop")]
         public async Task StopBot()
         {
-            EmbedHandler embed = new EmbedHandler(Context.User);
+            EmbedHandler embed = new EmbedHandler((IGuildUser)Context.User);
             if(Program.botOwners.Contains(Context.User.Id.ToString()))
             {
                 await Program._logger.Log("Stopping bot... Command run by: " + Context.User.Username);
@@ -62,7 +62,7 @@ namespace AnimeListBot.Modules
         )]
         public async Task SetGameStatus(Discord.ActivityType activityType, string gameMessage)
         {
-            EmbedHandler embed = new EmbedHandler(Context.User, "Set game status to: " + Enum.GetName(typeof(Discord.ActivityType), activityType) + " " + gameMessage);
+            EmbedHandler embed = new EmbedHandler((IGuildUser)Context.User, "Set game status to: " + Enum.GetName(typeof(Discord.ActivityType), activityType) + " " + gameMessage);
 
             if (Program.botOwners.Contains(Context.User.Id.ToString()))
             {

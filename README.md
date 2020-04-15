@@ -6,6 +6,8 @@ You can invite my bot to your discord server by clicking: [here](https://discord
 
 If you want to contact me via discord, use the `al!contact [message]` command, or add me as friend: `Thaun_#0001`
 
+Else, you can join the support discord: https://discord.gg/Q9cf46R
+
 # Introduction
 
 Welcome to my Anime List Bot, where you can make people in your server compete on how much anime you have seen.
@@ -81,6 +83,14 @@ Thanks to [soruly/trace.moe](https://github.com/soruly/trace.moe/)!
 `al!invite` gets an invite link for the bot
 
 `al!github` gets the github link for the bot (this github)
+
+## Bot Info
+
+`a!stats` shows statistics of the server, for example uptime, usercount, guilds and more.
+
+`a!info` shows bot information, owner, shards and current shard, Discord.NET version, and links to invite and github.
+
+`a!support` gives discord invite link to the support server, and shows the command for contact.
 
 ## Administrator
 

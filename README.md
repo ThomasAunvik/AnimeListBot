@@ -133,11 +133,12 @@ discord_user
 | 96580514021912576  | Thaun_  | Thaun | 0(MAL) or 1(Anilist) | 100 | 25 |
 
 
-* IN PROGRESS *
+***IN PROGRESS***
+
 cluster
 | id  | shard_id_start | shard_id_end |
 | ------------- | ------------- | ------------- |
-| *bigint*  | *integer* | *integer * |
+| *bigint*  | *integer* | *integer* |
 | 0  | 0  | 2 |
 | 1  | 3  | 5 |
 

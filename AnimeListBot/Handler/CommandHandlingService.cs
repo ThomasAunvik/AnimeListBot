@@ -58,7 +58,7 @@ namespace AnimeListBot.Handler
 
             // This value holds the offset where the prefix ends
             var argPos = 0;
-            if (!message.HasStringPrefix(server.Prefix, ref argPos))
+            if (!(message.HasStringPrefix(server.Prefix, ref argPos) || !message.HasMentionPrefix(Program._client.CurrentUser, ref argPos)))
                 return;
 
             // A new kind of command context, ShardedCommandContext can be utilized with the commands framework

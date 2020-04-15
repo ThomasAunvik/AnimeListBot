@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using System.Linq;
 using System.Data;
 using System.Data.SqlClient;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace AnimeListBot.Handler
 {
@@ -22,55 +23,66 @@ namespace AnimeListBot.Handler
             Anilist
         }
 
-        public ulong userID;
+        public ulong UserId { get; set; }
         
+        [NotMapped]
         public UserProfile malProfile;
-        public string mal_username;
+        public string MalUsername { get; set; }
+        [NotMapped]
         public IAniUser anilistProfile;
-        public string anilist_username;
-        
-        public AnimeList animeList;
+        public string AnilistUsername { get; set; }
 
-        public double animeDays;
-        public double mangaDays;
+        public AnimeList ListPreference { get; set; }
+
+        public double AnimeDays { get; set; }
+        public double MangaDays { get; set; }
 
         public DiscordUser() { }
 
         // Most of the reasons you do this part is to create a new user and upload it to the db automaticly
         public DiscordUser(IUser user) {
-            userID = user.Id;
+            UserId = user.Id;
         }
-        public IUser GetUser() { return Program._client.GetUser(userID); }
+
+        public void OverrideData(DiscordUser user)
+        {
+            MalUsername = user.MalUsername;
+            AnilistUsername = user.AnilistUsername;
+            AnimeDays = user.AnimeDays;
+            MangaDays = user.MangaDays;
+        }
+
+        public IUser GetUser() { return Program._client.GetUser((ulong)UserId); }
 
         public static async Task CheckAndCreateUser(ulong user_id)
         {
             DiscordUser discordUser;
-            if (!await DatabaseRequest.DoesUserIdExist(user_id))
+            if (!DatabaseRequest.DoesUserIdExist(user_id))
                 await DatabaseRequest.CreateUser(discordUser = new DiscordUser(Program._client.GetUser(user_id)));
             else discordUser = await DatabaseRequest.GetUserById(user_id);
         }
 
         public async Task CreateUserDatabase()
         {
-            if (!await DatabaseRequest.DoesUserIdExist(userID))
+            if (!DatabaseRequest.DoesUserIdExist(UserId))
                 await DatabaseRequest.CreateUser(this);
             else await UpdateDatabase();
         }
 
         public async Task UpdateDatabase()
         {
-            if (await DatabaseRequest.DoesUserIdExist(userID))
+            if (DatabaseRequest.DoesUserIdExist(UserId))
                 await DatabaseRequest.UpdateUser(this);
         }
 
         public string GetAnimelistUsername()
         {
-            switch (animeList)
+            switch (ListPreference)
             {
                 case AnimeList.MAL:
-                    return mal_username;
+                    return MalUsername;
                 case AnimeList.Anilist:
-                    return anilist_username;
+                    return AnilistUsername;
                 default:
                     return "";
             }
@@ -78,7 +90,7 @@ namespace AnimeListBot.Handler
 
         public string GetAnimelistThumbnail()
         {
-            switch (animeList)
+            switch (ListPreference)
             {
                 case AnimeList.MAL:
                     return malProfile.ImageURL;
@@ -91,7 +103,7 @@ namespace AnimeListBot.Handler
 
         public string GetAnimelistLink()
         {
-            switch (animeList)
+            switch (ListPreference)
             {
                 case AnimeList.MAL:
                     return malProfile?.URL;
@@ -106,28 +118,28 @@ namespace AnimeListBot.Handler
 
         public (ulong, double) GetAnimeServerRank(DiscordServer server)
         {
-            if (server.animeRoleIds.Count < 1) return (0, 0);
+            if (server.AnimeroleId.Length < 1) return (0, 0);
 
             double animeDays = GetAnimeWatchDays();
-            for(int roleIndex = 0; roleIndex < server.animeRoleDays.Count; roleIndex++)
+            for(int roleIndex = 0; roleIndex < server.AnimeroleDays.Length; roleIndex++)
             {
-                if (animeDays < server.animeRoleDays[roleIndex]) {
+                if (animeDays < server.AnimeroleDays[roleIndex]) {
                     if (roleIndex < 1) return (0,0);
                     roleIndex--;
-                    return (server.animeRoleIds[roleIndex], server.animeRoleDays[roleIndex]);
+                    return ((ulong)server.AnimeroleId[roleIndex], server.AnimeroleDays[roleIndex]);
                 }
             }
-            return (server.animeRoleIds[server.animeRoleIds.Count-1], server.animeRoleDays[server.animeRoleIds.Count-1]);
+            return ((ulong)server.AnimeroleId[server.AnimeroleId.Length - 1], server.AnimeroleDays[server.AnimeroleId.Length - 1]);
         }
 
         public double GetAnimeWatchDays()
         {
-            return animeDays;
+            return AnimeDays;
         }
 
         public float GetAnimeMeanScore()
         {
-            switch (animeList)
+            switch (ListPreference)
             {
                 case AnimeList.MAL:
                     return (float)malProfile.AnimeStatistics.MeanScore.GetValueOrDefault();
@@ -140,7 +152,7 @@ namespace AnimeListBot.Handler
 
         public int GetAnimeTotalEntries()
         {
-            switch (animeList)
+            switch (ListPreference)
             {
                 case AnimeList.MAL:
                     return malProfile.AnimeStatistics.TotalEntries.GetValueOrDefault();
@@ -153,7 +165,7 @@ namespace AnimeListBot.Handler
 
         public int GetAnimeEpisodesWatched()
         {
-            switch (animeList)
+            switch (ListPreference)
             {
                 case AnimeList.MAL:
                     return malProfile.AnimeStatistics.EpisodesWatched.GetValueOrDefault();
@@ -166,7 +178,7 @@ namespace AnimeListBot.Handler
 
         public int GetAnimeRewatched()
         {
-            switch (animeList)
+            switch (ListPreference)
             {
                 case AnimeList.MAL:
                     return malProfile.AnimeStatistics.Rewatched.GetValueOrDefault();
@@ -179,7 +191,7 @@ namespace AnimeListBot.Handler
 
         public int GetAnimeWatching()
         {
-            switch (animeList)
+            switch (ListPreference)
             {
                 case AnimeList.MAL:
                     return malProfile.AnimeStatistics.Watching.GetValueOrDefault();
@@ -192,7 +204,7 @@ namespace AnimeListBot.Handler
 
         public int GetAnimeCompleted()
         {
-            switch (animeList)
+            switch (ListPreference)
             {
                 case AnimeList.MAL:
                     return malProfile.AnimeStatistics.Completed.GetValueOrDefault();
@@ -205,7 +217,7 @@ namespace AnimeListBot.Handler
 
         public int GetAnimeOnHold()
         {
-            switch (animeList)
+            switch (ListPreference)
             {
                 case AnimeList.MAL:
                     return malProfile.AnimeStatistics.OnHold.GetValueOrDefault();
@@ -218,7 +230,7 @@ namespace AnimeListBot.Handler
 
         public int GetAnimeDropped()
         {
-            switch (animeList)
+            switch (ListPreference)
             {
                 case AnimeList.MAL:
                     return malProfile.AnimeStatistics.Dropped.GetValueOrDefault();
@@ -231,7 +243,7 @@ namespace AnimeListBot.Handler
 
         public int GetAnimePlanToWatch()
         {
-            switch (animeList)
+            switch (ListPreference)
             {
                 case AnimeList.MAL:
                     return malProfile.AnimeStatistics.PlanToWatch.GetValueOrDefault();
@@ -248,29 +260,29 @@ namespace AnimeListBot.Handler
 
         public (ulong, double) GetMangaServerRank(DiscordServer server)
         {
-            if (server.mangaRoleIds.Count < 1) return (0, 0);
+            if (server.MangaroleId.Length < 1) return (0, 0);
 
             double mangaDays = GetMangaReadDays();
-            for (int roleIndex = 0; roleIndex < server.mangaRoleDays.Count; roleIndex++)
+            for (int roleIndex = 0; roleIndex < server.MangaroleDays.Length; roleIndex++)
             {
-                if (mangaDays < server.mangaRoleDays[roleIndex])
+                if (mangaDays < server.MangaroleDays[roleIndex])
                 {
                     if (roleIndex < 1) return (0,0);
                     roleIndex--;
-                    return (server.mangaRoleIds[roleIndex], server.mangaRoleDays[roleIndex]);
+                    return ((ulong)server.MangaroleId[roleIndex], server.MangaroleDays[roleIndex]);
                 }
             }
-            return (server.mangaRoleIds[server.mangaRoleIds.Count-1], server.mangaRoleDays[server.mangaRoleIds.Count-1]);
+            return ((ulong)server.MangaroleId[server.MangaroleId.Length - 1], server.MangaroleDays[server.MangaroleId.Length - 1]);
         }
 
         public double GetMangaReadDays()
         {
-            return mangaDays;
+            return MangaDays;
         }
 
         public float GetMangaMeanScore()
         {
-            switch (animeList)
+            switch (ListPreference)
             {
                 case AnimeList.MAL:
                     return (float)malProfile.MangaStatistics.MeanScore.GetValueOrDefault();
@@ -283,7 +295,7 @@ namespace AnimeListBot.Handler
 
         public int GetMangaTotalEntries()
         {
-            switch (animeList)
+            switch (ListPreference)
             {
                 case AnimeList.MAL:
                     return malProfile.MangaStatistics.TotalEntries.GetValueOrDefault();
@@ -296,7 +308,7 @@ namespace AnimeListBot.Handler
 
         public int GetMangaChaptersRead()
         {
-            switch (animeList)
+            switch (ListPreference)
             {
                 case AnimeList.MAL:
                     return malProfile.MangaStatistics.ChaptersRead.GetValueOrDefault();
@@ -309,7 +321,7 @@ namespace AnimeListBot.Handler
 
         public int GetMangaVolumesRead()
         {
-            switch (animeList)
+            switch (ListPreference)
             {
                 case AnimeList.MAL:
                     return malProfile.MangaStatistics.VolumesRead.GetValueOrDefault();
@@ -322,7 +334,7 @@ namespace AnimeListBot.Handler
 
         public int GetMangaReread()
         {
-            switch (animeList)
+            switch (ListPreference)
             {
                 case AnimeList.MAL:
                     return malProfile.MangaStatistics.Reread.GetValueOrDefault();
@@ -335,7 +347,7 @@ namespace AnimeListBot.Handler
 
         public int GetMangaReading()
         {
-            switch (animeList)
+            switch (ListPreference)
             {
                 case AnimeList.MAL:
                     return malProfile.MangaStatistics.Reading.GetValueOrDefault();
@@ -348,7 +360,7 @@ namespace AnimeListBot.Handler
 
         public int GetMangaCompleted()
         {
-            switch (animeList)
+            switch (ListPreference)
             {
                 case AnimeList.MAL:
                     return malProfile.MangaStatistics.Completed.GetValueOrDefault();
@@ -361,7 +373,7 @@ namespace AnimeListBot.Handler
 
         public int GetMangaOnHold()
         {
-            switch (animeList)
+            switch (ListPreference)
             {
                 case AnimeList.MAL:
                     return malProfile.MangaStatistics.OnHold.GetValueOrDefault();
@@ -374,7 +386,7 @@ namespace AnimeListBot.Handler
 
         public int GetMangaDropped()
         {
-            switch (animeList)
+            switch (ListPreference)
             {
                 case AnimeList.MAL:
                     return malProfile.MangaStatistics.Dropped.GetValueOrDefault();
@@ -387,7 +399,7 @@ namespace AnimeListBot.Handler
 
         public int GetMangaPlanToRead()
         {
-            switch (animeList)
+            switch (ListPreference)
             {
                 case AnimeList.MAL:
                     return malProfile.MangaStatistics.PlanToRead.GetValueOrDefault();
@@ -402,7 +414,7 @@ namespace AnimeListBot.Handler
 
         public async Task<bool> UpdateUserInfo()
         {
-            switch (animeList)
+            switch (ListPreference)
             {
                 case AnimeList.MAL:
                     if (malProfile == null) return false;
@@ -419,15 +431,15 @@ namespace AnimeListBot.Handler
         {
             try
             {
-                mal_username = username;
+                MalUsername = username;
                 malProfile = await Program._jikan.GetUserProfile(username);
-                if (animeList == AnimeList.MAL)
+                if (ListPreference == AnimeList.MAL)
                 {
                     decimal? malMangaDays = malProfile.MangaStatistics?.DaysRead.GetValueOrDefault();
-                    mangaDays = (double)decimal.Round(malMangaDays.GetValueOrDefault(), 1);
+                    MangaDays = (double)decimal.Round(malMangaDays.GetValueOrDefault(), 1);
 
                     decimal mal_days = malProfile.AnimeStatistics.DaysWatched.GetValueOrDefault();
-                    animeDays = (double)decimal.Round(mal_days, 1);
+                    AnimeDays = (double)decimal.Round(mal_days, 1);
                 }
 
                 await DatabaseRequest.UpdateUser(this);
@@ -442,15 +454,15 @@ namespace AnimeListBot.Handler
         {
             try
             {
-                anilist_username = username;
+                AnilistUsername = username;
                 anilistProfile = await AniUserQuery.GetUser(username);
-                if (animeList == AnimeList.Anilist)
+                if (ListPreference == AnimeList.Anilist)
                 {
                     double chaptersRead = (double)decimal.Multiply((anilistProfile.statistics?.manga.chaptersRead).GetValueOrDefault(), (decimal)0.00556);
-                    mangaDays = Math.Round(chaptersRead, 1);
+                    MangaDays = Math.Round(chaptersRead, 1);
 
                     double minutesWatched = (double)anilistProfile.statistics.anime.minutesWatched;
-                    animeDays = minutesWatched / 60.0 / 24.0;
+                    AnimeDays = minutesWatched / 60.0 / 24.0;
                 }
 
                 await DatabaseRequest.UpdateUser(this);

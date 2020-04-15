@@ -1,33 +1,38 @@
 ﻿namespace AnimeListBot.Handler.Anilist
 {
-    class AniMedia : IAniMedia
+    public class AniMediaResponse
     {
-        public int? id { get; set; }
+        public AniMedia Media { get; set; }
 
-        public int? idMal { get; set; }
+        public class AniMedia : IAniMedia
+        {
+            public int? id { get; set; }
 
-        public AniMediaTitle title { get; set; }
+            public int? idMal { get; set; }
 
-        public AniMediaType? type { get; set; }
+            public AniMediaTitle title { get; set; }
 
-        public AniMediaFormat? format { get; set; }
+            public AniMediaType? type { get; set; }
 
-        public AniMediaStatus? status { get; set; }
+            public AniMediaFormat? format { get; set; }
 
-        public string description { get; set; }
+            public AniMediaStatus? status { get; set; }
 
-        public AniFuzzyDate startDate { get; set; }
+            public string description { get; set; }
 
-        public AniFuzzyDate endDate { get; set; }
+            public AniFuzzyDate startDate { get; set; }
 
-        public int? episodes { get; set; }
+            public AniFuzzyDate endDate { get; set; }
 
-        public int? chapters { get; set; }
+            public int? episodes { get; set; }
 
-        public int? volumes { get; set; }
+            public int? chapters { get; set; }
 
-        public AniMediaCoverImage coverImage { get; set; }
+            public int? volumes { get; set; }
 
-        public string siteUrl { get; set; }
+            public AniMediaCoverImage coverImage { get; set; }
+
+            public string siteUrl { get; set; }
+        }
     }
 }

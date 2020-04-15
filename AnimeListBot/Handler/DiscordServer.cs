@@ -13,22 +13,33 @@ namespace AnimeListBot.Handler
     {
         public static List<ulong> rolesUpdating = new List<ulong>();
 
-        public ulong id;
-        public string prefix = ".";
-        public ulong animeListChannelId = 0;
+        public ulong ServerId { get; set; }
+        public string Prefix { get; set; } = Program.botPrefix;
+        public ulong RegisterChannelId { get; set; } = 0;
 
-        public List<ulong> animeRoleIds = new List<ulong>();
-        public List<ulong> mangaRoleIds = new List<ulong>();
+        public long[] AnimeroleId { get; set; }
+        public long[] MangaroleId { get; set; }
 
-        public List<double> animeRoleDays = new List<double>();
-        public List<double> mangaRoleDays = new List<double>();
+        public double[] AnimeroleDays { get; set; }
+        public double[] MangaroleDays { get; set; }
 
         public DiscordServer() { }
-        public DiscordServer(IGuild guild) { id = guild.Id; }
+        public DiscordServer(IGuild guild) { ServerId = guild.Id; }
 
-        public IGuild GetGuild() { return Program._client.GetGuild(id); }
+        public IGuild GetGuild() { return Program._client.GetGuild(ServerId); }
         public async Task<IGuildUser> GetGuildUser(ulong userId) { return await GetGuildUser(GetGuild(), userId); }
         public static async Task<IGuildUser> GetGuildUser(IGuild guild, ulong userId) { return await guild.GetUserAsync(userId); }
         public async Task UpdateDatabase() { await DatabaseRequest.UpdateServer(this); }
+
+        public void OverrideData(DiscordServer server)
+        {
+            Prefix = server.Prefix;
+            RegisterChannelId = server.RegisterChannelId;
+            AnimeroleId = server.AnimeroleId;
+            MangaroleId = server.MangaroleId;
+
+            AnimeroleDays = server.AnimeroleDays;
+            MangaroleDays = server.MangaroleDays;
+        }
     }
 }

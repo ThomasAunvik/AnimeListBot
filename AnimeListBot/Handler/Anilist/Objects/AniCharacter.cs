@@ -1,15 +1,20 @@
 ﻿namespace AnimeListBot.Handler.Anilist
 {
-    public class AniCharacter : IAniCharacter
+    public class AniCharacterResponse
     {
-        public int id { get; set; }
+        public AniCharacter Character { get; set; }
 
-        public AniCharacterName name { get; set; }
+        public class AniCharacter : IAniCharacter
+        {
+            public int id { get; set; }
 
-        public AniCharacterImage image { get; set; }
+            public AniCharacterName name { get; set; }
 
-        public string description { get; set; }
+            public AniCharacterImage image { get; set; }
 
-        public string siteUrl { get; set; }
+            public string description { get; set; }
+
+            public string siteUrl { get; set; }
+        }
     }
 }

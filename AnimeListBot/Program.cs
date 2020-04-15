@@ -28,8 +28,7 @@ namespace AnimeListBot
         public static Color embedColor = new Color(114, 137, 218);
         public const string EMPTY_EMBED_SPACE = "\u200b";
 
-        public static DiscordSocketClient _client;
-        public static CommandService _commands;
+        public static DiscordShardedClient _client;
         public static IServiceProvider _services;
 
         public static Logger _logger;
@@ -47,31 +46,7 @@ namespace AnimeListBot
 
         public static DateTime BOT_START_TIME { get; private set; }
 
-        public async Task OnJoinedGuild(SocketGuild guild)
-        {
-            if ((await DatabaseRequest.GetServerById(guild.Id)) == null) {
-                await DatabaseRequest.CreateServer(new DiscordServer(guild));
-            }
-        }
-
-        public async Task OnReadyAsync()
-        {
-            await Stats.LoadStats();
-
-            if (!firstInitilized)
-            {
-                await RegisterCommandsAsync();
-                firstInitilized = true;
-            }
-        }
-
-        public async Task RegisterCommandsAsync()
-        {
-            await _commands.AddModulesAsync(Assembly.GetEntryAssembly(), _services);
-
-            _commands.CommandExecuted += OnCommandExecuted;
-            _client.MessageReceived += HandleCommandAsync;
-        }
+        private static void Main(string[] args) => new Program().RunBotAsync().GetAwaiter().GetResult();
 
         public async Task RunBotAsync()
         {
@@ -106,44 +81,68 @@ namespace AnimeListBot
                 gitStatus = File.ReadAllText("git_status.txt");
             }
 
-            _client?.Dispose();
-            _client = new DiscordSocketClient();
-
-            (_commands as IDisposable)?.Dispose();
-            _commands = new CommandService();
-
-            (_services as IDisposable)?.Dispose();
-            _services = new ServiceCollection()
-                .AddSingleton(_client)
-                .AddSingleton(_commands)
-                .BuildServiceProvider();
-
             _jikan = new Jikan(true);
 
-            _client.Log += Log;
-
-            _client.Ready += OnReadyAsync;
-            _client.JoinedGuild += OnJoinedGuild;
-            _client.LeftGuild += OnLeftGuild;
-
-            _client.ReactionAdded += OnReactionAdded;
-            
-            await _client.LoginAsync(TokenType.Bot, botToken);
-
-            await _client.StartAsync();
-
-            while (!stop)
+            var config = new DiscordSocketConfig
             {
-                await Task.Delay(20);
-            }
+                TotalShards = 2
+            };
 
+            using (var services = ConfigureServices(config))
+            {
+                _services = services;
+                _client?.Dispose();
+                _client = services.GetRequiredService<DiscordShardedClient>();
+
+
+                _client.Log += Log;
+                _client.ShardReady += OnReadyAsync;
+                _client.JoinedGuild += OnJoinedGuild;
+                _client.LeftGuild += OnLeftGuild;
+
+                _client.ReactionAdded += OnReactionAdded;
+
+                await services.GetRequiredService<CommandHandlingService>().InitializeAsync();
+
+                await _client.LoginAsync(TokenType.Bot, botToken);
+
+                await _client.StartAsync();
+
+                while (!stop)
+                {
+                    await Task.Delay(20);
+                }
+            }
             await _logger.Log("Stopping Bot...");
             return;
         }
 
+        private ServiceProvider ConfigureServices(DiscordSocketConfig config)
+        {
+            return new ServiceCollection()
+                .AddSingleton(new DiscordShardedClient(config))
+                .AddSingleton<CommandService>()
+                .AddSingleton<CommandHandlingService>()
+                .BuildServiceProvider();
+        }
+
+        public async Task OnReadyAsync(DiscordSocketClient shard)
+        {
+            Console.WriteLine($"Shard Number {shard.ShardId} is connected and ready!");
+            await Stats.LoadStats();
+        }
+
+        public async Task OnJoinedGuild(SocketGuild guild)
+        {
+            if ((DatabaseRequest.GetServerById(guild.Id)) == null)
+            {
+                await DatabaseRequest.CreateServer(new DiscordServer(guild));
+            }
+        }
+
         private async Task OnLeftGuild(SocketGuild arg)
         {
-            DiscordServer server = await DatabaseRequest.GetServerById(arg.Id);
+            DiscordServer server = DatabaseRequest.GetServerById(arg.Id);
             if(server != null)
             {
                 await DatabaseRequest.RemoveServer(server);
@@ -156,75 +155,6 @@ namespace AnimeListBot
 
             EmbedHandler.ExecuteAnyEmoteAction(arg3);
             return Task.CompletedTask;
-        }
-
-        private static void Main(string[] args) => new Program().RunBotAsync().GetAwaiter().GetResult();
-
-        private async Task HandleCommandAsync(SocketMessage arg)
-        {
-            try
-            {
-                var message = arg as SocketUserMessage;
-                if (message is null || message.Author.IsBot) return;
-
-                try {
-                    IDMChannel dmChannel = await arg.Author.GetOrCreateDMChannelAsync();
-                    if (arg.Channel.Id == dmChannel?.Id) return;
-                } catch (HttpException) { return; }
-
-                ulong guildId = ((IGuildChannel)arg.Channel).Guild.Id;
-                DiscordServer server = await DatabaseRequest.GetServerById(guildId);
-                if (arg?.Channel?.Id == server?.animeListChannelId)
-                {
-                    await DiscordUser.CheckAndCreateUser(message.Author.Id);
-                    await AutoAdder.AddUser(arg, server);
-                    return;
-                }
-
-                int argPos = 0;
-                if (message.HasStringPrefix(server.prefix, ref argPos))
-                {
-                    await DiscordUser.CheckAndCreateUser(message.Author.Id);
-
-                    var context = new SocketCommandContext(_client, message);
-                    var result = await _commands.ExecuteAsync(context, argPos, _services);
-                }
-            }catch(Exception e)
-            {
-                await _logger.LogError(e, arg.Author, (IGuildChannel)arg.Channel);
-            }
-        }
-
-        private async Task OnCommandExecuted(Optional<CommandInfo> info, ICommandContext context, IResult result)
-        {
-            await Stats.CommandUsed();
-
-            DiscordServer server = await DatabaseRequest.GetServerById(context.Guild.Id);
-
-            if (result is ExecuteResult)
-            {
-                ExecuteResult executeResult = (ExecuteResult)result;
-                if (executeResult.Exception != null)
-                {
-                    string errorMessage = "Command Error: " + result.ErrorReason;
-                    EmbedHandler embed = new EmbedHandler(context.Message.Author, errorMessage);
-                    await embed.SendMessage(context.Channel);
-                    await _logger.LogError(info.GetValueOrDefault(), context, result);
-                }
-            }
-
-            if(result is ParseResult)
-            {
-                ParseResult parseResult = (ParseResult)result;
-                if (!parseResult.IsSuccess)
-                {
-                    string message = context.Message.Content;
-                    message = message.Remove(0, server.prefix.Length);
-                    message = message.Split(" ")[0];
-                    EmbedHandler embed = HelpModule.GetCommandHelp(message, context);
-                    await embed.SendMessage(context.Channel);
-                }
-            }
         }
 
         private async Task Log(LogMessage arg)

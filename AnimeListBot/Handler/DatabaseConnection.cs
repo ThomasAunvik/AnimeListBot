@@ -7,11 +7,22 @@ using System.Data.SqlClient;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Design;
 
 namespace AnimeListBot.Handler
 {
-    class DatabaseConnection
+    public partial class DatabaseConnection : DbContext
     {
+        private static DatabaseConnection _db;
+        public static DatabaseConnection db { get {
+                if (_db == null) _db = new DatabaseConnection();
+                return _db;
+            } }
+
+        public virtual DbSet<DiscordServer> DiscordServer { get; set; }
+        public virtual DbSet<DiscordUser> DiscordUser { get; set; }
+
         public struct DataBaseLogin
         {
             public string ip;
@@ -30,17 +41,24 @@ namespace AnimeListBot.Handler
             }
         }
 
-        private static DataBaseLogin login;
-
-        public static void UpdateLogin()
+        public static DataBaseLogin UpdateLogin()
         {
             string text = File.ReadAllText("database_login.json");
-            login = JsonConvert.DeserializeObject<DataBaseLogin>(text);
+            return JsonConvert.DeserializeObject<DataBaseLogin>(text);
+        }
+
+        private string GetConnectionString()
+        {
+            DataBaseLogin login = UpdateLogin();
+            return string.Format("Server={0};Port={1};" +
+                    "User Id={2};Password={3};Database={4};",
+                    login.ip, login.port, login.userid,
+                    login.password, login.catalog);
         }
 
         public static async Task<DataSet> SendSql(string sql)
         {
-            UpdateLogin();
+            DataBaseLogin login = UpdateLogin();
 
             string connstring = String.Format("Server={0};Port={1};" +
                     "User Id={2};Password={3};Database={4};",
@@ -59,5 +77,66 @@ namespace AnimeListBot.Handler
 
             return ds;
         }
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            if (!optionsBuilder.IsConfigured)
+            {
+                optionsBuilder.UseNpgsql(GetConnectionString());
+            }
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<DiscordServer>(entity =>
+            {
+                entity.HasKey(e => e.ServerId)
+                    .HasName("Servers_pkey");
+
+                entity.ToTable("discord_server");
+
+                entity.Property(e => e.ServerId)
+                    .HasColumnName("server_id")
+                    .ValueGeneratedNever();
+
+                entity.Property(e => e.AnimeroleDays).HasColumnName("animerole_days");
+
+                entity.Property(e => e.AnimeroleId).HasColumnName("animerole_id");
+
+                entity.Property(e => e.MangaroleDays).HasColumnName("mangarole_days");
+
+                entity.Property(e => e.MangaroleId).HasColumnName("mangarole_id");
+
+                entity.Property(e => e.Prefix).HasColumnName("prefix");
+
+                entity.Property(e => e.RegisterChannelId).HasColumnName("register_channel_id");
+            });
+
+            modelBuilder.Entity<DiscordUser>(entity =>
+            {
+                entity.HasKey(e => e.UserId)
+                    .HasName("Users_pkey");
+
+                entity.ToTable("discord_user");
+
+                entity.Property(e => e.UserId)
+                    .HasColumnName("user_id")
+                    .ValueGeneratedNever();
+
+                entity.Property(e => e.AnilistUsername).HasColumnName("anilist_username");
+
+                entity.Property(e => e.AnimeDays).HasColumnName("anime_days");
+
+                entity.Property(e => e.ListPreference).HasColumnName("list_preference");
+
+                entity.Property(e => e.MalUsername).HasColumnName("mal_username");
+
+                entity.Property(e => e.MangaDays).HasColumnName("manga_days");
+            });
+
+            OnModelCreatingPartial(modelBuilder);
+        }
+
+        partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
     }
 }

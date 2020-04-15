@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace AnimeListBot.Modules
 {
-    public class Random : ModuleBase<ICommandContext>
+    public class Random : ModuleBase<ShardedCommandContext>
     {
         class ListRequest
         {

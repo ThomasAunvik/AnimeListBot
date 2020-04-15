@@ -11,7 +11,7 @@ using System.Linq;
 
 namespace AnimeListBot.Modules
 {
-    public class Trace : ModuleBase<ICommandContext>
+    public class Trace : ModuleBase<ShardedCommandContext>
     {
         [Command("trace")]
         [Summary("Traces an image by link")]

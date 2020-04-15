@@ -1,10 +1,9 @@
 ﻿using GraphQL.Client.Http;
-using GraphQL.Common.Request;
 using System;
 using System.Linq;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
+using GraphQL.Client.Serializer.Newtonsoft;
+using GraphQL;
 
 namespace AnimeListBot.Handler.Anilist
 {
@@ -43,19 +42,18 @@ namespace AnimeListBot.Handler.Anilist
                         asHtml = false
                     }
                 };
-                using (var graphQLClient = new GraphQLHttpClient(AnilistConstants.AnilistAPILink))
+
+                using (var graphQLClient = new GraphQLHttpClient(AnilistConstants.AnilistAPILink, new NewtonsoftJsonSerializer()))
                 {
-                    var response = await graphQLClient.SendQueryAsync(mediaRequest);
+                    var response = await graphQLClient.SendQueryAsync<AniCharacterResponse>(mediaRequest);
 
                     if (response.Errors != null && response.Errors.Length > 0)
                     {
                         if (response.Errors[0].Message.Contains("Not Found.")) return null;
                         throw new Exception(string.Join("\n", response.Errors.Select(x => x.Message)));
                     }
-                    var character = response.GetDataFieldAs<AniCharacter>("Character");
-
+                    var character = response.Data.Character;
                     character.description = character?.description?.Replace("<br>", "\n");
-
                     return character;
                 }
             }

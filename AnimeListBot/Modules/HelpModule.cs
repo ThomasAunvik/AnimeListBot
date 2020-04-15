@@ -3,12 +3,13 @@ using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
 using System;
+using System.ComponentModel.Design;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace AnimeListBot.Modules
 {
-    public class HelpModule : ModuleBase<ICommandContext>
+    public class HelpModule : ModuleBase<ShardedCommandContext>
     {
         private CommandService _service;
         private readonly IServiceProvider _services;
@@ -35,7 +36,9 @@ namespace AnimeListBot.Modules
 
         public static EmbedHandler GetCommandHelp(string command, ICommandContext context)
         {
-            var result = Program._commands.Search(context, command);
+            //context.Client.GetShardFor(context.Guild).get
+            CommandService commands = Program._services.GetService(typeof(CommandService)) as CommandService;
+            var result = commands.Search(context, command);
 
             var builder = new EmbedHandler(context.User, $"Command: **{command}**");
 
@@ -78,7 +81,7 @@ namespace AnimeListBot.Modules
             EmbedHandler embed = new EmbedHandler(Context.User);
 
             const ulong ownerId = 96580514021912576;
-            IUser owner = await Context.Client.GetUserAsync(ownerId);
+            IUser owner = Context.Client.GetUser(ownerId);
             var dmOwner = await owner?.GetOrCreateDMChannelAsync();
             var dmRequestor = await Context.User.GetOrCreateDMChannelAsync();
 
@@ -109,10 +112,10 @@ namespace AnimeListBot.Modules
         {
             var foo = await Context.Client.GetApplicationInfoAsync();
 
-            DiscordServer server = await DatabaseRequest.GetServerById(Context.Guild.Id);
+            DiscordServer server = DatabaseRequest.GetServerById(Context.Guild.Id);
 
             var builder = GetHelpEmbed();
-            builder.Description = $"These are the commands you can use \nFor more detailed command explanations type `{server.prefix}help <command>`";
+            builder.Description = $"These are the commands you can use \nFor more detailed command explanations type `{server.Prefix}help <command>`";
 
             await builder.SendMessage(Context.Channel);
         }

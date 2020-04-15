@@ -13,14 +13,14 @@ using AnimeListBot.Handler.Anilist;
 
 namespace AnimeListBot.Modules
 {
-    public class AutoAdder : ModuleBase<ICommandContext>
+    public class AutoAdder : ModuleBase<ShardedCommandContext>
     {
         [Command("autolist")]
         [RequireUserPermission(GuildPermission.ManageRoles)]
         public async Task SetChannel(ITextChannel channel)
         {
-            DiscordServer server = await DatabaseRequest.GetServerById(Context.Guild.Id);
-            server.animeListChannelId = channel.Id;
+            DiscordServer server = DatabaseRequest.GetServerById(Context.Guild.Id);
+            server.RegisterChannelId = channel.Id;
             await server.UpdateDatabase();
 
             EmbedHandler embed = new EmbedHandler(Context.User, "Set auto anime list channel to:", "<#" + channel.Id + ">...");
@@ -32,8 +32,8 @@ namespace AnimeListBot.Modules
         [RequireUserPermission(GuildPermission.ManageRoles)]
         public async Task Update()
         {
-            DiscordServer server = await DatabaseRequest.GetServerById(Context.Guild.Id);
-            ITextChannel channel = await Context.Guild.GetChannelAsync(server.animeListChannelId) as ITextChannel;
+            DiscordServer server = DatabaseRequest.GetServerById(Context.Guild.Id);
+            ITextChannel channel = Context.Guild.GetTextChannel(server.RegisterChannelId) as ITextChannel;
 
             EmbedHandler embed = new EmbedHandler(Context.User, "Updating Anime Lists from channel", "<#" + channel.Id + ">");
             await embed.SendMessage(Context.Channel);
@@ -55,12 +55,12 @@ namespace AnimeListBot.Modules
         [Command("autolistchannel")]
         public async Task GetAutoMalChannel()
         {
-            DiscordServer server = await DatabaseRequest.GetServerById(Context.Guild.Id);
+            DiscordServer server = DatabaseRequest.GetServerById(Context.Guild.Id);
             EmbedHandler embed = new EmbedHandler(Context.User);
-            if (server.animeListChannelId != 0)
+            if (server.RegisterChannelId != 0)
             {
                 embed.Title = "Auto AnimeList is set to channel";
-                embed.Description = "<#" + server.animeListChannelId + ">";
+                embed.Description = "<#" + server.RegisterChannelId + ">";
             }
             else
             {
@@ -132,7 +132,7 @@ namespace AnimeListBot.Modules
                     UserProfile profile = await Program._jikan.GetUserProfile(usernamePart);
                     if (profile != null)
                     {
-                        user.animeList = DiscordUser.AnimeList.MAL;
+                        user.ListPreference = DiscordUser.AnimeList.MAL;
                         await user.UpdateMALInfo(usernamePart);
                     }
                 }
@@ -141,7 +141,7 @@ namespace AnimeListBot.Modules
                     IAniUser profile = await AniUserQuery.GetUser(usernamePart);
                     if (profile != null)
                     {
-                        user.animeList = DiscordUser.AnimeList.Anilist;
+                        user.ListPreference = DiscordUser.AnimeList.Anilist;
                         await user.UpdateAnilistInfo(usernamePart);
                     }
                 }

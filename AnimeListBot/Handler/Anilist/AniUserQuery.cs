@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 using System.Linq;
-
 using GraphQL.Client;
 using GraphQL.Client.Http;
-using GraphQL.Common.Request;
+using GraphQL.Client.Serializer.Newtonsoft;
+using GraphQL;
 
 namespace AnimeListBot.Handler.Anilist
 {
@@ -66,17 +66,17 @@ namespace AnimeListBot.Handler.Anilist
                         name = username
                     }
                 };
-                using (var graphQLClient = new GraphQLHttpClient(AnilistConstants.AnilistAPILink))
+                using (var graphQLClient = new GraphQLHttpClient(AnilistConstants.AnilistAPILink, new NewtonsoftJsonSerializer()))
                 {
-                    var response = await graphQLClient.SendQueryAsync(userRequest);
+                    var response = await graphQLClient.SendQueryAsync<AniUserResponse>(userRequest);
 
                     if (response.Errors != null && response.Errors.Length > 0)
                     {
                         if (response.Errors[0].Message.Contains("Not Found.")) return null;
                         throw new Exception(string.Join("\n", response.Errors.Select(x => x.Message)));
                     }
-                    var userType = response.GetDataFieldAs<AniUser>("User");
-                    return userType;
+
+                    return response.Data.User;
                 }
             }catch(Exception e)
             {

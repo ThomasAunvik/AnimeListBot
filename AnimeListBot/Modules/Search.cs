@@ -13,7 +13,7 @@ using AnimeListBot.Handler.Misc;
 
 namespace AnimeListBot.Modules
 {
-    public class Search : ModuleBase<ICommandContext>
+    public class Search : ModuleBase<ShardedCommandContext>
     {
         [Command("anime")]
         public async Task SearchAnime(IUser targetUser, [Remainder]string search)
@@ -60,7 +60,7 @@ namespace AnimeListBot.Modules
 
             embed.Title = "No Anime Found";
 
-            bool mal = globalUser.animeList == DiscordUser.AnimeList.MAL;
+            bool mal = globalUser.ListPreference == DiscordUser.AnimeList.MAL;
             if (mal && (searchResult != null && searchResult.Results.Count > 0))
             {
                 List<AnimeSearchEntry> results = searchResult.Results.ToList();
@@ -95,7 +95,7 @@ namespace AnimeListBot.Modules
 
             embed.Title = "No Manga Found";
 
-            bool mal = globalUser.animeList == DiscordUser.AnimeList.MAL;
+            bool mal = globalUser.ListPreference == DiscordUser.AnimeList.MAL;
             if (mal && (searchResult != null && searchResult.Results.Count > 0))
             {
                 List<MangaSearchEntry> results = searchResult.Results.ToList();
@@ -166,7 +166,7 @@ namespace AnimeListBot.Modules
             CharacterSearchResult result = await Program._jikan.SearchCharacter(search);
             IAniCharacter character = await AniCharacterQuery.SearchCharacter(search);
 
-            bool mal = globalUser.animeList == DiscordUser.AnimeList.MAL;
+            bool mal = globalUser.ListPreference == DiscordUser.AnimeList.MAL;
             if (mal && result != null && result.Results.Count > 0)
             {
                 List<CharacterSearchEntry> results = result.Results.ToList();
@@ -207,7 +207,7 @@ namespace AnimeListBot.Modules
 
             PersonSearchResult result = await Program._jikan.SearchPerson(search);
             IAniStaff staff = await AniStaffQuery.SearchStaff(search);
-            bool mal = globalUser.animeList == DiscordUser.AnimeList.MAL;
+            bool mal = globalUser.ListPreference == DiscordUser.AnimeList.MAL;
             if (mal && result != null && result.Results.Count > 0)
             {
                 List<PersonSearchEntry> results = result.Results.ToList();

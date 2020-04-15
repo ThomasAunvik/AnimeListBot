@@ -1,10 +1,11 @@
 ﻿using GraphQL.Client.Http;
-using GraphQL.Common.Request;
+using GraphQL;
 using System;
 using System.Linq;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
+using GraphQL.Client.Serializer.Newtonsoft;
 
 namespace AnimeListBot.Handler.Anilist
 {
@@ -51,17 +52,15 @@ namespace AnimeListBot.Handler.Anilist
                     }
                 };
 
-                using (var graphQLClient = new GraphQLHttpClient(AnilistConstants.AnilistAPILink))
+                using (var graphQLClient = new GraphQLHttpClient(AnilistConstants.AnilistAPILink, new NewtonsoftJsonSerializer()))
                 {
-                    var response = await graphQLClient.SendQueryAsync(mediaListRequest);
+                    var response = await graphQLClient.SendQueryAsync<AniMediaListResponse>(mediaListRequest);
                     if (response.Errors != null && response.Errors.Length > 0)
                     {
                         if (response.Errors[0].Message.Contains("Not Found.")) return null;
                         throw new Exception(string.Join("\n", response.Errors.Select(x => x.Message)));
                     }
-                    var mediaList = response.GetDataFieldAs<AniMediaList>("MediaList");
-
-                    return mediaList;
+                    return response.Data.MediaList;
                 }
             }
             catch (Exception e)

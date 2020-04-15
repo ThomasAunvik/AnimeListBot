@@ -13,12 +13,12 @@ using Discord;
 
 namespace AnimeListBot.Modules
 {
-    public class Administrator : ModuleBase<ICommandContext>
+    public class Administrator : ModuleBase<ShardedCommandContext>
     {
         [Command("stop")]
         public async Task StopBot()
         {
-            EmbedHandler embed = new EmbedHandler((IGuildUser)Context.User);
+            EmbedHandler embed = new EmbedHandler(Context.User);
             if(Program.botOwners.Contains(Context.User.Id.ToString()))
             {
                 await Program._logger.Log("Stopping bot... Command run by: " + Context.User.Username);
@@ -62,7 +62,7 @@ namespace AnimeListBot.Modules
         )]
         public async Task SetGameStatus(Discord.ActivityType activityType, string gameMessage)
         {
-            EmbedHandler embed = new EmbedHandler((IGuildUser)Context.User, "Set game status to: " + Enum.GetName(typeof(Discord.ActivityType), activityType) + " " + gameMessage);
+            EmbedHandler embed = new EmbedHandler(Context.User, "Set game status to: " + Enum.GetName(typeof(Discord.ActivityType), activityType) + " " + gameMessage);
 
             if (Program.botOwners.Contains(Context.User.Id.ToString()))
             {
@@ -145,9 +145,9 @@ namespace AnimeListBot.Modules
         public async Task Prefix(string newPrefix = "")
         {
             EmbedHandler embed = new EmbedHandler(Context.User);
-            DiscordServer server = await DatabaseRequest.GetServerById(Context.Guild.Id);
+            DiscordServer server = DatabaseRequest.GetServerById(Context.Guild.Id);
 
-            IGuildUser user = await Context.Guild.GetUserAsync(Context.User.Id);
+            IGuildUser user = Context.Guild.GetUser(Context.User.Id);
             if (!user.GuildPermissions.Administrator)
             {
                 if (!Program.botOwners.Contains(Context.User.Id.ToString()))
@@ -159,7 +159,7 @@ namespace AnimeListBot.Modules
             if (string.IsNullOrEmpty(newPrefix))
             {
                 embed.Title = "Current Prefix";
-                embed.Description = "`" + server.prefix + "`";
+                embed.Description = "`" + server.Prefix + "`";
                 await embed.SendMessage(Context.Channel);
                 return;
             }
@@ -171,11 +171,11 @@ namespace AnimeListBot.Modules
                 return;
             }
 
-            server.prefix = newPrefix;
+            server.Prefix = newPrefix;
             await server.UpdateDatabase();
 
             embed.Title = "Prefix Set to";
-            embed.Description = "`" + server.prefix + "`";
+            embed.Description = "`" + server.Prefix + "`";
             await embed.SendMessage(Context.Channel);
         }
     }

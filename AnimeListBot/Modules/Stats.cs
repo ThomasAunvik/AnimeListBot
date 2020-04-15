@@ -14,7 +14,7 @@ using System.Reflection;
 
 namespace AnimeListBot.Modules
 {
-    public class Stats : ModuleBase<ICommandContext>
+    public class Stats : ModuleBase<ShardedCommandContext>
     {
         struct SavedStats
         {
@@ -69,7 +69,7 @@ namespace AnimeListBot.Modules
             TimeSpan uptime = now - start;
             
             const ulong ownerId = 96580514021912576;
-            IUser owner = await Context.Client.GetUserAsync(ownerId);
+            IUser owner = Context.Client.GetUser(ownerId);
 
             Assembly discordCoreAssembly = Assembly.GetAssembly(typeof(DiscordConfig));
             FileVersionInfo coreInfo = FileVersionInfo.GetVersionInfo(discordCoreAssembly.Location);
@@ -82,6 +82,7 @@ namespace AnimeListBot.Modules
             embed.AddFieldSecure("Name", "AnimeList", true);
             embed.AddFieldSecure("Developer", owner.Mention + $"\n({owner.Username}#{owner.Discriminator})", true);
             embed.AddFieldSecure("Uptime", $"{Math.Round(uptime.TotalDays)}d {uptime.Hours}h {uptime.Minutes}m {uptime.Seconds}s", true);
+            embed.AddFieldSecure("Shards", "Bot Shards: " + Context.Client.Shards.Count + "\nGuild Shard Id: " + Context.Client.GetShardFor(Context.Guild).ShardId, true);
             embed.AddFieldSecure("Ping", (Program._client.Latency) + "ms", true);
             embed.AddFieldSecure("Discord.NET Version", coreVersion, false);
             embed.AddFieldSecure("Links",

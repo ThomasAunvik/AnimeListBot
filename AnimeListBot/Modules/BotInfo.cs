@@ -14,7 +14,7 @@ using System.Reflection;
 
 namespace AnimeListBot.Modules
 {
-    public class Stats : ModuleBase<ShardedCommandContext>
+    public class BotInfo : ModuleBase<ShardedCommandContext>
     {
         struct SavedStats
         {
@@ -89,6 +89,17 @@ namespace AnimeListBot.Modules
                 "[Invite](https://discordapp.com/api/oauth2/authorize?client_id=515269277553655823&permissions=0&scope=bot) | [Github](https://github.com/ThomasAunvik/AnimeListBot)",
                 false
             );
+            await embed.SendMessage(Context.Channel);
+        }
+
+        [Command("support")]
+        public async Task Support()
+        {
+            DiscordServer server = DatabaseRequest.GetServerById(Context.Guild.Id);
+
+            EmbedHandler embed = new EmbedHandler(Context.User, "Support");
+            embed.AddFieldSecure("Join Support Server", "https://discord.gg/Q9cf46R");
+            embed.AddFieldSecure("Contact Command", server.Prefix + "contact");
             await embed.SendMessage(Context.Channel);
         }
 

@@ -74,7 +74,7 @@ namespace AnimeListBot.Handler
 
             if (result.IsSuccess)
             {
-                await Stats.CommandUsed();
+                await BotInfo.CommandUsed();
                 return;
             }
 

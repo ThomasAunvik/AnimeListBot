@@ -12,7 +12,7 @@ Welcome to my Anime List Bot, where you can make people in your server compete o
 
 ## Profile
 
-Once the bot is online, you can add your MAL or Anilist profile: `.setup MAL/Anilist Username` and you will be added to the bot. You are able to register both of the same time, but you can only use one of them.
+Once the bot is online, you can add your MAL or Anilist profile: `al!setup MAL/Anilist Username` and you will be added to the bot. You are able to register both of the same time, but you can only use one of them.
 
 Use `al!setlist MAL/Anilist` to choose which one to use.
 
@@ -116,7 +116,7 @@ Extra Info: As a bot owner, you get to have the exlusive right to be able to get
 
 To be able to use the bot, you would have to have a database setup. And at the moment, the database currently used is **PostgreSQL**.
 
-To connect your PostgreSQL database to the server, make sure you have the tables correctly set up as shown below, and edit the `database_login_template.json` to the correct login information, and change the file name to `database_login.json`.
+To connect your PostgreSQL database to the server, make sure you have the tables correctly set up as shown below, and edit the `config.json` to the correct login information.
 
 ### Database Table Structure
 

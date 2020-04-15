@@ -22,7 +22,7 @@ namespace AnimeListBot
     public class Program
     {
         public const ulong botID = 515269277553655823;
-        public const string botPrefix = ".";
+        public const string botPrefix = "al!";
         public static readonly string inviteURL = "https://discordapp.com/api/oauth2/authorize?client_id=" + botID + "&permissions=0&scope=bot";
         
         public static Color embedColor = new Color(114, 137, 218);
@@ -80,7 +80,6 @@ namespace AnimeListBot
                 _services = services;
                 _client?.Dispose();
                 _client = services.GetRequiredService<DiscordShardedClient>();
-
 
                 _client.Log += Log;
                 _client.ShardReady += OnReadyAsync;

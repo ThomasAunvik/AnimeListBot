@@ -51,12 +51,12 @@ namespace AnimeListBot.Modules
 
             builder.Description = result.Commands.FirstOrDefault().Command.Summary;
 
-            bool isOwner = Program.botOwners.ToList().Exists(x => x == context.User.Id.ToString());
+            bool isOwner = Program.botOwners.ToList().Exists(x => x == context.User.Id);
 
             foreach (var match in result.Commands)
             {
                 var cmd = match.Command;
-                if (cmd.Name == typeof(Administrator).Name && !Program.botOwners.Contains(context.User.Id.ToString())) continue;
+                if (cmd.Name == typeof(Administrator).Name && !Program.botOwners.Contains(context.User.Id)) continue;
 
                 builder.AddField(x =>
                 {
@@ -148,7 +148,7 @@ namespace AnimeListBot.Modules
                 if (!string.IsNullOrWhiteSpace(description))
                 {
                     var name = module.Name.Contains("Module") ? module.Name.Substring(0, module.Name.Length - "Module".Length) : module.Name;
-                    if (name == typeof(Administrator).Name && !Program.botOwners.Contains(Context.User.Id.ToString())) continue;
+                    if (name == typeof(Administrator).Name && !Program.botOwners.Contains(Context.User.Id)) continue;
                     builder.AddField(x =>
                     {
                         x.Name = name;

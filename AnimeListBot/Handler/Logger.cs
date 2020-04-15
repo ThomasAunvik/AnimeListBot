@@ -71,7 +71,9 @@ namespace AnimeListBot.Handler
 
             const ulong ownerId = 96580514021912576;
             IUser owner = Program._client.GetUser(ownerId);
-            var dmOwner = await owner?.GetOrCreateDMChannelAsync();
+
+            if (owner == null) return;
+            await owner?.GetOrCreateDMChannelAsync();
 
             await owner.SendMessageAsync("", false, sendEmbed.Build());
         }

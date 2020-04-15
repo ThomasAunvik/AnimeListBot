@@ -19,7 +19,7 @@ namespace AnimeListBot.Modules
         public async Task StopBot()
         {
             EmbedHandler embed = new EmbedHandler(Context.User);
-            if(Program.botOwners.Contains(Context.User.Id.ToString()))
+            if(Program.botOwners.Contains(Context.User.Id))
             {
                 await Program._logger.Log("Stopping bot... Command run by: " + Context.User.Username);
 
@@ -39,7 +39,7 @@ namespace AnimeListBot.Modules
         public async Task SendErrorTest([Remainder]string message)
         {
             EmbedHandler embed = new EmbedHandler(Context.User);
-            if (Program.botOwners.Contains(Context.User.Id.ToString()))
+            if (Program.botOwners.Contains(Context.User.Id))
             {
                 embed.Title = "Sent fake error.";
                 await embed.SendMessage(Context.Channel);
@@ -64,7 +64,7 @@ namespace AnimeListBot.Modules
         {
             EmbedHandler embed = new EmbedHandler(Context.User, "Set game status to: " + Enum.GetName(typeof(Discord.ActivityType), activityType) + " " + gameMessage);
 
-            if (Program.botOwners.Contains(Context.User.Id.ToString()))
+            if (Program.botOwners.Contains(Context.User.Id))
             {
                 await Program._client.SetGameAsync(gameMessage, null, activityType);
                 await embed.SendMessage(Context.Channel);
@@ -91,7 +91,7 @@ namespace AnimeListBot.Modules
         {
             EmbedHandler embed = new EmbedHandler(Context.User, "Set online status to: " + Enum.GetName(typeof(Discord.UserStatus), status));
 
-            if (Program.botOwners.Contains(Context.User.Id.ToString()))
+            if (Program.botOwners.Contains(Context.User.Id))
             {
                 await Program._client.SetStatusAsync(status);
                 await embed.SendMessage(Context.Channel);
@@ -150,7 +150,7 @@ namespace AnimeListBot.Modules
             IGuildUser user = Context.Guild.GetUser(Context.User.Id);
             if (!user.GuildPermissions.Administrator)
             {
-                if (!Program.botOwners.Contains(Context.User.Id.ToString()))
+                if (!Program.botOwners.Contains(Context.User.Id))
                 {
                     newPrefix = string.Empty;
                 }

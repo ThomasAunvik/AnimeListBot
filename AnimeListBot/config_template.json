@@ -1,0 +1,12 @@
+{
+  "bot_token": "INSERT TOKEN HERE",
+  "bot_owners": [ 96580514021912576, 170506717140877312 ],
+
+  "cluster_id": 0,
+
+  "ip": "localhost",
+  "port": 5432,
+  "catalog": "animelistbot",
+  "userid": "",
+  "password": ""
+}

@@ -22,34 +22,12 @@ namespace AnimeListBot.Handler
 
         public virtual DbSet<DiscordServer> DiscordServer { get; set; }
         public virtual DbSet<DiscordUser> DiscordUser { get; set; }
+        public virtual DbSet<Cluster> Cluster { get; set; }
 
-        public struct DataBaseLogin
-        {
-            public string ip;
-            public string port;
-            public string catalog;
-            public string userid;
-            public string password;
-
-            public DataBaseLogin(string ip, string port, string catalog, string userid, string password)
-            {
-                this.ip = ip;
-                this.port = port;
-                this.catalog = catalog;
-                this.userid = userid;
-                this.password = password;
-            }
-        }
-
-        public static DataBaseLogin UpdateLogin()
-        {
-            string text = File.ReadAllText("database_login.json");
-            return JsonConvert.DeserializeObject<DataBaseLogin>(text);
-        }
 
         private string GetConnectionString()
         {
-            DataBaseLogin login = UpdateLogin();
+            Config login = Config.GetConfig();
             return string.Format("Server={0};Port={1};" +
                     "User Id={2};Password={3};Database={4};",
                     login.ip, login.port, login.userid,
@@ -58,7 +36,7 @@ namespace AnimeListBot.Handler
 
         public static async Task<DataSet> SendSql(string sql)
         {
-            DataBaseLogin login = UpdateLogin();
+            Config login = Config.GetConfig();
 
             string connstring = String.Format("Server={0};Port={1};" +
                     "User Id={2};Password={3};Database={4};",
@@ -132,6 +110,22 @@ namespace AnimeListBot.Handler
                 entity.Property(e => e.MalUsername).HasColumnName("mal_username");
 
                 entity.Property(e => e.MangaDays).HasColumnName("manga_days");
+            });
+
+            modelBuilder.Entity<Cluster>(entity =>
+            {
+                entity.HasKey(e => e.Id)
+                    .HasName("Cluster_pkey");
+
+                entity.ToTable("cluster");
+
+                entity.Property(e => e.Id)
+                    .HasColumnName("id")
+                    .ValueGeneratedNever();
+
+                entity.Property(e => e.ShardIdStart).HasColumnName("shard_id_start");
+
+                entity.Property(e => e.ShardIdEnd).HasColumnName("shard_id_end");
             });
 
             OnModelCreatingPartial(modelBuilder);

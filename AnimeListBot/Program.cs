@@ -37,7 +37,7 @@ namespace AnimeListBot
 
         public static readonly HttpClient httpClient = new HttpClient();
 
-        public static string[] botOwners;
+        public static List<ulong> botOwners;
         public static string currentCommit;
         public static string gitStatus;
 
@@ -54,22 +54,9 @@ namespace AnimeListBot
 
             _logger = new Logger();
 
-            string botToken = "";
-            // Get bot token
-            if (File.Exists("botToken.txt"))
-            {
-                botToken = File.ReadAllText("botToken.txt");
-            }
-            if (string.IsNullOrEmpty(botToken))
-            {
-                await _logger.LogError("Bot Token does not exist, make sure its correct in the botToken.txt file");
-                return;
-            }
-
-            if (File.Exists("botOwners.txt"))
-            {
-                botOwners = File.ReadAllLines("botOwners.txt");
-            }
+            Config bot_config = Config.GetConfig();
+            botOwners = bot_config.bot_owners;
+            Cluster cluster = DatabaseConnection.db.Cluster.Where(x => x.Id == bot_config.cluster_id).FirstOrDefault();
 
             if (File.Exists("current_commit.txt"))
             {
@@ -83,12 +70,12 @@ namespace AnimeListBot
 
             _jikan = new Jikan(true);
 
-            var config = new DiscordSocketConfig
+            var shard_config = new DiscordSocketConfig
             {
-                TotalShards = 2
+                TotalShards = cluster.GetShardAmount(), 
             };
 
-            using (var services = ConfigureServices(config))
+            using (var services = ConfigureServices(shard_config, cluster))
             {
                 _services = services;
                 _client?.Dispose();
@@ -104,7 +91,7 @@ namespace AnimeListBot
 
                 await services.GetRequiredService<CommandHandlingService>().InitializeAsync();
 
-                await _client.LoginAsync(TokenType.Bot, botToken);
+                await _client.LoginAsync(TokenType.Bot, bot_config.bot_token);
 
                 await _client.StartAsync();
 
@@ -117,10 +104,10 @@ namespace AnimeListBot
             return;
         }
 
-        private ServiceProvider ConfigureServices(DiscordSocketConfig config)
+        private ServiceProvider ConfigureServices(DiscordSocketConfig shard_config, Cluster cluster)
         {
             return new ServiceCollection()
-                .AddSingleton(new DiscordShardedClient(config))
+                .AddSingleton(new DiscordShardedClient(cluster.GetShardIds(), shard_config))
                 .AddSingleton<CommandService>()
                 .AddSingleton<CommandHandlingService>()
                 .BuildServiceProvider();

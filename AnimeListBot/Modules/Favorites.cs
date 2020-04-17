@@ -38,7 +38,7 @@ namespace AnimeListBot.Modules
 
             DiscordUser gUser = await DatabaseRequest.GetUserById(user.Id);
 
-            DiscordServer server = DatabaseRequest.GetServerById(Context.Guild.Id);
+            DiscordServer server = await DatabaseRequest.GetServerById(Context.Guild.Id);
 
             if (gUser != null && !string.IsNullOrWhiteSpace(gUser.GetAnimelistUsername()))
             {
@@ -80,7 +80,7 @@ namespace AnimeListBot.Modules
 
             DiscordUser gUser = await DatabaseRequest.GetUserById(user.Id);
 
-            DiscordServer server = DatabaseRequest.GetServerById(Context.Guild.Id);
+            DiscordServer server = await DatabaseRequest.GetServerById(Context.Guild.Id);
 
             if (gUser != null && !string.IsNullOrWhiteSpace(gUser.GetAnimelistUsername()))
             {

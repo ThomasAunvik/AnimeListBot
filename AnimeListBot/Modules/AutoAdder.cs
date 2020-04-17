@@ -35,7 +35,7 @@ namespace AnimeListBot.Modules
         [RequireUserPermission(GuildPermission.ManageRoles)]
         public async Task SetChannel(ITextChannel channel)
         {
-            DiscordServer server = DatabaseRequest.GetServerById(Context.Guild.Id);
+            DiscordServer server = await DatabaseRequest.GetServerById(Context.Guild.Id);
             server.RegisterChannelId = channel.Id;
             await server.UpdateDatabase();
 
@@ -48,7 +48,7 @@ namespace AnimeListBot.Modules
         [RequireUserPermission(GuildPermission.ManageRoles)]
         public async Task Update()
         {
-            DiscordServer server = DatabaseRequest.GetServerById(Context.Guild.Id);
+            DiscordServer server = await DatabaseRequest.GetServerById(Context.Guild.Id);
             ITextChannel channel = Context.Guild.GetTextChannel(server.RegisterChannelId) as ITextChannel;
 
             EmbedHandler embed = new EmbedHandler(Context.User, "Updating Anime Lists from channel", "<#" + channel.Id + ">");
@@ -71,7 +71,7 @@ namespace AnimeListBot.Modules
         [Command("autolistchannel")]
         public async Task GetAutoMalChannel()
         {
-            DiscordServer server = DatabaseRequest.GetServerById(Context.Guild.Id);
+            DiscordServer server = await DatabaseRequest.GetServerById(Context.Guild.Id);
             EmbedHandler embed = new EmbedHandler(Context.User);
             if (server.RegisterChannelId != 0)
             {

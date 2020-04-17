@@ -64,7 +64,7 @@ namespace AnimeListBot.Handler
             catch (HttpException) { return; }
 
             ulong guildId = ((IGuildChannel)message.Channel).Guild.Id;
-            DiscordServer server = DatabaseRequest.GetServerById(guildId);
+            DiscordServer server = await DatabaseRequest.GetServerById(guildId);
             if (message?.Channel?.Id == server?.RegisterChannelId)
             {
                 await DiscordUser.CheckAndCreateUser(message.Author.Id);
@@ -94,7 +94,7 @@ namespace AnimeListBot.Handler
                 return;
             }
 
-            DiscordServer server = DatabaseRequest.GetServerById(context.Guild.Id);
+            DiscordServer server = await DatabaseRequest.GetServerById(context.Guild.Id);
 
             if (result is ExecuteResult executeResult)
             {

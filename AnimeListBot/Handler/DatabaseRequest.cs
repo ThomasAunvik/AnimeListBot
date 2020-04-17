@@ -37,9 +37,15 @@ namespace AnimeListBot.Handler
             return DatabaseConnection.db.DiscordUser.ToList();
         }
 
-        public static DiscordServer GetServerById(ulong id)
+        public static async Task<DiscordServer> GetServerById(ulong id)
         {
-            return DatabaseConnection.db.DiscordServer.Where(x => x.ServerId == id).ToList().FirstOrDefault();
+            DiscordServer server = DatabaseConnection.db.DiscordServer.Where(x => x.ServerId == id).ToList().FirstOrDefault();
+            if(server == null)
+            {
+                server = new DiscordServer(Program._client.GetGuild(id));
+                await CreateServer(server);
+            }
+            return server;
         }
 
         public static async Task<bool> CreateServer(DiscordServer server)
@@ -58,7 +64,7 @@ namespace AnimeListBot.Handler
 
         public static async Task<bool> RemoveServer(DiscordServer server)
         {
-            DatabaseConnection.db.DiscordServer.Remove(GetServerById(server.ServerId));
+            DatabaseConnection.db.DiscordServer.Remove(await GetServerById(server.ServerId));
             await DatabaseConnection.db.SaveChangesAsync();
             return true;
         }

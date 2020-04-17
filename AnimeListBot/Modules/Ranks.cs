@@ -35,7 +35,7 @@ namespace AnimeListBot.Modules
         [RequireUserPermission(GuildPermission.ManageRoles)]
         public async Task AddRank(string option, IRole role, double days)
         {
-            DiscordServer server = DatabaseRequest.GetServerById(Context.Guild.Id);
+            DiscordServer server = await DatabaseRequest.GetServerById(Context.Guild.Id);
             EmbedHandler embed = new EmbedHandler(Context.User, "Adding rank " + role.Name + " (" + days +")...");
             await embed.SendMessage(Context.Channel);
 
@@ -95,7 +95,7 @@ namespace AnimeListBot.Modules
             EmbedHandler embed = new EmbedHandler(Context.User, "Editing rank " + role.Name + " to " + newDays + "...");
             await embed.SendMessage(Context.Channel);
 
-            DiscordServer server = DatabaseRequest.GetServerById(Context.Guild.Id);
+            DiscordServer server = await DatabaseRequest.GetServerById(Context.Guild.Id);
 
             if (option == "anime")
             {
@@ -139,7 +139,7 @@ namespace AnimeListBot.Modules
             EmbedHandler embed = new EmbedHandler(Context.User, "Removing role " + role.Name + " from ranks...");
             await embed.SendMessage(Context.Channel);
 
-            DiscordServer server = DatabaseRequest.GetServerById(Context.Guild.Id);
+            DiscordServer server = await DatabaseRequest.GetServerById(Context.Guild.Id);
 
             if (option == "anime")
             {
@@ -199,7 +199,7 @@ namespace AnimeListBot.Modules
         {
             EmbedHandler embed = new EmbedHandler(Context.User, "Updating user ranks on this server...");
 
-            DiscordServer server = DatabaseRequest.GetServerById(Context.Guild.Id);
+            DiscordServer server = await DatabaseRequest.GetServerById(Context.Guild.Id);
             if (DiscordServer.rolesUpdating.Contains(server.ServerId))
             {
                 embed.Title = "You cant update user ranks now, its already updating.";
@@ -237,7 +237,7 @@ namespace AnimeListBot.Modules
             EmbedHandler embed = new EmbedHandler(Context.User, "Updating rank for " + user.Username);
             await embed.SendMessage(Context.Channel);
 
-            DiscordServer server = DatabaseRequest.GetServerById(Context.Guild.Id);
+            DiscordServer server = await DatabaseRequest.GetServerById(Context.Guild.Id);
             DiscordUser duser;
 
             if (!DatabaseRequest.DoesUserIdExist(user.Id))
@@ -412,7 +412,7 @@ namespace AnimeListBot.Modules
             await embed.SendMessage(Context.Channel);
             embed.Title = "List of Ranks";
 
-            DiscordServer server = DatabaseRequest.GetServerById(Context.Guild.Id);
+            DiscordServer server = await DatabaseRequest.GetServerById(Context.Guild.Id);
             if(server.AnimeroleId.Length <= 0 && server.MangaroleId.Length <= 0)
             {
                 embed.Title = "This server does not have any anime and manga ranks. (For administrators: Use `" + server.Prefix + "addrank`";

@@ -42,7 +42,7 @@ namespace AnimeListBot.Modules
             EmbedHandler embed = new EmbedHandler(Context.User, "Setting up profile...");
             await embed.SendMessage(Context.Channel);
 
-            DiscordServer server = DatabaseRequest.GetServerById(Context.Guild.Id);
+            DiscordServer server = await DatabaseRequest.GetServerById(Context.Guild.Id);
             DiscordUser user;
             if (!DatabaseRequest.DoesUserIdExist(Context.User.Id))
                 await DatabaseRequest.CreateUser(user = new DiscordUser(Context.User));
@@ -117,7 +117,7 @@ namespace AnimeListBot.Modules
         {
             if (!DatabaseRequest.DoesUserIdExist(Context.User.Id)) return;
             DiscordUser user = await DatabaseRequest.GetUserById(Context.User.Id);
-            DiscordServer server = DatabaseRequest.GetServerById(Context.Guild.Id);
+            DiscordServer server = await DatabaseRequest.GetServerById(Context.Guild.Id);
 
             EmbedHandler embed = new EmbedHandler(Context.User, "Setting List...");
             await embed.SendMessage(Context.Channel);
@@ -166,7 +166,8 @@ namespace AnimeListBot.Modules
 
             if (!DatabaseRequest.DoesUserIdExist(targetUser.Id)) return;
             DiscordUser user = await DatabaseRequest.GetUserById(targetUser.Id);
-            DiscordServer server = DatabaseRequest.GetServerById(Context.Guild.Id);
+
+            DiscordServer server = await DatabaseRequest.GetServerById(Context.Guild.Id);
 
             EmbedHandler embed = new EmbedHandler(targetUser, "Loading Profile Info...");
             await embed.SendMessage(Context.Channel);

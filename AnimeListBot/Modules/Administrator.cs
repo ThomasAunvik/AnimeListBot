@@ -207,7 +207,7 @@ namespace AnimeListBot.Modules
         public async Task Prefix(string newPrefix = "")
         {
             EmbedHandler embed = new EmbedHandler(Context.User);
-            DiscordServer server = DatabaseRequest.GetServerById(Context.Guild.Id);
+            DiscordServer server = await DatabaseRequest.GetServerById(Context.Guild.Id);
 
             IGuildUser user = Context.Guild.GetUser(Context.User.Id);
             if (!user.GuildPermissions.Administrator)

@@ -140,7 +140,7 @@ namespace AnimeListBot
 
         public async Task OnJoinedGuild(SocketGuild guild)
         {
-            if ((DatabaseRequest.GetServerById(guild.Id)) == null)
+            if (await DatabaseRequest.GetServerById(guild.Id) == null)
             {
                 await DatabaseRequest.CreateServer(new DiscordServer(guild));
             }
@@ -148,7 +148,7 @@ namespace AnimeListBot
 
         private async Task OnLeftGuild(SocketGuild arg)
         {
-            DiscordServer server = DatabaseRequest.GetServerById(arg.Id);
+            DiscordServer server = await DatabaseRequest.GetServerById(arg.Id);
             if(server != null)
             {
                 await DatabaseRequest.RemoveServer(server);

@@ -416,7 +416,7 @@ namespace AnimeListBot.Modules
             embed.Title = "List of Ranks";
 
             DiscordServer server = await DatabaseRequest.GetServerById(Context.Guild.Id);
-            if(server.AnimeroleId.Length <= 0 && server.MangaroleId.Length <= 0)
+            if((server.AnimeroleId == null && server.AnimeroleDays == null) || (server.AnimeroleId.Length <= 0 && server.MangaroleId.Length <= 0))
             {
                 embed.Title = "This server does not have any anime and manga ranks. (For administrators: Use `" + server.Prefix + "addrank`";
                 await embed.UpdateEmbed();
@@ -425,7 +425,7 @@ namespace AnimeListBot.Modules
 
             // ANIME
 
-            if (server.AnimeroleId.Length > 0)
+            if (server.AnimeroleId != null && server.AnimeroleId.Length > 0)
             {
                 (ulong roleId, double days) animeRank = ((ulong)server.AnimeroleId[0], server.AnimeroleDays[0]);
                 IRole animeRole = Context.Guild.GetRole(animeRank.roleId);
@@ -446,7 +446,7 @@ namespace AnimeListBot.Modules
 
             // MANGA
 
-            if (server.MangaroleId.Length > 0)
+            if (server.MangaroleId != null && server.MangaroleId.Length > 0)
             {
                 (ulong roleId, double days) mangaRank = ((ulong)server.MangaroleId[0], server.MangaroleDays[0]);
                 IRole mangaRole = Context.Guild.GetRole(mangaRank.roleId);

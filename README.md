@@ -111,6 +111,8 @@ If you yourself want to host this bot for yourself, you can edit the `botOwners.
 
 `al!prefix` allows you to change the bot's prefix. Max 2 characters.
 
+`al!ignoreexception [add, remove, view]` ignores exceptions sent to the bot owner.
+
 Extra Info: As a bot owner, you get to have the exlusive right to be able to get your exception messages right inside your DM's, thou the ID is hard coded. Found in [Logger.cs](https://github.com/ThomasAunvik/AnimeListBot/blob/master/AnimeListBot/Handler/Logger.cs)
 
 # Setup

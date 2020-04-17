@@ -134,7 +134,7 @@ namespace AnimeListBot.Handler
 
         public (ulong, double) GetAnimeServerRank(DiscordServer server)
         {
-            if (server.AnimeroleId != null || server.AnimeroleId.Length < 1) return (0, 0);
+            if (server.AnimeroleId == null || server.AnimeroleId.Length < 1) return (0, 0);
 
             double animeDays = GetAnimeWatchDays();
             for(int roleIndex = 0; roleIndex < server.AnimeroleDays.Length; roleIndex++)
@@ -276,7 +276,7 @@ namespace AnimeListBot.Handler
 
         public (ulong, double) GetMangaServerRank(DiscordServer server)
         {
-            if (server.MangaroleId != null || server.MangaroleId.Length < 1) return (0, 0);
+            if (server.MangaroleId == null || server.MangaroleId.Length < 1) return (0, 0);
 
             double mangaDays = GetMangaReadDays();
             for (int roleIndex = 0; roleIndex < server.MangaroleDays.Length; roleIndex++)

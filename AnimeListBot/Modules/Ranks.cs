@@ -291,21 +291,24 @@ namespace AnimeListBot.Modules
                 IRole mangaRankRole = null;
                 if (mangaRank.Item1 != 0) mangaRankRole = guild.GetRole(mangaRank.Item1);
 
+
                 // DELETING ROLES
 
-                var delAnimeRoles = server.AnimeroleId.ToList();
-                if (server.AnimeroleId.Length > 0)
+                List<long> delAnimeRoles = new List<long>();
+                if (server.AnimeroleId != null && server.AnimeroleId.Length > 0)
                 {
-                    if(animeRankRole != null) delAnimeRoles.Remove((long)animeRankRole.Id);
+                    delAnimeRoles = server.AnimeroleId.ToList();
+                    if (animeRankRole != null) delAnimeRoles.Remove((long)animeRankRole.Id);
                     delAnimeRoles.ToList().ForEach(x => {
                         if (!guildUser.RoleIds.Contains((ulong)x))
                             delAnimeRoles.Remove(x);
                     });
                 }
 
-                var delMangaRoles = server.MangaroleId.ToList();
-                if (server.MangaroleId.Length > 0)
+                List<long> delMangaRoles = new List<long>();
+                if (server.MangaroleId != null &&  server.MangaroleId.Length > 0)
                 {
+                    delMangaRoles = server.MangaroleId.ToList();
                     if (mangaRankRole != null) delMangaRoles.Remove((long)mangaRankRole.Id);
                     delMangaRoles.ToList().ForEach(x => {
                         if (!guildUser.RoleIds.Contains((ulong)x))

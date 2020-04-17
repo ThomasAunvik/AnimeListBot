@@ -6,7 +6,7 @@ You can invite my bot to your discord server by clicking: [here](https://discord
 
 If you want to contact me via discord, use the `al!contact [message]` command, or add me as friend: `Thaun_#0001`
 
-Else, you can join the support discord: https://discord.gg/Q9cf46R
+Else, you can join the [support discord.](https://discord.gg/Q9cf46R)
 
 # Introduction
 

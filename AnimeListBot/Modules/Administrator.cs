@@ -1,4 +1,20 @@
-﻿using Discord.Commands;
+﻿/*
+ * This file is part of AnimeList Bot
+ *
+ * AnimeList Bot is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * AnimeList Bot is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with AnimeList Bot.  If not, see <https://www.gnu.org/licenses/>
+ */
+using Discord.Commands;
 using System;
 using System.Linq;
 using System.Collections.Generic;
@@ -10,6 +26,7 @@ using AnimeListBot.Handler.Anilist;
 using System.Globalization;
 using Discord.WebSocket;
 using Discord;
+using Microsoft.EntityFrameworkCore;
 
 namespace AnimeListBot.Modules
 {
@@ -30,6 +47,21 @@ namespace AnimeListBot.Modules
                 await Program._client.StopAsync();
             }
             else{
+                embed.Title = "You dont have permission to do this command.";
+                await embed.SendMessage(Context.Channel);
+            }
+        }
+
+        [Command("overridedata")]
+        public async Task Override()
+        {
+            EmbedHandler embed = new EmbedHandler(Context.User);
+            if (Program.botOwners.Contains(Context.User.Id))
+            {
+                await DatabaseConnection.db.DiscordServer.ForEachAsync(x => x.OverrideData(x));
+            }
+            else
+            {
                 embed.Title = "You dont have permission to do this command.";
                 await embed.SendMessage(Context.Channel);
             }

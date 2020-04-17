@@ -1,5 +1,22 @@
-﻿using System;
+﻿/*
+ * This file is part of AnimeList Bot
+ *
+ * AnimeList Bot is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * AnimeList Bot is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with AnimeList Bot.  If not, see <https://www.gnu.org/licenses/>
+ */
+using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.IO;
 using System.Threading.Tasks;
 using Discord;
@@ -15,8 +32,22 @@ namespace AnimeListBot.Handler
 
         public ulong ServerId { get; set; }
         public string Prefix { get; set; } = Program.botPrefix;
-        public ulong RegisterChannelId { get; set; } = 0;
+        [NotMapped]
+        public ServerRanks Ranks { get; set; } = new ServerRanks();
 
+        public class ServerRanks
+        {
+            public ulong RegisterChannelId { get; set; } = 0;
+            public long[] AnimeroleId { get; set; }
+            public long[] MangaroleId { get; set; }
+
+            public double[] AnimeroleDays { get; set; }
+            public double[] MangaroleDays { get; set; }
+        }
+
+        // OBSULETE
+
+        public ulong RegisterChannelId { get; set; } = 0;
         public long[] AnimeroleId { get; set; }
         public long[] MangaroleId { get; set; }
 
@@ -40,6 +71,14 @@ namespace AnimeListBot.Handler
 
             AnimeroleDays = server.AnimeroleDays;
             MangaroleDays = server.MangaroleDays;
+            //Ranks = server.Ranks;
+
+            Ranks.RegisterChannelId = server.RegisterChannelId;
+            Ranks.AnimeroleId = server.AnimeroleId;
+            Ranks.MangaroleId = server.MangaroleId;
+
+            Ranks.AnimeroleDays = server.AnimeroleDays;
+            Ranks.MangaroleDays = server.MangaroleDays;
         }
     }
 }

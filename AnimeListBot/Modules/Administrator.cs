@@ -60,7 +60,7 @@ namespace AnimeListBot.Modules
             "   - remove\n" +
             "   - view\n"
         )]
-        public async Task IgnoreException(string option, [Remainder]string ignore)
+        public async Task IgnoreException(string option, [Remainder]string ignore = "")
         {
             EmbedHandler embed = new EmbedHandler(Context.User);
             if (Program.botOwners.Contains(Context.User.Id))
@@ -68,6 +68,11 @@ namespace AnimeListBot.Modules
                 Config config = Config.GetConfig();
                 switch (option) {
                     case "add":
+                        if (!string.IsNullOrEmpty(ignore))
+                        {
+                            embed.Title = "Cant add an empty string for ignoring exception";
+                            break;
+                        }
                         config.ignoredExceptionMessages.Add(ignore);
                         embed.Title = "Exception Message Ignored: " + ignore;
                         break;

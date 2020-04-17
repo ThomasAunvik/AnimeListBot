@@ -83,6 +83,7 @@ namespace AnimeListBot.Modules
                         break;
                 }
                 Config.OverrideConfig();
+                await embed.SendMessage(Context.Channel);
             }
             else
             {

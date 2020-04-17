@@ -418,7 +418,8 @@ namespace AnimeListBot.Modules
             DiscordServer server = await DatabaseRequest.GetServerById(Context.Guild.Id);
             if((server.AnimeroleId == null && server.AnimeroleDays == null) || (server.AnimeroleId.Length <= 0 && server.MangaroleId.Length <= 0))
             {
-                embed.Title = "This server does not have any anime and manga ranks. (For administrators: Use `" + server.Prefix + "addrank`";
+                embed.Title = "This server does not have any anime and manga ranks.";
+                embed.Description = "For administrators: Use `" + server.Prefix + "addrank`";
                 await embed.UpdateEmbed();
                 return;
             }

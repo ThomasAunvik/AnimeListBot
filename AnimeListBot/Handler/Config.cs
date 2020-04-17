@@ -25,9 +25,13 @@ namespace AnimeListBot.Handler
 {
     public class Config
     {
+        public static Config cached { get; private set; }
+
         public string bot_token;
         public int cluster_id;
         public List<ulong> bot_owners;
+
+        public HashSet<string> ignoredExceptionMessages;
 
         // Database
         public string ip;
@@ -45,7 +49,18 @@ namespace AnimeListBot.Handler
 
             if (string.IsNullOrEmpty(config.bot_token)) throw new Exception("No bot token inserted in config file. (config.json)");
 
+            cached = config;
             return config;
+        }
+
+        public static Config OverrideConfig()
+        {
+            if (!File.Exists("config.json")) File.Create("config.json");
+
+            string jsonText = JsonConvert.SerializeObject(cached);
+            File.WriteAllText("config.json", jsonText);
+
+            return cached;
         }
     }
 }

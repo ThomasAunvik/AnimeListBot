@@ -32,6 +32,7 @@ using AnimeListBot.Modules;
 using System.Threading;
 using System.Net.Http;
 using Discord.Net;
+using Microsoft.CSharp.RuntimeBinder;
 
 namespace AnimeListBot
 {
@@ -62,6 +63,8 @@ namespace AnimeListBot
 
         public static DateTime BOT_START_TIME { get; private set; }
 
+        HashSet<string> ignoredExceptionMessages;
+
         private static void Main(string[] args) => new Program().RunBotAsync().GetAwaiter().GetResult();
 
         public async Task RunBotAsync()
@@ -71,6 +74,7 @@ namespace AnimeListBot
             _logger = new Logger();
 
             Config bot_config = Config.GetConfig();
+            ignoredExceptionMessages = bot_config.ignoredExceptionMessages;
             botOwners = bot_config.bot_owners;
             Cluster cluster = DatabaseConnection.db.Cluster.Where(x => x.Id == bot_config.cluster_id).FirstOrDefault();
 
@@ -161,7 +165,7 @@ namespace AnimeListBot
 
         private async Task Log(LogMessage arg)
         {
-            if (arg.Exception != null)
+            if(arg.Exception != null && ignoredExceptionMessages.Contains(arg.Exception.Message))
             {
                 await _logger.LogError(arg);
                 return;

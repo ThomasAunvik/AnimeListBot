@@ -52,13 +52,37 @@ namespace AnimeListBot.Modules
             }
         }
 
-        [Command("overridedata")]
-        public async Task Override()
+        [Command("ignoreexception")]
+        [Summary(
+            "Ignores an exception from dm'ing the owner.\n" +
+            "   Options:\n" +
+            "   - add\n" +
+            "   - remove\n" +
+            "   - view\n"
+        )]
+        public async Task IgnoreException(string option, [Remainder]string ignore)
         {
             EmbedHandler embed = new EmbedHandler(Context.User);
             if (Program.botOwners.Contains(Context.User.Id))
             {
-                await DatabaseConnection.db.DiscordServer.ForEachAsync(x => x.OverrideData(x));
+                Config config = Config.GetConfig();
+                switch (option) {
+                    case "add":
+                        config.ignoredExceptionMessages.Add(ignore);
+                        embed.Title = "Exception Message Ignored: " + ignore;
+                        break;
+                    case "view":
+                        string message = string.Empty;
+                        config.ignoredExceptionMessages.ToList().ForEach(x => message += x + "\n");
+                        embed.Title = "Ignored Exeptions.";
+                        embed.AddFieldSecure("List", message);
+                        break;
+                    case "remove":
+                        if (config.ignoredExceptionMessages.Remove(ignore)) embed.Title = "Exception Removed from ignorelist: " + ignore;
+                        else embed.Title = "Failed to remove from ignorelist: " + ignore;
+                        break;
+                }
+                Config.OverrideConfig();
             }
             else
             {

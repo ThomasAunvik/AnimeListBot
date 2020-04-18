@@ -53,6 +53,8 @@ namespace AnimeListBot.Handler
         public double AnimeDays { get; set; }
         public double MangaDays { get; set; }
 
+        public List<long> Servers { get; set; } = new List<long>();
+
         public DiscordUser() { }
 
         // Most of the reasons you do this part is to create a new user and upload it to the db automaticly

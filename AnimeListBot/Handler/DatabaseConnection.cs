@@ -126,6 +126,8 @@ namespace AnimeListBot.Handler
                 entity.Property(e => e.MalUsername).HasColumnName("mal_username");
 
                 entity.Property(e => e.MangaDays).HasColumnName("manga_days");
+
+                entity.Property(e => e.Servers).HasColumnName("servers");
             });
 
             modelBuilder.Entity<Cluster>(entity =>

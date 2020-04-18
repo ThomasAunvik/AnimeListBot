@@ -27,6 +27,7 @@ using JikanDotNet;
 using AnimeListBot.Handler.Anilist;
 using System.Globalization;
 using Discord.WebSocket;
+using System.Reflection.Metadata.Ecma335;
 
 namespace AnimeListBot.Modules
 {
@@ -303,8 +304,6 @@ namespace AnimeListBot.Modules
             await GetProfile(user, "manga");
         }
 
-        // TODO: Fix, need to add users a list of servers joined.
-        /*
         [Command("Leaderboard")]
         public async Task Leaderboard(int page = 1)
         {
@@ -314,17 +313,14 @@ namespace AnimeListBot.Modules
             DiscordUser gUser = await DatabaseRequest.GetUserById(Context.User.Id);
             DiscordServer server = await DatabaseRequest.GetServerById(Context.Guild.Id);
 
+            List<DiscordUser> users = DatabaseConnection.db.DiscordUser.ToList();
+            List<DiscordUser> guildUsers = users.Where(y => y.Servers != null)
+                                                .Where(x => x.Servers.Contains((long)server.ServerId)).ToList();
 
-            //IReadOnlyCollection<IGuildUser> guildUsers = await Context.Guild.get();
-            List<DiscordUser> globalServerUsers = guildUsers.Select(async x => await DatabaseRequest.GetUserById(x.Id, false))
-                                                            .Select(t => t.Result)
-                                                            .Where(i => i != null)
-                                                            .ToList();
-
-            List<DiscordUser> animeLeaderboard = globalServerUsers.OrderByDescending(x => x.GetAnimeWatchDays()).ToList();
+            List<DiscordUser> animeLeaderboard = guildUsers.OrderByDescending(x => x.GetAnimeWatchDays()).ToList();
             animeLeaderboard.RemoveAll(x => x.GetAnimeWatchDays() == 0);
 
-            List<DiscordUser> mangaLeaderboard = globalServerUsers.OrderByDescending(x => x.GetMangaReadDays()).ToList();
+            List<DiscordUser> mangaLeaderboard = guildUsers.OrderByDescending(x => x.GetMangaReadDays()).ToList();
             mangaLeaderboard.RemoveAll(x => x.GetMangaReadDays() == 0);
 
             if (animeLeaderboard.Count <= 0 && mangaLeaderboard.Count <= 0)
@@ -368,7 +364,7 @@ namespace AnimeListBot.Modules
                     {
                         animeBoardField.Value += "\n";
                     }
-                    IUser leadDiscordUser = Program._client.GetUser(animeLeadUser.userID);
+                    IUser leadDiscordUser = Program._client.GetUser(animeLeadUser.UserId);
                     animeBoardField.Value += "#" + (i + 1) + ": " + Format.Sanitize(animeLeadUser.GetAnimelistUsername()) + " (<@" + leadDiscordUser.Id + ">) - " + animeLeadUser.GetAnimeWatchDays() + " days";
                 }
 
@@ -399,7 +395,7 @@ namespace AnimeListBot.Modules
                         mangaBoardField.Value += "\n";
                     }
 
-                    IUser leadDiscordUser = Program._client.GetUser(mangaLeadUser.userID);
+                    IUser leadDiscordUser = Program._client.GetUser(mangaLeadUser.UserId);
                     mangaBoardField.Value += "#" + (i + 1) + ": " + Format.Sanitize(mangaLeadUser.GetAnimelistUsername()) + " (<@" + leadDiscordUser.Id + ">) - " + mangaLeadUser.GetMangaReadDays() + " days";
                 }
 
@@ -414,7 +410,7 @@ namespace AnimeListBot.Modules
             
             await embed.UpdateEmbed();
         }
-        */
+
         [Command("resetuser")]
         public async Task RemoveUser(string confirm = "n")
         {

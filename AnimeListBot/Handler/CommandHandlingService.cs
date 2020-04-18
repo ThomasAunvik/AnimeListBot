@@ -23,6 +23,8 @@ using Discord.Commands;
 using Discord.WebSocket;
 using Discord.Net;
 using AnimeListBot.Modules;
+using System.Linq;
+using System.Collections.Generic;
 
 namespace AnimeListBot.Handler
 {
@@ -76,6 +78,20 @@ namespace AnimeListBot.Handler
             var argPos = 0;
             if (!(message.HasStringPrefix(server.Prefix, ref argPos) || message.HasMentionPrefix(Program._client.CurrentUser, ref argPos)))
                 return;
+
+            DiscordUser user = await DatabaseRequest.GetUserById(message.Author.Id);
+            if (user == null) {
+                user = new DiscordUser(message.Author);
+                await DatabaseRequest.CreateUser(user);
+            }
+
+            if (message.Channel is IGuildChannel guildChannel) {
+                if (user.Servers == null) user.Servers = new List<long>();
+                if (!user.Servers.Contains((long)guildChannel.GuildId))
+                {
+                    user.Servers.Add((long)guildChannel.GuildId);
+                }
+            }
 
             // A new kind of command context, ShardedCommandContext can be utilized with the commands framework
             var context = new ShardedCommandContext(_discord, message);

@@ -98,6 +98,15 @@ namespace AnimeListBot.Modules
                     await user.CreateUserDatabase();
                 }
 
+                if (message.Channel is IGuildChannel guildChannel)
+                {
+                    if (user.Servers == null) user.Servers = new List<long>();
+                    if (!user.Servers.Contains((long)guildChannel.GuildId))
+                    {
+                        user.Servers.Add((long)guildChannel.GuildId);
+                    }
+                }
+
                 string currentLink = message.Content;
 
                 Uri link = null;

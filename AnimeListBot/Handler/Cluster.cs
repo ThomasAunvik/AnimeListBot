@@ -28,6 +28,7 @@ namespace AnimeListBot.Handler
 
         public int GetShardAmount()
         {
+            if(Config.cached.override_shard_amount > 0) return Config.cached.override_shard_amount;
             return (ShardIdEnd - ShardIdStart) + 1;
         }
 

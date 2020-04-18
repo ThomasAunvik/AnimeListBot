@@ -29,6 +29,7 @@ namespace AnimeListBot.Handler
 
         public string bot_token;
         public int cluster_id;
+        public int override_shard_amount = 0;
         public List<ulong> bot_owners = new List<ulong>();
 
         public HashSet<string> ignoredExceptionMessages = new HashSet<string>();

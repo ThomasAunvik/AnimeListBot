@@ -44,7 +44,6 @@ namespace AnimeListBot.Modules
                 await embed.SendMessage(Context.Channel);
 
                 Program.stop = true;
-                await Program._client.StopAsync();
             }
             else{
                 embed.Title = "You dont have permission to do this command.";

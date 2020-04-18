@@ -71,7 +71,7 @@ namespace AnimeListBot.Handler
 
         public static async Task<DiscordUser> GetUserById(ulong id, bool update = true)
         {
-            DiscordUser user = DatabaseConnection.db.DiscordUser.Where(x => x.UserId == id).FirstOrDefault();
+            DiscordUser user = await DiscordUser.CheckAndCreateUser(id);
 
             if (update)
             {

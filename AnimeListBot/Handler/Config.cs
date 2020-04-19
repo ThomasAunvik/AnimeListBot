@@ -58,7 +58,7 @@ namespace AnimeListBot.Handler
         {
             if (!File.Exists("config.json")) File.Create("config.json");
 
-            string jsonText = JsonConvert.SerializeObject(this);
+            string jsonText = JsonConvert.SerializeObject(this, Formatting.Indented);
             File.WriteAllText("config.json", jsonText);
             cached = this;
         }

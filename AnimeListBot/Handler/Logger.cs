@@ -89,7 +89,7 @@ namespace AnimeListBot.Handler
             const ulong ownerId = 96580514021912576;
             const ulong channelId = 701267750214959164;
             SocketUser owner = Program._client.GetUser(ownerId);
-            IGuildChannel channel = (IGuildChannel)Program._client.GetChannel(channelId);
+            SocketTextChannel channel = (SocketTextChannel)Program._client.GetChannel(channelId);
 
             if (owner != null)
             {
@@ -99,7 +99,7 @@ namespace AnimeListBot.Handler
 
             if(channel != null)
             {
-                //await channel.("", false, sendEmbed.Build());
+                await channel.SendMessageAsync("", false, sendEmbed.Build());
             }
         }
 

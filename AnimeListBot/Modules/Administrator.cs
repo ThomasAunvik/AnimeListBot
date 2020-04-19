@@ -114,6 +114,23 @@ namespace AnimeListBot.Modules
             }
         }
 
+        [Command("sendmessage")]
+        public async Task SendMessage(string title, string message)
+        {
+            EmbedHandler embed = new EmbedHandler(Context.User);
+            if (Program.botOwners.Contains(Context.User.Id))
+            {
+                embed.Title = title;
+                embed.Description = message;
+                await embed.SendMessage(Context.Channel);
+            }
+            else
+            {
+                embed.Title = "You dont have permission to do this command.";
+                await embed.SendMessage(Context.Channel);
+            }
+        }
+
         [Command("setgamestatus")]
         [Summary(
             "Setting Game Status for the bot" +

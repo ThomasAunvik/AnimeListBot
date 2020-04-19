@@ -70,7 +70,7 @@ namespace AnimeListBot.Handler
             MangaDays = user.MangaDays;
         }
 
-        public IUser GetUser() { return Program._client.GetUser((ulong)UserId); }
+        public SocketUser GetUser() { return Program._client.GetUser((ulong)UserId); }
 
         public static async Task<DiscordUser> CheckAndCreateUser(ulong user_id)
         {
@@ -92,6 +92,20 @@ namespace AnimeListBot.Handler
         {
             if (DatabaseRequest.DoesUserIdExist(UserId))
                 await DatabaseRequest.UpdateUser(this);
+        }
+
+        public async Task RefreshMutualGuilds()
+        {
+            SocketUser user = GetUser();
+            if (Servers == null) Servers = new List<long>();
+            user.MutualGuilds.ToList().ForEach(x =>
+            {
+                if (!Servers.Contains((long)x.Id))
+                {
+                    Servers.Add((long)x.Id);
+                }
+            });
+            await UpdateDatabase();
         }
 
         public string GetAnimelistUsername()

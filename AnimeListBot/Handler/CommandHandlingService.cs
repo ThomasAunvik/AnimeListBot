@@ -85,12 +85,8 @@ namespace AnimeListBot.Handler
                 await DatabaseRequest.CreateUser(user);
             }
 
-            if (message.Channel is IGuildChannel guildChannel) {
-                if (user.Servers == null) user.Servers = new List<long>();
-                if (!user.Servers.Contains((long)guildChannel.GuildId))
-                {
-                    user.Servers.Add((long)guildChannel.GuildId);
-                }
+            if (message.Channel is IGuildChannel) {
+                await user.RefreshMutualGuilds();
             }
 
             // A new kind of command context, ShardedCommandContext can be utilized with the commands framework

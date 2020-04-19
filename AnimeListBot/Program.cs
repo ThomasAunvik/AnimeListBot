@@ -168,7 +168,7 @@ namespace AnimeListBot
 
         private async Task Log(LogMessage arg)
         {
-            if(arg.Exception != null && ignoredExceptionMessages.Contains(arg.Exception.Message))
+            if(arg.Exception != null && !ignoredExceptionMessages.Contains(arg.Exception.Message))
             {
                 await _logger.LogError(arg);
                 return;

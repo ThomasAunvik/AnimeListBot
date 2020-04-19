@@ -58,7 +58,7 @@ namespace AnimeListBot.Modules
             "   Options:\n" +
             "   - add\n" +
             "   - remove\n" +
-            "   - view\n"
+            "   - view/list\n"
         )]
         public async Task IgnoreException(string option, [Remainder]string ignore = "")
         {
@@ -77,6 +77,7 @@ namespace AnimeListBot.Modules
                         embed.Title = "Exception Message Ignored: " + ignore;
                         break;
                     case "view":
+                    case "list":
                         string message = string.Empty;
                         if (config.ignoredExceptionMessages.Count <= 0)
                         {
@@ -90,6 +91,9 @@ namespace AnimeListBot.Modules
                     case "remove":
                         if (config.ignoredExceptionMessages.Remove(ignore)) embed.Title = "Exception Removed from ignorelist: " + ignore;
                         else embed.Title = "Failed to remove from ignorelist: " + ignore;
+                        break;
+                    default:
+                        embed.Title = "Incorrect command arguments (add, view/list, remove).";
                         break;
                 }
                 config.Save();

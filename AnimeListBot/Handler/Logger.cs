@@ -21,6 +21,7 @@ using System.IO;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
+using Discord.WebSocket;
 
 namespace AnimeListBot.Handler
 {
@@ -86,12 +87,20 @@ namespace AnimeListBot.Handler
             if (Program._client == null) return;
 
             const ulong ownerId = 96580514021912576;
-            IUser owner = Program._client.GetUser(ownerId);
+            const ulong channelId = 701267750214959164;
+            SocketUser owner = Program._client.GetUser(ownerId);
+            IGuildChannel channel = (IGuildChannel)Program._client.GetChannel(channelId);
 
-            if (owner == null) return;
-            await owner?.GetOrCreateDMChannelAsync();
+            if (owner != null)
+            {
+                await owner?.GetOrCreateDMChannelAsync();
+                await owner.SendMessageAsync("", false, sendEmbed.Build());
+            }
 
-            await owner.SendMessageAsync("", false, sendEmbed.Build());
+            if(channel != null)
+            {
+                //await channel.("", false, sendEmbed.Build());
+            }
         }
 
         public async Task LogError(string errorMessage, IUser user = null, IGuildChannel guildChannel = null)

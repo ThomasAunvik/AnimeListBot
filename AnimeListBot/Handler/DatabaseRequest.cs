@@ -75,6 +75,7 @@ namespace AnimeListBot.Handler
             if(user == null)
             {
                 await DatabaseRequest.CreateUser(user = new DiscordUser(Program._client.GetUser(id)));
+                if (user == null || user.UserId == 0) return null;
             }
 
             if (update)
@@ -93,6 +94,7 @@ namespace AnimeListBot.Handler
 
         public static async Task<bool> CreateUser(DiscordUser user)
         {
+            if (user == null || user.UserId == 0) return false;
             DatabaseConnection.db.DiscordUser.Add(user);
             await DatabaseConnection.db.SaveChangesAsync();
             return true;

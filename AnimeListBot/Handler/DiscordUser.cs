@@ -58,7 +58,9 @@ namespace AnimeListBot.Handler
         public DiscordUser() { }
 
         // Most of the reasons you do this part is to create a new user and upload it to the db automaticly
-        public DiscordUser(IUser user) {
+        public DiscordUser(IUser user)
+        {
+            if (user == null) return;
             UserId = user.Id;
         }
 
@@ -70,7 +72,7 @@ namespace AnimeListBot.Handler
             MangaDays = user.MangaDays;
         }
 
-        public SocketUser GetUser() { return Program._client.GetUser((ulong)UserId); }
+        public SocketUser GetUser() { return Program._client.GetUser(UserId); }
 
         public static async Task<DiscordUser> CheckAndCreateUser(ulong user_id)
         {
@@ -97,6 +99,7 @@ namespace AnimeListBot.Handler
         public async Task RefreshMutualGuilds()
         {
             SocketUser user = GetUser();
+            if (user == null) return;
             if (Servers == null) Servers = new List<long>();
             List<SocketGuild> mutualGuilds = user.MutualGuilds.ToList();
             for(int guildIndex = 0; guildIndex < mutualGuilds.Count; guildIndex++)

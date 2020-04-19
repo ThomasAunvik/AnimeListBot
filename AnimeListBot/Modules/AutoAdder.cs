@@ -113,6 +113,8 @@ namespace AnimeListBot.Modules
                 if(user == null)
                 {
                     user = new DiscordUser(message.Author);
+                    if (user == null || user.UserId == 0) return;
+
                     await user.CreateUserDatabase();
                 }
 
@@ -188,11 +190,11 @@ namespace AnimeListBot.Modules
             }
             catch(Exception e)
             {
-                if(message.Author is Discord.Rest.RestUser)
+                /*if(message.Author is Discord.Rest.RestUser)
                 {
                     await Program._logger.LogError(e, message.Author);
                     return;
-                }
+                }*/
                 await Program._logger.LogError(e, message.Author, (IGuildChannel)message.Channel);
             }
         }

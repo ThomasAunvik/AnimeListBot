@@ -276,6 +276,7 @@ namespace AnimeListBot.Modules
         {
             IGuild guild = server.GetGuild();
             IGuildUser guildUser = await DiscordServer.GetGuildUser(guild, user.UserId);
+            if (guildUser == null) return false;
 
             try
             {

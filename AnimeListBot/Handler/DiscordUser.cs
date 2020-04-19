@@ -504,7 +504,7 @@ namespace AnimeListBot.Handler
                     MangaDays = Math.Round(chaptersRead, 1);
 
                     int minutesWatched = anilistProfile.statistics.anime.minutesWatched;
-                    AnimeDays = Math.Round(minutesWatched / 60.0 / 24.0);
+                    AnimeDays = Math.Round(minutesWatched / 60.0 / 24.0, 1);
                 }
 
                 await DatabaseRequest.UpdateUser(this);

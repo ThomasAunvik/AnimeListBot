@@ -46,7 +46,7 @@ namespace AnimeListBot.Modules
         }
 
         [Command("autolistupdate")]
-        //[RequireUserPermission(GuildPermission.ManageRoles)]
+        [RequireUserPermission(GuildPermission.ManageRoles)]
         public async Task Update()
         {
             DiscordServer server = await DatabaseRequest.GetServerById(Context.Guild.Id);

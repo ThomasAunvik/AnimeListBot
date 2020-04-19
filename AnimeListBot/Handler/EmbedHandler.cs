@@ -110,7 +110,7 @@ namespace AnimeListBot.Handler
             }
         }
 
-        public void AddFieldSecure(string name, object value, bool inline = false)
+        public int AddFieldSecure(string name, object value, bool inline = false)
         {
             if (value is string)
             {
@@ -118,6 +118,7 @@ namespace AnimeListBot.Handler
                 value = SecureEmbedText(stringValue);
             }
             AddField(name, value, inline);
+            return Fields.Count - 1; // Index value of field for Fields.
         }
 
         public void AddFieldSecure(EmbedFieldBuilder field)

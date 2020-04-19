@@ -98,13 +98,15 @@ namespace AnimeListBot.Handler
         {
             SocketUser user = GetUser();
             if (Servers == null) Servers = new List<long>();
-            user.MutualGuilds.ToList().ForEach(x =>
+            List<SocketGuild> mutualGuilds = user.MutualGuilds.ToList();
+            for(int guildIndex = 0; guildIndex < mutualGuilds.Count; guildIndex++)
             {
-                if (!Servers.Contains((long)x.Id))
+                long guildId = (long)mutualGuilds[guildIndex].Id;
+                if (!Servers.Contains(guildId))
                 {
-                    Servers.Add((long)x.Id);
+                    Servers.Add(guildId);
                 }
-            });
+            }
             await UpdateDatabase();
         }
 

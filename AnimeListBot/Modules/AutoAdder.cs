@@ -26,6 +26,7 @@ using System.Threading.Tasks;
 using AnimeListBot.Handler;
 using JikanDotNet;
 using AnimeListBot.Handler.Anilist;
+using Discord.WebSocket;
 
 namespace AnimeListBot.Modules
 {
@@ -45,7 +46,7 @@ namespace AnimeListBot.Modules
         }
 
         [Command("autolistupdate")]
-        [RequireUserPermission(GuildPermission.ManageRoles)]
+        //[RequireUserPermission(GuildPermission.ManageRoles)]
         public async Task Update()
         {
             DiscordServer server = await DatabaseRequest.GetServerById(Context.Guild.Id);
@@ -58,10 +59,22 @@ namespace AnimeListBot.Modules
             List<IMessage> listMessages = messages.ToList();
             if (listMessages.Count > 0)
             {
-                listMessages.ForEach(async x =>
+                int messageCount = listMessages.Count;
+                int fieldIndex = embed.AddFieldSecure("Progress", "0%");
+                await embed.UpdateEmbed();
+                for (int messageIndex = 0; messageIndex < messageCount; messageIndex++)
                 {
-                    await AddUser(x, server);
-                });
+                    await AddUser(listMessages[messageIndex], server);
+                    int progressValue = (int)((messageIndex / (float)messageCount) * 100);
+                    embed.Fields[fieldIndex].Value = progressValue.ToString() + "%";
+
+                    if(progressValue % 5 == 0)
+                    {
+                        await embed.UpdateEmbed();
+                    }
+                }
+
+                embed.Fields[fieldIndex].Value = "100%";
             }
 
             embed.Title = "Anime Lists Updated.";
@@ -91,6 +104,11 @@ namespace AnimeListBot.Modules
 
             try
             {
+                if (!(message is SocketUserMessage))
+                    return;
+                if (message.Source != MessageSource.User)
+                    return;
+
                 DiscordUser user = await DatabaseRequest.GetUserById(message.Author.Id);
                 if(user == null)
                 {
@@ -170,6 +188,11 @@ namespace AnimeListBot.Modules
             }
             catch(Exception e)
             {
+                if(message.Author is Discord.Rest.RestUser)
+                {
+                    await Program._logger.LogError(e, message.Author);
+                    return;
+                }
                 await Program._logger.LogError(e, message.Author, (IGuildChannel)message.Channel);
             }
         }

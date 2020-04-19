@@ -43,10 +43,10 @@ namespace AnimeListBot.Handler
         
         [NotMapped]
         public UserProfile malProfile;
-        public string MalUsername { get; set; }
+        public string MalUsername { get; set; } = string.Empty;
         [NotMapped]
         public IAniUser anilistProfile;
-        public string AnilistUsername { get; set; }
+        public string AnilistUsername { get; set; } = string.Empty;
 
         public AnimeList ListPreference { get; set; }
 

@@ -68,7 +68,7 @@ namespace AnimeListBot.Modules
                 Config config = Config.GetConfig();
                 switch (option) {
                     case "add":
-                        if (!string.IsNullOrEmpty(ignore))
+                        if (string.IsNullOrEmpty(ignore))
                         {
                             embed.Title = "Cant add an empty string for ignoring exception";
                             break;

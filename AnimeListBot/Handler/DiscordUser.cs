@@ -452,6 +452,8 @@ namespace AnimeListBot.Handler
             {
                 MalUsername = username;
                 malProfile = await Program._jikan.GetUserProfile(username);
+                if (malProfile == null) return false;
+
                 if (ListPreference == AnimeList.MAL)
                 {
                     decimal? malMangaDays = malProfile.MangaStatistics?.DaysRead.GetValueOrDefault();
@@ -475,6 +477,8 @@ namespace AnimeListBot.Handler
             {
                 AnilistUsername = username;
                 anilistProfile = await AniUserQuery.GetUser(username);
+                if (anilistProfile == null) return false;
+
                 if (ListPreference == AnimeList.Anilist)
                 {
                     double chaptersRead = (double)decimal.Multiply((anilistProfile.statistics?.manga.chaptersRead).GetValueOrDefault(), (decimal)0.00556);

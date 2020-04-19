@@ -33,26 +33,15 @@ namespace AnimeListBot.Handler
         public ulong ServerId { get; set; }
         public string Prefix { get; set; } = Program.botPrefix;
         [NotMapped]
-        public ServerRanks Ranks { get; set; } = new ServerRanks();
-
-        public class ServerRanks
-        {
-            public ulong RegisterChannelId { get; set; } = 0;
-            public long[] AnimeroleId { get; set; }
-            public long[] MangaroleId { get; set; }
-
-            public double[] AnimeroleDays { get; set; }
-            public double[] MangaroleDays { get; set; }
-        }
 
         // OBSULETE
 
         public ulong RegisterChannelId { get; set; } = 0;
-        public long[] AnimeroleId { get; set; }
-        public long[] MangaroleId { get; set; }
+        public long[] AnimeroleId { get; set; } = new long[0];
+        public long[] MangaroleId { get; set; } = new long[0];
 
-        public double[] AnimeroleDays { get; set; }
-        public double[] MangaroleDays { get; set; }
+        public double[] AnimeroleDays { get; set; } = new double[0];
+        public double[] MangaroleDays { get; set; } = new double[0];
 
         public DiscordServer() { }
         public DiscordServer(IGuild guild) { ServerId = guild.Id; }
@@ -71,14 +60,6 @@ namespace AnimeListBot.Handler
 
             AnimeroleDays = server.AnimeroleDays;
             MangaroleDays = server.MangaroleDays;
-            //Ranks = server.Ranks;
-
-            Ranks.RegisterChannelId = server.RegisterChannelId;
-            Ranks.AnimeroleId = server.AnimeroleId;
-            Ranks.MangaroleId = server.MangaroleId;
-
-            Ranks.AnimeroleDays = server.AnimeroleDays;
-            Ranks.MangaroleDays = server.MangaroleDays;
         }
     }
 }

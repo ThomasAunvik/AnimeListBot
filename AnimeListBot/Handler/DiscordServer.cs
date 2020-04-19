@@ -37,11 +37,11 @@ namespace AnimeListBot.Handler
         // OBSULETE
 
         public ulong RegisterChannelId { get; set; } = 0;
-        public long[] AnimeroleId { get; set; } = new long[0];
-        public long[] MangaroleId { get; set; } = new long[0];
+        public List<long> AnimeroleId { get; set; } = new List<long>();
+        public List<long> MangaroleId { get; set; } = new List<long>();
 
-        public double[] AnimeroleDays { get; set; } = new double[0];
-        public double[] MangaroleDays { get; set; } = new double[0];
+        public List<double> AnimeroleDays { get; set; } = new List<double>();
+        public List<double> MangaroleDays { get; set; } = new List<double>();
 
         public DiscordServer() { }
         public DiscordServer(IGuild guild) { ServerId = guild.Id; }

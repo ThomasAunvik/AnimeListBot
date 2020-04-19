@@ -118,8 +118,6 @@ namespace AnimeListBot
                 {
                     await Task.Delay(20);
                 }
-
-                await _client.StopAsync();
             }
             await _logger.Log("Stopping Bot...");
             return;

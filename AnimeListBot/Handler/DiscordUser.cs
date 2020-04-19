@@ -137,10 +137,10 @@ namespace AnimeListBot.Handler
 
         public (ulong, double) GetAnimeServerRank(DiscordServer server)
         {
-            if (server.AnimeroleId == null || server.AnimeroleId.Count < 1) return (0, 0);
+            if (server.AnimeroleId == null || server.AnimeroleId.Length < 1) return (0, 0);
 
             double animeDays = GetAnimeWatchDays();
-            for(int roleIndex = 0; roleIndex < server.AnimeroleDays.Count; roleIndex++)
+            for(int roleIndex = 0; roleIndex < server.AnimeroleDays.Length; roleIndex++)
             {
                 if (animeDays < server.AnimeroleDays[roleIndex]) {
                     if (roleIndex < 1) return (0,0);
@@ -148,7 +148,7 @@ namespace AnimeListBot.Handler
                     return ((ulong)server.AnimeroleId[roleIndex], server.AnimeroleDays[roleIndex]);
                 }
             }
-            return ((ulong)server.AnimeroleId[server.AnimeroleId.Count - 1], server.AnimeroleDays[server.AnimeroleId.Count - 1]);
+            return ((ulong)server.AnimeroleId[server.AnimeroleId.Length - 1], server.AnimeroleDays[server.AnimeroleId.Length - 1]);
         }
 
         public double GetAnimeWatchDays()
@@ -279,10 +279,10 @@ namespace AnimeListBot.Handler
 
         public (ulong, double) GetMangaServerRank(DiscordServer server)
         {
-            if (server.MangaroleId == null || server.MangaroleId.Count < 1) return (0, 0);
+            if (server.MangaroleId == null || server.MangaroleId.Length < 1) return (0, 0);
 
             double mangaDays = GetMangaReadDays();
-            for (int roleIndex = 0; roleIndex < server.MangaroleDays.Count; roleIndex++)
+            for (int roleIndex = 0; roleIndex < server.MangaroleDays.Length; roleIndex++)
             {
                 if (mangaDays < server.MangaroleDays[roleIndex])
                 {
@@ -291,7 +291,7 @@ namespace AnimeListBot.Handler
                     return ((ulong)server.MangaroleId[roleIndex], server.MangaroleDays[roleIndex]);
                 }
             }
-            return ((ulong)server.MangaroleId[server.MangaroleId.Count - 1], server.MangaroleDays[server.MangaroleId.Count - 1]);
+            return ((ulong)server.MangaroleId[server.MangaroleId.Length - 1], server.MangaroleDays[server.MangaroleId.Length - 1]);
         }
 
         public double GetMangaReadDays()

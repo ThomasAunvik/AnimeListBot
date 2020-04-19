@@ -54,14 +54,13 @@ namespace AnimeListBot.Handler
             return config;
         }
 
-        public static Config OverrideConfig()
+        public void Save()
         {
             if (!File.Exists("config.json")) File.Create("config.json");
 
-            string jsonText = JsonConvert.SerializeObject(cached);
+            string jsonText = JsonConvert.SerializeObject(this);
             File.WriteAllText("config.json", jsonText);
-
-            return cached;
+            cached = this;
         }
     }
 }

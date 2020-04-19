@@ -78,6 +78,11 @@ namespace AnimeListBot.Modules
                         break;
                     case "view":
                         string message = string.Empty;
+                        if (config.ignoredExceptionMessages.Count <= 0)
+                        {
+                            embed.Title = "There are no ignored exceptions to view.";
+                            break;
+                        }
                         config.ignoredExceptionMessages.ToList().ForEach(x => message += x + "\n");
                         embed.Title = "Ignored Exeptions.";
                         embed.AddFieldSecure("List", message);
@@ -87,7 +92,7 @@ namespace AnimeListBot.Modules
                         else embed.Title = "Failed to remove from ignorelist: " + ignore;
                         break;
                 }
-                Config.OverrideConfig();
+                config.Save();
                 await embed.SendMessage(Context.Channel);
             }
             else

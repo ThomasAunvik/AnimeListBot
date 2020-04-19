@@ -41,7 +41,7 @@ namespace AnimeListBot.Handler
             _services = services;
 
             _commands.CommandExecuted += CommandExecutedAsync;
-            _commands.Log += LogAsync;
+            _commands.Log += Program.Log;
             _discord.MessageReceived += MessageReceivedAsync;
         }
 
@@ -126,11 +126,6 @@ namespace AnimeListBot.Handler
                 EmbedHandler embed = HelpModule.GetCommandHelp(message, context);
                 await embed.SendMessage(context.Channel);
             }
-        }
-
-        private async Task LogAsync(LogMessage log)
-        {
-            await Program._logger.Log(log.ToString());
         }
     }
 }

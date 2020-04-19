@@ -63,8 +63,6 @@ namespace AnimeListBot
 
         public static DateTime BOT_START_TIME { get; private set; }
 
-        HashSet<string> ignoredExceptionMessages;
-
         private static void Main(string[] args) => new Program().RunBotAsync().GetAwaiter().GetResult();
 
         public async Task RunBotAsync()
@@ -74,7 +72,6 @@ namespace AnimeListBot
             _logger = new Logger();
 
             Config bot_config = Config.GetConfig();
-            ignoredExceptionMessages = bot_config.ignoredExceptionMessages;
             botOwners = bot_config.bot_owners;
             Cluster cluster = DatabaseConnection.db.Cluster.Where(x => x.Id == bot_config.cluster_id).FirstOrDefault();
 
@@ -164,14 +161,14 @@ namespace AnimeListBot
             return Task.CompletedTask;
         }
 
-        private async Task Log(LogMessage arg)
+        public static async Task Log(LogMessage log)
         {
-            if(arg.Exception != null && !ignoredExceptionMessages.Contains(arg.Exception.Message))
+            if (log.Exception != null && !Config.cached.ignoredExceptionMessages.Contains(log.Exception.Message))
             {
-                await _logger.LogError(arg);
+                await _logger.LogError(log);
                 return;
             }
-            await _logger.Log(arg.Message);
+            await _logger.Log(log.Message);
         }
     }
 }

@@ -164,14 +164,11 @@ namespace AnimeListBot.Modules
         public async Task GetProfile(IUser targetUser, string option = "")
         {
             if (targetUser == null) targetUser = Context.User;
-
-            if (!DatabaseRequest.DoesUserIdExist(targetUser.Id)) return;
-            DiscordUser user = await DatabaseRequest.GetUserById(targetUser.Id);
-
-            DiscordServer server = await DatabaseRequest.GetServerById(Context.Guild.Id);
-
             EmbedHandler embed = new EmbedHandler(targetUser, "Loading Profile Info...");
             await embed.SendMessage(Context.Channel);
+
+            DiscordUser user = await DiscordUser.CheckAndCreateUser(targetUser.Id);
+            DiscordServer server = await DatabaseRequest.GetServerById(Context.Guild.Id);
 
             option = option.ToLower();
 

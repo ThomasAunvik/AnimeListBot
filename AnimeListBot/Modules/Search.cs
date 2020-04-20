@@ -261,9 +261,9 @@ namespace AnimeListBot.Modules
                     "\nAired: " + GetDate(entry.StartDate.GetValueOrDefault(), entry.EndDate.GetValueOrDefault())
             );
 
-            await globalUser.UpdateUserInfo();
             if (globalUser != null && !string.IsNullOrWhiteSpace(globalUser.malProfile.Username))
             {
+                await globalUser.UpdateUserInfo();
                 UserListAnimeSearchConfig config = new UserListAnimeSearchConfig();
                 config.Query = entry.Title;
                 UserAnimeList animeList = await Program._jikan.GetUserAnimeList(globalUser.malProfile.Username, config);

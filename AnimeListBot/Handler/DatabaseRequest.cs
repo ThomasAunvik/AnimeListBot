@@ -74,7 +74,7 @@ namespace AnimeListBot.Handler
             DiscordUser user = DatabaseConnection.db.DiscordUser.Where(x => x.UserId == id).FirstOrDefault();
             if(user == null)
             {
-                await DatabaseRequest.CreateUser(user = new DiscordUser(Program._client.GetUser(id)));
+                await CreateUser(user = new DiscordUser(Program._client.GetUser(id)));
                 if (user == null || user.UserId == 0) return null;
             }
 

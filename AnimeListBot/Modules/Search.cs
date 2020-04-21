@@ -232,7 +232,7 @@ namespace AnimeListBot.Modules
                 embed.Title = malPerson.Name;
                 embed.Url = malPerson.LinkCanonical;
                 embed.ThumbnailUrl = malPerson.ImageURL;
-                embed.Description = EmbedHandler.SecureEmbedText(malPerson.More.Replace(@"\n", ""));
+                embed.Description = EmbedHandler.SecureEmbedText(malPerson.More);
                 if (malPerson.Birthday.HasValue) {
                     CultureInfo en_US = new CultureInfo("en-US");
                     embed.AddFieldSecure("Birthday", malPerson.Birthday.Value.ToString("dddd, dd MMMM yyyy", en_US));

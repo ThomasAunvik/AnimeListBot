@@ -23,6 +23,9 @@ using GraphQL.Client;
 using GraphQL.Client.Http;
 using GraphQL.Client.Serializer.Newtonsoft;
 using GraphQL;
+using Discord.Net;
+using System.Net;
+using System.Net.Http;
 
 namespace AnimeListBot.Handler.Anilist
 {
@@ -85,21 +88,18 @@ namespace AnimeListBot.Handler.Anilist
                 using (var graphQLClient = new GraphQLHttpClient(AnilistConstants.AnilistAPILink, new NewtonsoftJsonSerializer()))
                 {
                     var response = await graphQLClient.SendQueryAsync<AniUserResponse>(userRequest);
-
-                    if (response.Errors != null && response.Errors.Length > 0)
-                    {
-                        if (response.Errors[0].Message.Contains("Not Found.")) return null;
-                        throw new Exception(string.Join("\n", response.Errors.Select(x => x.Message)));
-                    }
-
                     return response.Data.User;
                 }
-            }catch(Exception e)
+            }
+            catch (GraphQLHttpException http)
             {
-                if (!e.Message.Contains("Not Found."))
-                {
-                    await Program._logger.LogError(e);
-                }
+                if (http.HttpResponseMessage.StatusCode == HttpStatusCode.NotFound) return null;
+                await Program._logger.LogError(http);
+                return null;
+            }
+            catch (Exception e)
+            {
+                await Program._logger.LogError(e);
                 return null;
             }
         }

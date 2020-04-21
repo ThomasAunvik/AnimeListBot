@@ -22,6 +22,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 using GraphQL.Client.Serializer.Newtonsoft;
+using System.Net;
 
 namespace AnimeListBot.Handler.Anilist
 {
@@ -71,13 +72,14 @@ namespace AnimeListBot.Handler.Anilist
                 using (var graphQLClient = new GraphQLHttpClient(AnilistConstants.AnilistAPILink, new NewtonsoftJsonSerializer()))
                 {
                     var response = await graphQLClient.SendQueryAsync<AniMediaListResponse>(mediaListRequest);
-                    if (response.Errors != null && response.Errors.Length > 0)
-                    {
-                        if (response.Errors[0].Message.Contains("Not Found.")) return null;
-                        throw new Exception(string.Join("\n", response.Errors.Select(x => x.Message)));
-                    }
                     return response.Data.MediaList;
                 }
+            }
+            catch (GraphQLHttpException http)
+            {
+                if (http.HttpResponseMessage.StatusCode == HttpStatusCode.NotFound) return null;
+                await Program._logger.LogError(http);
+                return null;
             }
             catch (Exception e)
             {

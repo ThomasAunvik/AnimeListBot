@@ -133,10 +133,18 @@ namespace AnimeListBot.Handler
 
         public static string SecureEmbedText(string value)
         {
+            if (value == null) return string.Empty;
+
+            if(value.Contains("<br>")) value = value.Replace("<br>", "\n");
+            if(value.Contains("\\n")) value = value.Replace("\\n", "\n");
+            if(value.Contains("\n\r")) value = value.Replace("\n\r", "\n");
+            if(value.Contains("\n\n")) value = value.Replace("\n\n", "\n");
+
             if (value.Length > MAX_FIELD_VALUE_LENGTH)
             {
                 value = value.Substring(0, MAX_FIELD_VALUE_LENGTH - 3) + "...";
             }
+
             return value;
         }
 

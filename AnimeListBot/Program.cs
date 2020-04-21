@@ -131,7 +131,7 @@ namespace AnimeListBot
 
         public async Task OnReadyAsync(DiscordSocketClient shard)
         {
-            Console.WriteLine($"Shard Number {shard.ShardId} is connected and ready!");
+            await Program._logger.Log($"Shard Number {shard.ShardId} is connected and ready!");
             await BotInfo.LoadStats();
         }
 

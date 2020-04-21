@@ -67,7 +67,7 @@ namespace AnimeListBot.Modules
 
             builder.Description = result.Commands.FirstOrDefault().Command.Summary;
 
-            bool isOwner = Program.botOwners.ToList().Exists(x => x == context.User.Id);
+            bool isOwner = Program.botOwners.Contains(context.User.Id);
 
             foreach (var match in result.Commands)
             {

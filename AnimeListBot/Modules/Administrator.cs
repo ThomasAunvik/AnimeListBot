@@ -32,26 +32,21 @@ namespace AnimeListBot.Modules
 {
     public class Administrator : ModuleBase<ShardedCommandContext>
     {
+        [BotOwnerOnly]
         [Command("stop")]
         public async Task StopBot()
         {
             EmbedHandler embed = new EmbedHandler(Context.User);
-            if(Program.botOwners.Contains(Context.User.Id))
-            {
-                await Program._logger.Log("Stopping bot... Command run by: " + Context.User.Username);
+            await Program._logger.Log("Stopping bot... Command run by: " + Context.User.Username);
 
-                embed.Title = "Stopping Bot.";
-                await embed.SendMessage(Context.Channel);
+            embed.Title = "Stopping Bot.";
+            await embed.SendMessage(Context.Channel);
 
-                Program.stop = true;
-                await Program._client.StopAsync();
-            }
-            else{
-                embed.Title = "You dont have permission to do this command.";
-                await embed.SendMessage(Context.Channel);
-            }
+            Program.stop = true;
+            await Program._client.StopAsync();
         }
 
+        [BotOwnerOnly]
         [Command("ignoreexception")]
         [Summary(
             "Ignores an exception from dm'ing the owner.\n" +
@@ -60,86 +55,65 @@ namespace AnimeListBot.Modules
             "   - remove\n" +
             "   - view/list\n"
         )]
-        public async Task IgnoreException(string option, [Remainder]string ignore = "")
+        public async Task IgnoreException(string option = "list", [Remainder]string ignore = "")
         {
             EmbedHandler embed = new EmbedHandler(Context.User);
-            if (Program.botOwners.Contains(Context.User.Id))
-            {
-                Config config = Config.GetConfig();
-                switch (option) {
-                    case "add":
-                        if (string.IsNullOrEmpty(ignore))
-                        {
-                            embed.Title = "Cant add an empty string for ignoring exception";
-                            break;
-                        }
-                        config.ignoredExceptionMessages.Add(ignore);
-                        embed.Title = "Exception Message Ignored: " + ignore;
+            Config config = Config.GetConfig();
+            switch (option) {
+                case "add":
+                    if (string.IsNullOrEmpty(ignore))
+                    {
+                        embed.Title = "Cant add an empty string for ignoring exception";
                         break;
-                    case "view":
-                    case "list":
-                        string message = string.Empty;
-                        if (config.ignoredExceptionMessages.Count <= 0)
-                        {
-                            embed.Title = "There are no ignored exceptions to view.";
-                            break;
-                        }
-                        config.ignoredExceptionMessages.ToList().ForEach(x => message += x + "\n");
-                        embed.Title = "Ignored Exeptions.";
-                        embed.AddFieldSecure("List", message);
+                    }
+                    config.ignoredExceptionMessages.Add(ignore);
+                    embed.Title = "Exception Message Ignored: " + ignore;
+                    break;
+                case "view":
+                case "list":
+                    string message = string.Empty;
+                    if (config.ignoredExceptionMessages.Count <= 0)
+                    {
+                        embed.Title = "There are no ignored exceptions to view.";
                         break;
-                    case "remove":
-                        if (config.ignoredExceptionMessages.Remove(ignore)) embed.Title = "Exception Removed from ignorelist: " + ignore;
-                        else embed.Title = "Failed to remove from ignorelist: " + ignore;
-                        break;
-                    default:
-                        embed.Title = "Incorrect command arguments (add, view/list, remove).";
-                        break;
-                }
-                config.Save();
-                await embed.SendMessage(Context.Channel);
+                    }
+                    config.ignoredExceptionMessages.ToList().ForEach(x => message += x + "\n");
+                    embed.Title = "Ignored Exeptions.";
+                    embed.AddFieldSecure("List", message);
+                    break;
+                case "remove":
+                    if (config.ignoredExceptionMessages.Remove(ignore)) embed.Title = "Exception Removed from ignorelist: " + ignore;
+                    else embed.Title = "Failed to remove from ignorelist: " + ignore;
+                    break;
+                default:
+                    embed.Title = "Incorrect command arguments (add, view/list, remove).";
+                    break;
             }
-            else
-            {
-                embed.Title = "You dont have permission to do this command.";
-                await embed.SendMessage(Context.Channel);
-            }
+            config.Save();
+            await embed.SendMessage(Context.Channel);
         }
 
+        [BotOwnerOnly]
         [Command("errortest")]
         public async Task SendErrorTest([Remainder]string message)
         {
             EmbedHandler embed = new EmbedHandler(Context.User);
-            if (Program.botOwners.Contains(Context.User.Id))
-            {
-                embed.Title = "Sent fake error.";
-                await embed.SendMessage(Context.Channel);
-                throw new Exception(message);
-            }
-            else
-            {
-                embed.Title = "You dont have permission to do this command.";
-                await embed.SendMessage(Context.Channel);
-            }
+            embed.Title = "Sent fake error.";
+            await embed.SendMessage(Context.Channel);
+            throw new Exception(message);
         }
 
+        [BotOwnerOnly]
         [Command("sendmessage")]
         public async Task SendMessage(string title, string message)
         {
             EmbedHandler embed = new EmbedHandler(Context.User);
-            if (Program.botOwners.Contains(Context.User.Id))
-            {
-                embed.Title = title;
-                embed.Description = message;
-                await embed.SendMessage(Context.Channel);
-            }
-            else
-            {
-                embed.Title = "You dont have permission to do this command.";
-                await embed.SendMessage(Context.Channel);
-            }
+            embed.Title = title;
+            embed.Description = message;
+            await embed.SendMessage(Context.Channel);
         }
 
+        [BotOwnerOnly]
         [Command("setgamestatus")]
         [Summary(
             "Setting Game Status for the bot" +
@@ -151,19 +125,11 @@ namespace AnimeListBot.Modules
         public async Task SetGameStatus(Discord.ActivityType activityType, string gameMessage)
         {
             EmbedHandler embed = new EmbedHandler(Context.User, "Set game status to: " + Enum.GetName(typeof(Discord.ActivityType), activityType) + " " + gameMessage);
-
-            if (Program.botOwners.Contains(Context.User.Id))
-            {
-                await Program._client.SetGameAsync(gameMessage, null, activityType);
-                await embed.SendMessage(Context.Channel);
-            }
-            else
-            {
-                embed.Title = "You dont have permission to do this command.";
-                await embed.SendMessage(Context.Channel);
-            }
+            await Program._client.SetGameAsync(gameMessage, null, activityType);
+            await embed.SendMessage(Context.Channel);
         }
 
+        [BotOwnerOnly]
         [Command("setonlinestatus")]
         [Summary(
             "Setting User Status for the Bot" +
@@ -178,19 +144,11 @@ namespace AnimeListBot.Modules
         public async Task SetOnlineStatus(Discord.UserStatus status)
         {
             EmbedHandler embed = new EmbedHandler(Context.User, "Set online status to: " + Enum.GetName(typeof(Discord.UserStatus), status));
-
-            if (Program.botOwners.Contains(Context.User.Id))
-            {
-                await Program._client.SetStatusAsync(status);
-                await embed.SendMessage(Context.Channel);
-            }
-            else
-            {
-                embed.Title = "You dont have permission to do this command.";
-                await embed.SendMessage(Context.Channel);
-            }
+            await Program._client.SetStatusAsync(status);
+            await embed.SendMessage(Context.Channel);
         }
 
+        [BotOwnerOnly]
         [Command("anilimit")]
         public async Task GetAniLimit()
         {

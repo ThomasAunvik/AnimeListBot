@@ -30,7 +30,7 @@ namespace AnimeListBot.Modules
     public class Ranks : ModuleBase<ShardedCommandContext>
     {
         [Command("addrank")]
-        [Summary("Adds a rank for how many days you have spent with anime/manga (Options: [anime, manga])")]
+        [Summary("Adds a rank for how many days you have spent with anime/manga (Options: [anime, manga]), Requires ManageRoles on both User and Bot")]
         [RequireBotPermission(GuildPermission.ManageRoles)]
         [RequireUserPermission(GuildPermission.ManageRoles)]
         public async Task AddRank(string option, IRole role, double days)
@@ -87,7 +87,7 @@ namespace AnimeListBot.Modules
         }
 
         [Command("editrank")]
-        [Summary("Edits a rank for how many days you have spent with anime/manga (Options: [anime, manga])")]
+        [Summary("Edits a rank for how many days you have spent with anime/manga (Options: [anime, manga]), Requires ManageRoles on both User and Bot")]
         [RequireBotPermission(GuildPermission.ManageRoles)]
         [RequireUserPermission(GuildPermission.ManageRoles)]
         public async Task EditRank(string option, IRole role, double newDays)
@@ -131,7 +131,7 @@ namespace AnimeListBot.Modules
         }
 
         [Command("removerank")]
-        [Summary("Removes a rank (Options: [anime, manga])")]
+        [Summary("Removes a rank (Options: [anime, manga]), Requires ManageRoles on both User and Bot")]
         [RequireBotPermission(GuildPermission.ManageRoles)]
         [RequireUserPermission(GuildPermission.ManageRoles)]
         public async Task RemoveRank(string option, IRole role)
@@ -193,6 +193,7 @@ namespace AnimeListBot.Modules
         }
 
         [Command("updateranks")]
+        [Summary("Requires ManageRoles on both User and Bot")]
         [RequireBotPermission(GuildPermission.ManageRoles)]
         [RequireUserPermission(GuildPermission.ManageRoles)]
         public async Task UpdateRanks()

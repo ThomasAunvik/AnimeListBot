@@ -48,17 +48,9 @@ namespace AnimeListBot.Modules
             if (!DatabaseRequest.DoesUserIdExist(Context.User.Id))
                 await DatabaseRequest.CreateUser(user = new DiscordUser(Context.User));
             else user = await DatabaseRequest.GetUserById(Context.User.Id);
-            Uri link = null;
-            bool isValidLink = Uri.TryCreate(username, UriKind.Absolute, out link);
 
             if(animeList == DiscordUser.AnimeList.MAL)
             {
-                if (isValidLink && username.Contains("myanimelist.net"))
-                {
-                    string usernamePart = link.Segments[link.Segments.Length - 1];
-                    username = usernamePart;
-                }
-
                 if (!await user.UpdateMALInfo(username))
                 {
                     embed.Title = "Invalid Username.";
@@ -77,12 +69,6 @@ namespace AnimeListBot.Modules
             }
             else if(animeList == DiscordUser.AnimeList.Anilist)
             {
-                if (isValidLink && username.Contains("anilist.co"))
-                {
-                    string usernamePart = link.Segments[link.Segments.Length - 1];
-                    username = usernamePart;
-                }
-
                 if (!await user.UpdateAnilistInfo(username))
                 {
                     embed.Title = "Invalid Username.";
@@ -103,7 +89,7 @@ namespace AnimeListBot.Modules
                 embed.Title = "Incorrect mode (Must be MAL or Anilist)";
                 await embed.UpdateEmbed();
             }
-
+            await embed.UpdateEmbed();
             await DatabaseRequest.UpdateUser(user);
             await Ranks.UpdateUserRole(server, user, embed);
         }

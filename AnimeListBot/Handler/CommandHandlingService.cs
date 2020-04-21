@@ -110,11 +110,12 @@ namespace AnimeListBot.Handler
 
             if (result is ExecuteResult executeResult)
             {
-                if (executeResult.Exception == null) return;
 
                 string errorMessage = "Command Error: " + result.ErrorReason;
                 EmbedHandler embed = new EmbedHandler(context.Message.Author, errorMessage);
                 await embed.SendMessage(context.Channel);
+
+                if (executeResult.Exception == null) return;
                 await Program._logger.LogError(command.GetValueOrDefault(), context, result);
             }
 
@@ -124,6 +125,13 @@ namespace AnimeListBot.Handler
                 message = message.Remove(0, server.Prefix.Length);
                 message = message.Split(" ")[0];
                 EmbedHandler embed = HelpModule.GetCommandHelp(message, context);
+                await embed.SendMessage(context.Channel);
+            }
+
+            if(result.Error == CommandError.UnmetPrecondition)
+            {
+                string errorMessage = "UnmetPrecondition Error: " + result.ErrorReason;
+                EmbedHandler embed = new EmbedHandler(context.Message.Author, errorMessage);
                 await embed.SendMessage(context.Channel);
             }
         }

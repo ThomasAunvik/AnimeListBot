@@ -182,5 +182,60 @@ namespace AnimeListBot.Modules
         {
             await ReplyAsync("AnimeList Bot Project: https://github.com/ThomasAunvik/AnimeListBot");
         }
+
+        [Command("gitstatus")]
+        public async Task GitStatus()
+        {
+            EmbedHandler embed = new EmbedHandler(Context.User, "Git Status");
+
+            string commitText = "None";
+            if (!string.IsNullOrEmpty(Program.currentCommit))
+            {
+                commitText = "[" + Program.currentCommit.Substring(0, 7) + "](" +
+                             "https://github.com/ThomasAunvik/AnimeListBot/commit/" + Program.currentCommit + ")";
+            }
+
+            embed.AddFieldSecure("Commit", commitText);
+            embed.AddFieldSecure("Status", string.IsNullOrEmpty(Program.gitStatus) ? "None" : Program.gitStatus);
+            await embed.SendMessage(Context.Channel);
+        }
+
+        [Command("prefix")]
+        public async Task Prefix(string newPrefix = "")
+        {
+            EmbedHandler embed = new EmbedHandler(Context.User);
+            DiscordServer server = await DatabaseRequest.GetServerById(Context.Guild.Id);
+
+            IGuildUser user = Context.Guild.GetUser(Context.User.Id);
+            if (!user.GuildPermissions.Administrator)
+            {
+                if (!Program.botOwners.Contains(Context.User.Id))
+                {
+                    newPrefix = string.Empty;
+                }
+            }
+
+            if (string.IsNullOrEmpty(newPrefix))
+            {
+                embed.Title = "Current Prefix";
+                embed.Description = "`" + server.Prefix + "`";
+                await embed.SendMessage(Context.Channel);
+                return;
+            }
+
+            if (newPrefix.Length > 2)
+            {
+                embed.Title = "Prefix length is too large (Max 2 characters)";
+                await embed.SendMessage(Context.Channel);
+                return;
+            }
+
+            server.Prefix = newPrefix;
+            await server.UpdateDatabase();
+
+            embed.Title = "Prefix Set to";
+            embed.Description = "`" + server.Prefix + "`";
+            await embed.SendMessage(Context.Channel);
+        }
     }
 }

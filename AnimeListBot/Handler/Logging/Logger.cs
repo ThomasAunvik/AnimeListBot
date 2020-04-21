@@ -32,8 +32,6 @@ namespace AnimeListBot.Handler
         string logPath;
         int logLines = 0;
 
-        StreamWriter writer;
-
         public Logger()
         {
             if (!Directory.Exists("logs"))
@@ -49,8 +47,6 @@ namespace AnimeListBot.Handler
                 {
                     logStream.Close();
                 }
-
-                writer = new StreamWriter(logPath, true);
             }
         }
 
@@ -72,7 +68,10 @@ namespace AnimeListBot.Handler
         {
             try
             {
+                StreamWriter writer = new StreamWriter(logPath, true);
                 await writer.WriteAsync((logLines == 0 ? "" : writer.NewLine) + message);
+                writer.Close();
+
                 Console.WriteLine(message);
                 logLines++;
             }catch(IOException e)

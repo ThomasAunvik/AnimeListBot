@@ -145,7 +145,8 @@ namespace AnimeListBot.Handler
             {
                 embed.AddFieldSecure("Channel Info",
                     "Server Id: " + guildChannel.GuildId +
-                    "\nChannel Id: <#" + guildChannel.Id + ">"
+                    "\nChannel Id: <#" + guildChannel.Id + ">" +
+                    "\nUser Id: <@" + user.Id + ">"
                 );
             }
             embed.AddFieldSecure("Exception Message", exception.Message);

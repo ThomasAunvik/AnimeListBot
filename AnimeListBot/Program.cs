@@ -137,7 +137,7 @@ namespace AnimeListBot
 
         public async Task OnJoinedGuild(SocketGuild guild)
         {
-            if (await DatabaseRequest.GetServerById(guild.Id) == null)
+            if (DatabaseRequest.DoesServerIdExist(guild.Id))
             {
                 await DatabaseRequest.CreateServer(new DiscordServer(guild));
             }

@@ -22,6 +22,7 @@ using System.Threading.Tasks;
 using System.Linq;
 using Npgsql;
 using System.Globalization;
+using JikanDotNet;
 
 namespace AnimeListBot.Handler
 {
@@ -37,9 +38,14 @@ namespace AnimeListBot.Handler
             return DatabaseConnection.db.DiscordUser.ToList();
         }
 
+        public static bool DoesServerIdExist(ulong id)
+        {
+            return DatabaseConnection.db.DiscordServer.Where(x => x.ServerId == id).FirstOrDefault() == null;
+        }
+
         public static async Task<DiscordServer> GetServerById(ulong id)
         {
-            DiscordServer server = DatabaseConnection.db.DiscordServer.Where(x => x.ServerId == id).ToList().FirstOrDefault();
+            DiscordServer server = DatabaseConnection.db.DiscordServer.Where(x => x.ServerId == id).FirstOrDefault();
             if(server == null)
             {
                 server = new DiscordServer(Program._client.GetGuild(id));

@@ -90,11 +90,11 @@ Thanks to [soruly/trace.moe](https://github.com/soruly/trace.moe/)!
 
 ## Bot Info
 
-`a!stats` shows statistics of the server, for example uptime, usercount, guilds and more.
+`al!stats` shows statistics of the server, for example uptime, usercount, guilds and more.
 
-`a!info` shows bot information, owner, shards and current shard, Discord.NET version, and links to invite and github.
+`al!info` shows bot information, owner, shards and current shard, Discord.NET version, and links to invite and github.
 
-`a!support` gives discord invite link to the support server, and shows the command for contact.
+`al!support` gives discord invite link to the support server, and shows the command for contact.
 
 ## Administrator
 

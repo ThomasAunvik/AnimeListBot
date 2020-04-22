@@ -40,7 +40,7 @@ namespace AnimeListBot.Modules
 
             DiscordServer server = await DatabaseRequest.GetServerById(Context.Guild.Id);
 
-            if (gUser != null && !string.IsNullOrWhiteSpace(gUser.GetAnimelistUsername()))
+            if (gUser.HasValidAnimelist())
             {
                 await gUser.UpdateUserInfo();
                 UserProfile profile = gUser.malProfile;
@@ -65,9 +65,12 @@ namespace AnimeListBot.Modules
                 }
 
                 if(favListMessage != string.Empty) embed.AddField("Favorite Anime", favListMessage);
-
-                await embed.UpdateEmbed();
             }
+            else
+            {
+                embed.Title = user.Username + " has not registered a MAL or Anilist account to his discord user.";
+            }
+            await embed.UpdateEmbed();
         }
 
         [Command("favoritemanga")]
@@ -82,7 +85,7 @@ namespace AnimeListBot.Modules
 
             DiscordServer server = await DatabaseRequest.GetServerById(Context.Guild.Id);
 
-            if (gUser != null && !string.IsNullOrWhiteSpace(gUser.GetAnimelistUsername()))
+            if (gUser.HasValidAnimelist())
             {
                 await gUser.UpdateUserInfo();
                 UserProfile profile = gUser.malProfile;
@@ -107,9 +110,12 @@ namespace AnimeListBot.Modules
                 }
 
                 if (favListMessage != string.Empty) embed.AddField("Favorite Manga", favListMessage);
-
-                await embed.UpdateEmbed();
             }
+            else
+            {
+                embed.Title = user.Username + " has not registered a MAL or Anilist account to his discord user.";
+            }
+            await embed.UpdateEmbed();
         }
     }
 }

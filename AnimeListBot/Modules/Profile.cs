@@ -63,6 +63,7 @@ namespace AnimeListBot.Modules
                 if (!await user.UpdateMALInfo(username))
                 {
                     embed.Title = "Invalid Username.";
+                    user.MalUsername = string.Empty;
                     await embed.UpdateEmbed();
                     return;
                 }
@@ -87,6 +88,7 @@ namespace AnimeListBot.Modules
                 if (!await user.UpdateAnilistInfo(username))
                 {
                     embed.Title = "Invalid Username.";
+                    user.AnilistUsername = string.Empty;
                     await embed.UpdateEmbed();
                     return;
                 }
@@ -173,7 +175,7 @@ namespace AnimeListBot.Modules
 
             option = option.ToLower();
 
-            if (user != null && !string.IsNullOrWhiteSpace(user.GetAnimelistUsername()))
+            if (user.HasValidAnimelist())
             {
                 embed.ThumbnailUrl = user.GetAnimelistThumbnail();
                 embed.Url = user.GetAnimelistLink();

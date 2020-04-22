@@ -113,6 +113,19 @@ namespace AnimeListBot.Handler
             await UpdateDatabase();
         }
 
+        public bool HasValidAnimelist()
+        {
+            switch (ListPreference)
+            {
+                case AnimeList.MAL:
+                    return malProfile != null;
+                case AnimeList.Anilist:
+                    return anilistProfile != null;
+                default:
+                    return false;
+            }
+        }
+
         public string GetAnimelistUsername()
         {
             switch (ListPreference)

@@ -52,7 +52,7 @@ namespace AnimeListBot.Handler
 
         public async Task ReplaceLine(int line, string text)
         {
-            if(line < 0)
+            if (line < 0)
             {
                 await Log(text);
                 return;
@@ -68,11 +68,14 @@ namespace AnimeListBot.Handler
         {
             try
             {
+                DateTime localTime = DateTime.Now;
+                string dateTimeMessage = "[" + localTime.ToString("h:mm:ss") + "] " + message;
+
                 StreamWriter writer = new StreamWriter(logPath, true);
-                await writer.WriteAsync((logLines == 0 ? "" : writer.NewLine) + message);
+                await writer.WriteAsync((logLines == 0 ? "" : writer.NewLine) + dateTimeMessage);
                 writer.Close();
 
-                Console.WriteLine(message);
+                Console.WriteLine(dateTimeMessage);
                 logLines++;
             }catch(IOException e)
             {

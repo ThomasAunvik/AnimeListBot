@@ -223,9 +223,9 @@ namespace AnimeListBot.Modules
                 return;
             }
 
-            if (newPrefix.Length > 2)
+            if (newPrefix.Length > 3)
             {
-                embed.Title = "Prefix length is too large (Max 2 characters)";
+                embed.Title = "Prefix length is too large (Max 3 characters)";
                 await embed.SendMessage(Context.Channel);
                 return;
             }

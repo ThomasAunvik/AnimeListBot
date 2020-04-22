@@ -32,7 +32,7 @@ namespace AnimeListBot.Modules
 {
     public class Administrator : ModuleBase<ShardedCommandContext>
     {
-        [BotOwnerOnly]
+        [RequireOwnerPermission]
         [Command("stop")]
         public async Task StopBot()
         {
@@ -46,7 +46,7 @@ namespace AnimeListBot.Modules
             await Program._client.StopAsync();
         }
 
-        [BotOwnerOnly]
+        [RequireOwnerPermission]
         [Command("ignoreexception")]
         [Summary(
             "Ignores an exception from dm'ing the owner.\n" +
@@ -93,7 +93,7 @@ namespace AnimeListBot.Modules
             await embed.SendMessage(Context.Channel);
         }
 
-        [BotOwnerOnly]
+        [RequireOwnerPermission]
         [Command("errortest")]
         public async Task SendErrorTest([Remainder]string message)
         {
@@ -103,7 +103,7 @@ namespace AnimeListBot.Modules
             throw new Exception(message);
         }
 
-        [BotOwnerOnly]
+        [RequireOwnerPermission]
         [Command("sendmessage")]
         public async Task SendMessage(string title, string message)
         {
@@ -113,7 +113,7 @@ namespace AnimeListBot.Modules
             await embed.SendMessage(Context.Channel);
         }
 
-        [BotOwnerOnly]
+        [RequireOwnerPermission]
         [Command("setgamestatus")]
         [Summary(
             "Setting Game Status for the bot" +
@@ -129,7 +129,7 @@ namespace AnimeListBot.Modules
             await embed.SendMessage(Context.Channel);
         }
 
-        [BotOwnerOnly]
+        [RequireOwnerPermission]
         [Command("setonlinestatus")]
         [Summary(
             "Setting User Status for the Bot" +
@@ -148,7 +148,7 @@ namespace AnimeListBot.Modules
             await embed.SendMessage(Context.Channel);
         }
 
-        [BotOwnerOnly]
+        [RequireOwnerPermission]
         [Command("anilimit")]
         public async Task GetAniLimit()
         {

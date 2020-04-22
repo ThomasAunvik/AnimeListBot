@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace AnimeListBot.Handler
 {
-    public class BotOwnerOnlyAttribute : PreconditionAttribute
+    public class RequireOwnerPermissionAttribute : PreconditionAttribute
     {
         public override Task<PreconditionResult> CheckPermissionsAsync(ICommandContext context, CommandInfo command, IServiceProvider services)
         {

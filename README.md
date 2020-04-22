@@ -84,6 +84,10 @@ Thanks to [soruly/trace.moe](https://github.com/soruly/trace.moe/)!
 
 `al!github` gets the github link for the bot (this github)
 
+`al!gitstatus` checks the bot's current git status.
+
+`al!prefix` allows you to view the server bot prefix. Max 3 characters. To change the prefix, you need the Administrator permission.
+
 ## Bot Info
 
 `a!stats` shows statistics of the server, for example uptime, usercount, guilds and more.
@@ -106,10 +110,6 @@ If you yourself want to host this bot for yourself, you can edit the `botOwners.
 `al!setonlinestatus [status]` sets which status the bot should have, Online, Idle, AFK, etc.
 
 `al!anilimit` checks your rate limit for anilist.
-
-`al!gitstatus` checks the bot's current git status.
-
-`al!prefix` allows you to change the bot's prefix. Max 2 characters.
 
 `al!ignoreexception [add, remove, view]` ignores exceptions sent to the bot owner.
 

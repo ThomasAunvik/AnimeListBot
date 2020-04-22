@@ -22,6 +22,7 @@ using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
+using System.Globalization;
 
 namespace AnimeListBot.Handler
 {
@@ -69,7 +70,7 @@ namespace AnimeListBot.Handler
             try
             {
                 DateTime localTime = DateTime.Now;
-                string dateTimeMessage = "[" + localTime.ToString("h:mm:ss") + "] " + message;
+                string dateTimeMessage = "[" + localTime.ToString("T", DateTimeFormatInfo.InvariantInfo) + "] " + message;
 
                 StreamWriter writer = new StreamWriter(logPath, true);
                 await writer.WriteAsync((logLines == 0 ? "" : writer.NewLine) + dateTimeMessage);

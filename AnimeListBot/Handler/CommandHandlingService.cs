@@ -55,18 +55,12 @@ namespace AnimeListBot.Handler
             // Ignore system messages, or messages from other bots
             if (!(rawMessage is SocketUserMessage message))
                 return;
+            if (!(message.Channel is IGuildChannel guildChannel))
+                return;
             if (message.Source != MessageSource.User)
                 return;
 
-            try
-            {
-                IDMChannel dmChannel = await message.Author.GetOrCreateDMChannelAsync();
-                if (message.Channel.Id == dmChannel?.Id) return;
-            }
-            catch (HttpException) { return; }
-
-            ulong guildId = ((IGuildChannel)message.Channel).Guild.Id;
-            DiscordServer server = await DatabaseRequest.GetServerById(guildId);
+            DiscordServer server = await DatabaseRequest.GetServerById(guildChannel.GuildId);
             if (message?.Channel?.Id == server?.RegisterChannelId)
             {
                 await DiscordUser.CheckAndCreateUser(message.Author.Id);
@@ -80,11 +74,6 @@ namespace AnimeListBot.Handler
                 return;
 
             DiscordUser user = await DatabaseRequest.GetUserById(message.Author.Id);
-            if (user == null) {
-                user = new DiscordUser(message.Author);
-                await DatabaseRequest.CreateUser(user);
-            }
-
             if (message.Channel is IGuildChannel) {
                 await user.RefreshMutualGuilds();
             }
@@ -110,7 +99,6 @@ namespace AnimeListBot.Handler
 
             if (result is ExecuteResult executeResult)
             {
-
                 string errorMessage = "Command Error: " + result.ErrorReason;
                 EmbedHandler embed = new EmbedHandler(context.Message.Author, errorMessage);
                 await embed.SendMessage(context.Channel);

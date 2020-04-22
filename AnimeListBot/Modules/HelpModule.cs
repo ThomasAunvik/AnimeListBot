@@ -52,7 +52,6 @@ namespace AnimeListBot.Modules
 
         public static EmbedHandler GetCommandHelp(string command, ICommandContext context)
         {
-            //context.Client.GetShardFor(context.Guild).get
             CommandService commands = Program._services.GetService(typeof(CommandService)) as CommandService;
             var result = commands.Search(context, command);
 
@@ -72,8 +71,6 @@ namespace AnimeListBot.Modules
             foreach (var match in result.Commands)
             {
                 var cmd = match.Command;
-                if (cmd.Name == typeof(Administrator).Name && !Program.botOwners.Contains(context.User.Id)) continue;
-
                 builder.AddField(x =>
                 {
                     x.Name = string.Join(", ", cmd.Aliases);

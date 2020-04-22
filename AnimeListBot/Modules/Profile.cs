@@ -111,6 +111,7 @@ namespace AnimeListBot.Modules
             await Ranks.UpdateUserRole(server, user, embed);
         }
 
+        [RequireValidAnimelist]
         [Command("setlist")]
         [Summary(
             "Chooses which anime/manga list you want to use.\n" +
@@ -279,7 +280,7 @@ namespace AnimeListBot.Modules
             IUser targetUser = null;
             if (nameOrOption != "anime" && nameOrOption != "manga" && nameOrOption != string.Empty)
             {
-                List<SocketGuildUser> searchUsers = Program._client.GetGuild(Context.Guild.Id).Users.Where(x =>
+                List<SocketGuildUser> searchUsers = Context.Guild.Users.Where(x =>
                     x.Username.ToLower().Contains(nameOrOption.ToLower())
                 ).ToList();
 

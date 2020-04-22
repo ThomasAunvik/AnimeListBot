@@ -230,6 +230,7 @@ namespace AnimeListBot.Modules
             }).Start();
         }
 
+        [RequireValidAnimelist]
         [Command("updaterank")]
         public async Task UpdateRank(IGuildUser user = null)
         {
@@ -239,11 +240,7 @@ namespace AnimeListBot.Modules
             await embed.SendMessage(Context.Channel);
 
             DiscordServer server = await DatabaseRequest.GetServerById(Context.Guild.Id);
-            DiscordUser duser;
-
-            if (!DatabaseRequest.DoesUserIdExist(user.Id))
-                await DatabaseRequest.CreateUser(duser = new DiscordUser(user));
-            else duser = await DatabaseRequest.GetUserById(user.Id);
+            DiscordUser duser = await DatabaseRequest.GetUserById(user.Id);
 
             if (await UpdateUserRole(server, duser, embed))
             {
@@ -253,25 +250,6 @@ namespace AnimeListBot.Modules
             await DatabaseRequest.UpdateUser(duser);
             await embed.UpdateEmbed();
         }
-        /*
-        public static async Task<bool> UpdateUserRole(IGuildUser user, EmbedBuilder embed)
-        {
-            DiscordServer server = DiscordServer.GetServerFromID(user.Guild.Id);
-            if (server != null && (server.animeRoles.Count > 0 || server.mangaRoles.Count > 0))
-            {
-                ServerUser sUser = server.GetUserFromId(user.Id);
-                if (sUser != null)
-                {
-                    GlobalUser gUser = Program.globalUsers.Find(x => x.userID == user.Id);
-                    if (gUser != null)
-                    {
-                        await UpdateUserRole(server, sUser, gUser, embed);
-                        return true;
-                    }
-                }
-            }
-            return false;
-        }*/
 
         public static async Task<bool> UpdateUserRole(DiscordServer server, DiscordUser user, EmbedBuilder embed)
         {
@@ -281,7 +259,7 @@ namespace AnimeListBot.Modules
 
             try
             {
-                if (user.malProfile == null && user.anilistProfile == null) return true;
+                if (!user.HasValidAnimelist()) return true;
 
                 // CALCULATING USER INFO
                 await user.UpdateUserInfo();

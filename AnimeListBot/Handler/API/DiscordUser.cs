@@ -484,7 +484,11 @@ namespace AnimeListBot.Handler
             {
                 MalUsername = username;
                 malProfile = await Program._jikan.GetUserProfile(username);
-                if (malProfile == null) return false;
+                if (malProfile == null)
+                {
+                    MalUsername = string.Empty;
+                    return false;
+                }
 
                 if (ListPreference == AnimeList.MAL)
                 {
@@ -509,7 +513,11 @@ namespace AnimeListBot.Handler
             {
                 AnilistUsername = username;
                 anilistProfile = await AniUserQuery.GetUser(username);
-                if (anilistProfile == null) return false;
+                if (anilistProfile == null)
+                {
+                    AnilistUsername = string.Empty;
+                    return false;
+                }
 
                 if (ListPreference == AnimeList.Anilist)
                 {

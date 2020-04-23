@@ -55,6 +55,11 @@ namespace AnimeListBot.Handler
 
         public List<long> Servers { get; set; } = new List<long>();
 
+        [NotMapped]
+        public DateTime malCachedTime = DateTime.MinValue;
+        [NotMapped]
+        public DateTime anilistCachedTime = DateTime.MinValue;
+
         public DiscordUser() { }
 
         // Most of the reasons you do this part is to create a new user and upload it to the db automaticly

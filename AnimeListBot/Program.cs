@@ -73,7 +73,7 @@ namespace AnimeListBot
 
             Config bot_config = Config.GetConfig();
             botOwners = bot_config.bot_owners;
-            Cluster cluster = DatabaseConnection.db.Cluster.Where(x => x.Id == bot_config.cluster_id).FirstOrDefault();
+            Cluster cluster = DatabaseConnection.db.Cluster.Find(bot_config.cluster_id);
 
             if (File.Exists("current_commit.txt"))
             {

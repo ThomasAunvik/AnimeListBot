@@ -17,12 +17,9 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Text;
 using System.Threading.Tasks;
 using System.Linq;
-using Npgsql;
-using System.Globalization;
-using JikanDotNet;
+using System.Data.SqlTypes;
 
 namespace AnimeListBot.Handler
 {
@@ -40,13 +37,13 @@ namespace AnimeListBot.Handler
 
         public static bool DoesServerIdExist(ulong id)
         {
-            return DatabaseConnection.db.DiscordServer.Where(x => x.ServerId == id).FirstOrDefault() == null;
+            return DatabaseConnection.db.DiscordServer.Find(id) == null;
         }
 
         public static async Task<DiscordServer> GetServerById(ulong id)
         {
-            DiscordServer server = DatabaseConnection.db.DiscordServer.Where(x => x.ServerId == id).FirstOrDefault();
-            if(server == null)
+            DiscordServer server = DatabaseConnection.db.DiscordServer.Find(id);
+            if (server == null)
             {
                 server = new DiscordServer(Program._client.GetGuild(id));
                 await CreateServer(server);
@@ -63,7 +60,8 @@ namespace AnimeListBot.Handler
 
         public static async Task<bool> UpdateServer(DiscordServer server)
         {
-            DatabaseConnection.db.DiscordServer.Where(x => x.ServerId == server.ServerId).FirstOrDefault().OverrideData(server);
+            DiscordServer foundServer = DatabaseConnection.db.DiscordServer.Find(server.ServerId);
+            foundServer.OverrideData(server);
             await DatabaseConnection.db.SaveChangesAsync();
             return true;
         }
@@ -75,19 +73,25 @@ namespace AnimeListBot.Handler
             return true;
         }
 
-        public static async Task<DiscordUser> GetUserById(ulong id, bool update = true)
+        public static async Task<DiscordUser> GetUserById(ulong id, bool forceUpdate = false)
         {
-            DiscordUser user = DatabaseConnection.db.DiscordUser.Where(x => x.UserId == id).FirstOrDefault();
+            DiscordUser user = DatabaseConnection.db.DiscordUser.Find(id);
             if(user == null)
             {
                 await CreateUser(user = new DiscordUser(Program._client.GetUser(id)));
                 if (user == null || user.UserId == 0) return null;
             }
 
-            if (update)
+            if(user.MalUsername != string.Empty && (user.malCachedTime < DateTime.Now || forceUpdate))
             {
-                if (user.MalUsername != string.Empty && user.MalUsername != null) await user.UpdateMALInfo(user.MalUsername);
-                if (user.AnilistUsername != string.Empty && user.AnilistUsername != null) await user.UpdateAnilistInfo(user.AnilistUsername);
+                user.malCachedTime = DateTime.Now.AddMinutes(15);
+                await user.UpdateMALInfo(user.MalUsername);
+            }
+
+            if (user.AnilistUsername != string.Empty && (user.anilistCachedTime < DateTime.Now || forceUpdate))
+            {
+                user.anilistCachedTime = DateTime.Now.AddMinutes(15);
+                await user.UpdateAnilistInfo(user.AnilistUsername);
             }
 
             return user;
@@ -115,7 +119,7 @@ namespace AnimeListBot.Handler
 
         public static async Task<bool> UpdateUser(DiscordUser user)
         {
-            DatabaseConnection.db.DiscordUser.Where(x => x.UserId == user.UserId).FirstOrDefault().OverrideData(user);
+            DatabaseConnection.db.DiscordUser.Find(user.UserId).OverrideData(user);
             await DatabaseConnection.db.SaveChangesAsync();
             return true;
         }

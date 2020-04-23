@@ -40,7 +40,6 @@ namespace AnimeListBot.Handler
         public virtual DbSet<DiscordUser> DiscordUser { get; set; }
         public virtual DbSet<Cluster> Cluster { get; set; }
 
-
         private string GetConnectionString()
         {
             Config login = Config.GetConfig();

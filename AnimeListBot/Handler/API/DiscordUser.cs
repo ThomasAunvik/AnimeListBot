@@ -181,7 +181,7 @@ namespace AnimeListBot.Handler
 
             int roleIndex = reverseDays.FindIndex(x => AnimeDays < x);
             if (roleIndex == -1) roleIndex = reverseDays.Count - 1;
-            else roleIndex++;
+            else roleIndex--;
 
             if (reverseDays.Count <= roleIndex) return (0, 0);
 
@@ -326,7 +326,7 @@ namespace AnimeListBot.Handler
 
             int roleIndex = reverseDays.FindIndex(x => MangaDays < x);
             if (roleIndex == -1) roleIndex = reverseDays.Count - 1;
-            else roleIndex++;
+            else roleIndex--;
 
             if (reverseDays.Count <= roleIndex) return (0, 0);
 

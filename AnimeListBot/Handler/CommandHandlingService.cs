@@ -99,8 +99,8 @@ namespace AnimeListBot.Handler
 
             if (result is ExecuteResult executeResult)
             {
-                string errorMessage = "Command Error: " + result.ErrorReason;
-                EmbedHandler embed = new EmbedHandler(context.Message.Author, errorMessage);
+                string errorMessage = "Command Error";
+                EmbedHandler embed = new EmbedHandler(context.Message.Author, errorMessage, result.ErrorReason);
                 await embed.SendMessage(context.Channel);
 
                 if (executeResult.Exception == null) return;
@@ -118,8 +118,8 @@ namespace AnimeListBot.Handler
 
             if(result.Error == CommandError.UnmetPrecondition)
             {
-                string errorMessage = "UnmetPrecondition Error: " + result.ErrorReason;
-                EmbedHandler embed = new EmbedHandler(context.Message.Author, errorMessage);
+                string errorMessage = "Missing Permission Error";
+                EmbedHandler embed = new EmbedHandler(context.Message.Author, errorMessage, result.ErrorReason);
                 await embed.SendMessage(context.Channel);
             }
         }

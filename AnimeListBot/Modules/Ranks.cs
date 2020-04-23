@@ -48,16 +48,20 @@ namespace AnimeListBot.Modules
                     return;
                 }
 
+                int roleIndex = server.AnimeroleDays.FindIndex(x => days < x);
+                if (roleIndex == -1) roleIndex = 0;
+                else roleIndex++;
+
                 var roleid = server.AnimeroleId.ToList();
-                roleid.Add((long)role.Id);
+                roleid.Insert(roleIndex, (long)role.Id);
                 server.AnimeroleId = roleid;
 
                 var roledays = server.AnimeroleDays.ToList();
-                roledays.Add(days);
+                roledays.Insert(roleIndex, days);
                 server.AnimeroleDays = roledays;
 
                 await DatabaseConnection.db.SaveChangesAsync();
-                embed.Title = "Added " + role.Name + " as the rank for having " + days + " of watching anime";
+                embed.Title = "Added " + role.Name + " as the rank for having " + days + " days of watching anime";
             }
             else if(option == "manga")
             {
@@ -67,16 +71,20 @@ namespace AnimeListBot.Modules
                     await embed.UpdateEmbed();
                     return;
                 }
+                int roleIndex = server.MangaroleDays.FindIndex(x => days < x);
+                if (roleIndex == -1) roleIndex = 0;
+                else roleIndex++;
+
                 var roleid = server.MangaroleId.ToList();
-                roleid.Add((long)role.Id);
+                roleid.Insert(roleIndex, (long)role.Id);
                 server.MangaroleId = roleid;
 
                 var roledays = server.MangaroleDays.ToList();
-                roledays.Add(days);
+                roledays.Insert(roleIndex, days);
                 server.MangaroleDays = roledays;
 
                 await DatabaseConnection.db.SaveChangesAsync();
-                embed.Title = "Added " + role.Name + " as the rank for having " + days + " of reading manga";
+                embed.Title = "Added " + role.Name + " as the rank for having " + days + " days of reading manga";
             }
             else
             {
@@ -414,7 +422,7 @@ namespace AnimeListBot.Modules
                 string animeRoleList = animeRole.Name + " for " + animeRank.days + " days";
                 for (int i = 1; i < server.AnimeroleId.Count; i++)
                 {
-                    animeRank = ((ulong)server.AnimeroleId[i], server.AnimeroleDays[0]);
+                    animeRank = ((ulong)server.AnimeroleId[i], server.AnimeroleDays[i]);
                     animeRole = Context.Guild.GetRole(animeRank.roleId);
                     animeRoleList += "\n" + animeRole.Name + " for " + animeRank.days + " days";
                 }

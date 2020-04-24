@@ -66,9 +66,9 @@ Thanks to [soruly/trace.moe](https://github.com/soruly/trace.moe/)!
 
 ## AutoAdder
 
-*[Requires: ManageRoles]* `al!autolist [#channel/id]` sets the channel where users can just paste their MAL/Anilist link there, and it will be automaticly added to the bot.
+*[Requires: ManageRoles]* `al!autolist [#channel/id]` sets the channel where users can just paste their MAL/Anilist link there, and it will be automaticly added to the bot. **Warning: This will delete invalid url messages in that channel.**
 
-*[Requires: ManageRoles]* `al!autolistupdate` checks all the messages from the autmal channel and adds them.
+*[Requires: ManageRoles]* `autolistremove` removes the channel for tracking.
 
 `al!autolistchannel` sends a message back where it gives you the link for the channel.
 
@@ -133,12 +133,14 @@ To connect your PostgreSQL database to the server, make sure you have the tables
 ### Database Table Structure
 
 discord_server
+
 | server_id  | register_channel_id | animerole_id | animerole_days | mangarole_id | mangarole_days | prefix |
 | ------------- | ------------- | ------------- | ------------- | ------------- | ------------- | ------------- |
 | *bigint*  | *bigint* | *bigint[]* | *double precision[]* | *bigint[]* | *double precision[]* | *text* |
 | 697542156373721101  | 697545325748944997  | {id0,id1,id2} | {days0,days1,days2} | {id0,id1,id2} | {days0,days1,days2} | a! |
 
 discord_user
+
 | user_id  | mal_username | anilist_username | list_preference | anime_days | manga_days |
 | ------------- | ------------- | ------------- | ------------- | ------------- | ------------- |
 | *bigint*  | *text* | *text* | *integer* | *bigint* | *bigint* |
@@ -148,6 +150,7 @@ discord_user
 ***IN PROGRESS***
 
 cluster
+
 | id  | shard_id_start | shard_id_end |
 | ------------- | ------------- | ------------- |
 | *bigint*  | *integer* | *integer* |

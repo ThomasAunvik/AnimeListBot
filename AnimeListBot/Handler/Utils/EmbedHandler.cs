@@ -77,10 +77,10 @@ namespace AnimeListBot.Handler
                     IGuildUser serverUser = await guildChannel.Guild.GetCurrentUserAsync();
                     if (serverUser.GuildPermissions.Has(GuildPermission.ManageMessages))
                     {
-                        await embedMessage.RemoveAllReactionsAsync();
+                        await PermissionWrapper.DeleteAllEmotes(embedMessage);
                     }
                 }
-                else await embedMessage.RemoveAllReactionsAsync();
+                else await PermissionWrapper.DeleteAllEmotes(embedMessage);
 
                 List<IEmote> allEmotes = embedMessage.Reactions.Keys.ToList();
                 List<(IEmote, Action)> newEmotes = emojiActions.FindAll(x => allEmotes.Find(y=> y.Name == x.Item1.Name) == null);

@@ -36,5 +36,20 @@ namespace AnimeListBot.Handler
                 return;
             }
         }
+
+        public static async Task DeleteAllEmotes(IUserMessage message)
+        {
+            try
+            {
+                await message.RemoveAllReactionsAsync();
+                return;
+            }
+            catch (Exception)
+            {
+                IGuild guild = Program._client.GetGuild(((IGuildUser)message.Author).Guild.Id);
+                await Program._logger.Log("Bot does not have permission to delete message emotes in server: (" + guild.Id + ", " + guild.Name + ")");
+                return;
+            }
+        }
     }
 }

@@ -67,47 +67,28 @@ namespace AnimeListBot.Handler
 
         public async Task UpdateEmbed()
         {
-            if (embedMessage != null)
-            {
-                await embedMessage.ModifyAsync(x => x.Embed = Build());
+            if (embedMessage != null) return;
+
+            await embedMessage.ModifyAsync(x => x.Embed = Build());
                 
-                if(embedMessage.Channel is IGuildChannel)
-                {
-                    IGuildChannel guildChannel = (IGuildChannel)embedMessage.Channel;
-                    IGuildUser serverUser = await guildChannel.Guild.GetCurrentUserAsync();
-                    if (serverUser.GuildPermissions.Has(GuildPermission.ManageMessages))
-                    {
-                        await PermissionWrapper.DeleteAllEmotes(embedMessage);
-                    }
-                }
-                else await PermissionWrapper.DeleteAllEmotes(embedMessage);
+            await PermissionWrapper.DeleteAllEmotes(embedMessage);
 
-                List<IEmote> allEmotes = embedMessage.Reactions.Keys.ToList();
-                List<(IEmote, Action)> newEmotes = emojiActions.FindAll(x => allEmotes.Find(y=> y.Name == x.Item1.Name) == null);
-                if (newEmotes.Count > 0 && embedMessage.Reactions.Select(x => x.Key) != newEmotes)
-                {
-                    if(newEmotes.Count > 0) await embedMessage.AddReactionsAsync(newEmotes.Select(x=>x.Item1).ToArray());
-                    emoteTimeout = DateTime.Now.AddSeconds(120);
-
-                    CheckTimeouts();
-                }
-            }
-            else
+            List<IEmote> allEmotes = embedMessage.Reactions.Keys.ToList();
+            List<(IEmote, Action)> newEmotes = emojiActions.FindAll(x => allEmotes.Find(y=> y.Name == x.Item1.Name) == null);
+            if (newEmotes.Count > 0 && embedMessage.Reactions.Select(x => x.Key) != newEmotes)
             {
-                throw new Exception("Unable to update Embed, there is no message set.");
+                if(newEmotes.Count > 0) await embedMessage.AddReactionsAsync(newEmotes.Select(x=>x.Item1).ToArray());
+                emoteTimeout = DateTime.Now.AddSeconds(120);
+
+                CheckTimeouts();
             }
         }
 
         public async Task EditMessage(string message)
         {
-            if (embedMessage != null)
-            {
-                await embedMessage.ModifyAsync(x => x.Content = message);
-            }
-            else
-            {
-                throw new Exception("Unable to edit embed message, there is no message set.");
-            }
+            if (embedMessage == null) throw new Exception("Unable to edit embed message, there is no message set.");
+            await embedMessage.ModifyAsync(x => x.Content = message);
+           
         }
 
         public int AddFieldSecure(string name, object value, bool inline = false)

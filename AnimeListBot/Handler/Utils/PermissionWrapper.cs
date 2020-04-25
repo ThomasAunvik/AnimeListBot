@@ -24,31 +24,29 @@ namespace AnimeListBot.Handler
     {
         public static async Task DeleteMessage(IUserMessage message)
         {
-            try
+            if (message.Channel is ITextChannel channel)
             {
-                await message.DeleteAsync();
-                return;
-            }
-            catch(Exception)
-            {
-                IGuild guild = Program._client.GetGuild(((IGuildUser)message.Author).Guild.Id);
-                await Program._logger.Log("Bot does not have permission to delete message in server: (" + guild.Id + ", " + guild.Name + ")");
-                return;
+                IGuildUser user = await channel.Guild.GetCurrentUserAsync();
+                ChannelPermissions perm = user.GetPermissions(channel);
+                if (perm.ManageMessages)
+                {
+                    await message.DeleteAsync();
+                    return;
+                }
             }
         }
 
         public static async Task DeleteAllEmotes(IUserMessage message)
         {
-            try
+            if(message.Channel is ITextChannel channel)
             {
-                await message.RemoveAllReactionsAsync();
-                return;
-            }
-            catch (Exception)
-            {
-                IGuild guild = Program._client.GetGuild(((IGuildUser)message.Author).Guild.Id);
-                await Program._logger.Log("Bot does not have permission to delete message emotes in server: (" + guild.Id + ", " + guild.Name + ")");
-                return;
+                IGuildUser user = await channel.Guild.GetCurrentUserAsync();
+                ChannelPermissions perm = user.GetPermissions(channel);
+                if (perm.ManageMessages)
+                {
+                    await message.RemoveAllReactionsAsync();
+                    return;
+                }
             }
         }
     }

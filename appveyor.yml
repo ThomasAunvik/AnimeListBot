@@ -26,6 +26,7 @@ after_build:
 clone_script:
   - cmd: git clone --recursive --branch=%APPVEYOR_REPO_BRANCH% https://github.com/%APPVEYOR_REPO_NAME%.git %APPVEYOR_BUILD_FOLDER%
   - cmd: git checkout -f %APPVEYOR_REPO_COMMIT%
+  - cmd: git lfs pull
 
 test: off
 

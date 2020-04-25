@@ -34,6 +34,8 @@ namespace AnimeListBot.Handler
 
         public HashSet<string> ignoredExceptionMessages = new HashSet<string>();
 
+        public string dbl_token;
+
         // Database
         public string ip;
         public int port;

@@ -33,6 +33,7 @@ using System.Threading;
 using System.Net.Http;
 using Discord.Net;
 using Microsoft.CSharp.RuntimeBinder;
+using DiscordBotsList.Api;
 
 namespace AnimeListBot
 {
@@ -51,6 +52,8 @@ namespace AnimeListBot
         public static Logger _logger;
 
         public static IJikan _jikan;
+
+        public static AuthDiscordBotListApi _dbl;
 
         public static readonly HttpClient httpClient = new HttpClient();
 
@@ -86,6 +89,7 @@ namespace AnimeListBot
             }
 
             _jikan = new Jikan(true);
+            _dbl = new AuthDiscordBotListApi(botID, bot_config.dbl_token);
 
             var shard_config = new DiscordSocketConfig
             {
@@ -129,10 +133,18 @@ namespace AnimeListBot
                 .BuildServiceProvider();
         }
 
+        int current_ready_shards;
         public async Task OnReadyAsync(DiscordSocketClient shard)
         {
-            await Program._logger.Log($"Shard Number {shard.ShardId} is connected and ready!");
+            await _logger.Log($"Shard Number {shard.ShardId} is connected and ready!");
             await BotInfo.LoadStats();
+
+            current_ready_shards++;
+            Cluster cluster = DatabaseConnection.db.Cluster.Find(Config.cached.cluster_id);
+            if (current_ready_shards >= cluster.GetShardAmount())
+            {
+                await _dbl.UpdateStats(_client.Guilds.Count);
+            }
         }
 
         public async Task OnJoinedGuild(SocketGuild guild)
@@ -141,6 +153,8 @@ namespace AnimeListBot
             {
                 await DatabaseRequest.CreateServer(new DiscordServer(guild));
             }
+
+            await _dbl.UpdateStats(_client.Guilds.Count);
         }
 
         private async Task OnLeftGuild(SocketGuild arg)
@@ -150,6 +164,8 @@ namespace AnimeListBot
             {
                 await DatabaseRequest.RemoveServer(server);
             }
+
+            await _dbl.UpdateStats(_client.Guilds.Count);
         }
 
         private Task OnReactionAdded(Cacheable<IUserMessage, ulong> arg1, ISocketMessageChannel arg2, SocketReaction arg3)

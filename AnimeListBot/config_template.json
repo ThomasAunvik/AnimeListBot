@@ -3,6 +3,11 @@
   "bot_owners": [ 96580514021912576, 170506717140877312 ],
 
   "cluster_id": 0,
+  "override_shard_amount": 0,
+  
+  "ignoredExceptionMessages": ["Server requested a reconnect", "WebSocket connection was closed"],
+  
+  "dbl_token": "Discord Bot List Token",
 
   "ip": "localhost",
   "port": 5432,

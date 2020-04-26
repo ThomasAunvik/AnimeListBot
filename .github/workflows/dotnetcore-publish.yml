@@ -34,7 +34,7 @@ jobs:
         path: /home/runner/work/AnimeListBot/AnimeListBot/AnimeListBot/bin/Release/netcoreapp3.1/
 
     - name: SCP Build files to Server
-      uses: appleboy/scp-actions@v0.0.1
+      uses: appleboy/scp-action@master
       with:
         host: ${{ secrets.HOST }}
         port: ${{ secrest.PORT }}
@@ -44,6 +44,7 @@ jobs:
         source: /home/runner/work/AnimeListBot/AnimeListBot/AnimeListBot/bin/Release/netcoreapp3.1/*
         target: ${{ secrets.TARGET_UPLOAD }}
     - name: Execute Restart Command
+      uses: appleboy/ssh-action@master
       with:
         host: ${{ secrets.HOST }}
         port: ${{ secrets.PORT }}

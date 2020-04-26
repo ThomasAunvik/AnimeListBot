@@ -149,7 +149,7 @@ namespace AnimeListBot
 
             current_ready_shards++;
             Cluster cluster = DatabaseConnection.db.Cluster.Find(Config.cached.cluster_id);
-            if (current_ready_shards >= cluster.GetTotalShards())
+            if (current_ready_shards >= cluster.GetShardCount())
             {
                 await _dbl.UpdateStats(_client.Guilds.Count);
             }

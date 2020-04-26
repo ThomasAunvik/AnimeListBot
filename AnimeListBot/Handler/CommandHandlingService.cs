@@ -73,11 +73,6 @@ namespace AnimeListBot.Handler
             if (!(message.HasStringPrefix(server.Prefix, ref argPos) || message.HasMentionPrefix(Program._client.CurrentUser, ref argPos)))
                 return;
 
-            DiscordUser user = await DatabaseRequest.GetUserById(message.Author.Id);
-            if (message.Channel is IGuildChannel) {
-                await user.RefreshMutualGuilds();
-            }
-
             // A new kind of command context, ShardedCommandContext can be utilized with the commands framework
             var context = new ShardedCommandContext(_discord, message);
             await _commands.ExecuteAsync(context, argPos, _services);
@@ -88,6 +83,12 @@ namespace AnimeListBot.Handler
             // command is unspecified when there was a search failure (command not found); we don't care about these errors
             if (!command.IsSpecified)
                 return;
+
+            DiscordUser user = await DatabaseRequest.GetUserById(context.Message.Author.Id);
+            if (context.Message.Channel is IGuildChannel)
+            {
+                await user.RefreshMutualGuilds();
+            }
 
             if (result.IsSuccess)
             {

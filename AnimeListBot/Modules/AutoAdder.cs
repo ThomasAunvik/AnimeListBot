@@ -62,9 +62,9 @@ namespace AnimeListBot.Modules
             await embed.SendMessage(Context.Channel);
         }
 
-        [RequireOwner]
-        [Command("autolistupdate")]
-        public async Task Update()
+        [RequireUserPermission(GuildPermission.ManageRoles)]
+        [Command("autolistupdate", RunMode = RunMode.Async)]
+        public async Task AutoListUpdate()
         {
             DiscordServer server = await DatabaseRequest.GetServerById(Context.Guild.Id);
             ITextChannel channel = Context.Guild.GetTextChannel(server.RegisterChannelId) as ITextChannel;
@@ -81,7 +81,7 @@ namespace AnimeListBot.Modules
                 await embed.UpdateEmbed();
                 for (int messageIndex = 0; messageIndex < messageCount; messageIndex++)
                 {
-                    await AddUser(listMessages[messageIndex], server);
+                    await AddUser(listMessages[messageIndex], server, true);
                     int progressValue = (int)((messageIndex / (float)messageCount) * 100);
                     embed.Fields[fieldIndex].Value = progressValue.ToString() + "%";
 
@@ -96,6 +96,13 @@ namespace AnimeListBot.Modules
 
             embed.Title = "Anime Lists Updated.";
             await embed.UpdateEmbed();
+        }
+
+        [RequireOwner]
+        [Command("autolistupdate", RunMode = RunMode.Async)]
+        public async Task AutoListUpdateOwner()
+        {
+            await AutoListUpdate();
         }
 
         [Command("autolistchannel")]
@@ -115,7 +122,7 @@ namespace AnimeListBot.Modules
             await embed.SendMessage(Context.Channel);
         }
 
-        public static async Task AddUser(IMessage message, DiscordServer server)
+        public static async Task AddUser(IMessage message, DiscordServer server, bool ignoreMessage = false)
         {
             if (string.IsNullOrWhiteSpace(message.Content)) return;
 
@@ -169,11 +176,11 @@ namespace AnimeListBot.Modules
                         usernamePart = usernamePart.Substring(0, usernamePart.Length - 1);
                     }
                 }
-                else
+                else if(!ignoreMessage)
                 {
+                    IDMChannel dmChannel = await message.Author.GetOrCreateDMChannelAsync();
                     string returnMessage = "Invalid Profile Link: " + message.Content;
-                    Console.WriteLine(returnMessage);
-                    await message.Author.SendMessageAsync(returnMessage +
+                    await dmChannel.SendMessageAsync(returnMessage +
                         "Channel: <#" + message.Channel.Id + ">" +
                         "\nPlease use the following link formats:\n" +
                         "MAL: `https://myanimelist.net/profile/[username]` \n" +

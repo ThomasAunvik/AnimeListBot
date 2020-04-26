@@ -17,6 +17,8 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace AnimeListBot.Handler
 {
@@ -26,15 +28,23 @@ namespace AnimeListBot.Handler
         public int ShardIdStart { get; set; }
         public int ShardIdEnd { get; set; }
 
-        public int GetShardAmount()
+        public static async Task<int> GetTotalShards()
         {
-            if(Config.cached.override_shard_amount > 0) return Config.cached.override_shard_amount;
-            return (ShardIdEnd - ShardIdStart) + 1;
+            if (Config.cached.override_shard_amount > 0) return Config.cached.override_shard_amount;
+
+            int total = 0;
+            await DatabaseConnection.db.Cluster.ForEachAsync(x => total += x.GetShardCount());
+            return total;
+        }
+
+        public int GetShardCount()
+        {
+            return ShardIdEnd - ShardIdStart;
         }
 
         public int[] GetShardIds()
         {
-            int indexAmount = GetShardAmount();
+            int indexAmount = GetShardCount();
             int[] shardIds = new int[indexAmount];
             for(int i = 0; i < indexAmount; i++)
             {

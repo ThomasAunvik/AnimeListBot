@@ -93,8 +93,16 @@ namespace AnimeListBot
 
             var shard_config = new DiscordSocketConfig
             {
-                TotalShards = cluster.GetShardAmount(), 
+                TotalShards = await Cluster.GetTotalShards(), 
             };
+
+            int[] shardIds = cluster.GetShardIds();
+            string shardIdstring = "[ " + shardIds;
+            for (int i = 1; i < shardIds.Length; i++) shardIdstring += ", " + shardIds[i].ToString();
+
+            await _logger.Log("ShardStart: " + cluster.ShardIdStart
+                + "\nShardEnd: "
+                + "\nShards: " + shardIdstring);
 
             using (var services = ConfigureServices(shard_config, cluster))
             {
@@ -141,7 +149,7 @@ namespace AnimeListBot
 
             current_ready_shards++;
             Cluster cluster = DatabaseConnection.db.Cluster.Find(Config.cached.cluster_id);
-            if (current_ready_shards >= cluster.GetShardAmount())
+            if (current_ready_shards >= cluster.GetTotalShards())
             {
                 await _dbl.UpdateStats(_client.Guilds.Count);
             }

@@ -101,19 +101,23 @@ namespace AnimeListBot.Modules
             if (string.IsNullOrWhiteSpace(message))
             {
                 embed.AddFieldSecure("Bot Contacter", "Welcome, This is the contact service to message the developer.\n" +
-                    "To directly contact the developer use the command as following `.contact whatever you want the developer to know` And he will contact you as soon as possible.\n");
+                    "To directly contact the developer use the command as following `.contact whatever you want the developer to know` And he will contact you as soon as possible.\n" +
+                    "Please join the support server if more help is required: https://discord.gg/Q9cf46R"
+                    );
 
-                await dmRequestor.SendMessageAsync("", false, embed.Build());
+                await embed.SendMessage(dmRequestor);
             }
+
             embed.Fields.Clear();
             message = string.IsNullOrWhiteSpace(message) ? "Just a false alarm" : message;
             embed.Title = "Bot Contactor";
             embed.AddFieldSecure("Message", message);
             embed.AddFieldSecure("Info", $"Guild: {Context.Guild.Name} ({Context.Guild.Id})\nUser: {Context.User.Mention} ({Context.User.Username}#{Context.User.Discriminator} {Context.User.Id})");
+            await embed.SendMessage(dmOwner);
 
-            await dmOwner.SendMessageAsync("", false, embed.Build());
-
-            EmbedHandler embedRecieved = new EmbedHandler(Context.User, "Contact", "Message Recieved");
+            EmbedHandler embedRecieved = new EmbedHandler(Context.User, "Message sent to Bot Owner");
+            embedRecieved.AddFieldSecure("Message", message);
+            embedRecieved.AddFieldSecure("Support Server", "https://discord.gg/Q9cf46R");
             await embedRecieved.SendMessage(Context.Channel);
         }
 

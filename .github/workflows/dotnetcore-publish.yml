@@ -75,6 +75,12 @@ jobs:
         uses: actions/download-artifact@v1
         with:
           name: AnimeListBot
+          
+      - name: Create Zip File
+        uses: montudor/action-zip@v0.1.0
+        with:
+          args: zip -qq -r ./AnimeListBot.zip ./AnimeListBot
+          
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
@@ -93,6 +99,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./AnimeListBot
-          asset_name: AnimeListBot
+          asset_path: ./AnimeListBot.zip
+          asset_name: AnimeListBot.zip
           asset_content_type: application/zip

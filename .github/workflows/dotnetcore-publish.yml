@@ -49,7 +49,7 @@ jobs:
       - name: Download Artifact
         uses: actions/download-artifact@v1
         with:
-          name: AnimeListBot-::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}.zip
+          name: AnimeListBot.zip
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1

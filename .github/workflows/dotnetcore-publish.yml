@@ -2,6 +2,8 @@ name: .NET Core Publish
 
 on:
   push:
+    branches: 
+      - master
     tags:
       - 'v*'
 
@@ -29,16 +31,11 @@ jobs:
     - name: Test
       run: dotnet test --no-restore --verbosity normal
 
-    - name: Packaging build
-      uses: montudor/action-zip@v0.1.0
-      with:
-        args: zip -qq -r ./AnimeListBot.zip /home/runner/work/AnimeListBot/AnimeListBot/AnimeListBot/bin/Release/netcoreapp3.1/
-
     - name: Upload artifact
       uses: actions/upload-artifact@v1.0.0
       with:
-        name: AnimeListBot.zip
-        path: ./AnimeListBot.zip
+        name: AnimeListBot
+        path: /home/runner/work/AnimeListBot/AnimeListBot/AnimeListBot/bin/Release/netcoreapp3.1/
 
   release:
     name: Release
@@ -49,7 +46,7 @@ jobs:
       - name: Download Artifact
         uses: actions/download-artifact@v1
         with:
-          name: AnimeListBot.zip
+          name: AnimeListBot
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
@@ -80,7 +77,7 @@ jobs:
       - name: Download Artifact
         uses: actions/download-artifact@v1
         with:
-          name: AnimeListBot.zip
+          name: AnimeListBot
       
       - uses: montudor/action-zip@v0.1.0
         with:

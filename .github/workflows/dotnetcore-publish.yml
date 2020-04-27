@@ -47,10 +47,6 @@ jobs:
         with:
           name: AnimeListBot.zip
       
-      - uses: montudor/action-zip@v0.1.0
-        with:
-          args: unzip -qq /home/runner/work/AnimeListBot/AnimeListBot/AnimeListBot.zip -d ./AnimeListBot
-      
       - name: SCP build-files to Server
         uses: appleboy/scp-action@master
         with:
@@ -59,7 +55,7 @@ jobs:
           username: ${{ secrets.USERNAME }}
           key:  ${{ secrets.SSH_KEY }}
           passphrase: ${{ secrets.SSH_PASSPHRASE }}
-          source: ./AnimeListBot/*
+          source: /home/runner/work/AnimeListBot/AnimeListBot/AnimeListBot.zip
           target: ${{ secrets.TARGET_UPLOAD }}
       - name: Execute Restart Command
         uses: appleboy/ssh-action@master

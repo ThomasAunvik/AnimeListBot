@@ -29,16 +29,11 @@ jobs:
       run: dotnet build --configuration Release --no-restore
     - name: Test
       run: dotnet test --no-restore --verbosity normal
-    
-    - name: Packaging build
-      uses: montudor/action-zip@v0.1.0
-      with:
-        args: zip -qq -r ./AnimeListBot.zip . -i /home/runner/work/AnimeListBot/AnimeListBot/AnimeListBot/bin/Release/netcoreapp3.1/
 
     - name: Upload artifact
       uses: actions/upload-artifact@v1.0.0
       with:
         # Artifact name
-        name: AnimeListBot.zip
+        name: AnimeListBot
         # Directory containing files to upload
-        path: ./AnimeListBot.zip
+        path: /home/runner/work/AnimeListBot/AnimeListBot/AnimeListBot/bin/Release/netcoreapp3.1/

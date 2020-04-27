@@ -41,4 +41,4 @@ jobs:
         # Artifact name
         name: AnimeListBot.zip
         # Directory containing files to upload
-        path: /AnimeListBot.zip
+        path: ./AnimeListBot.zip

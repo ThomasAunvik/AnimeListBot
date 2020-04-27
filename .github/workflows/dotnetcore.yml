@@ -2,9 +2,13 @@ name: .NET Core
 
 on:
   push:
+    branches:
+      - master
     tags-ignore: 
        - 'v*'
   pull_request:
+    branches: 
+      - master
   
 jobs:
   build:

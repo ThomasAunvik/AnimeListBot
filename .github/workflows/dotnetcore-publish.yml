@@ -34,7 +34,7 @@ jobs:
     - name: Upload artifact
       uses: actions/upload-artifact@v1.0.0
       with:
-        name: AnimeListBot.zip
+        name: AnimeListBot
         path: /home/runner/work/AnimeListBot/AnimeListBot/AnimeListBot/bin/Release/netcoreapp3.1/
   publish:
     name: Publish to Server
@@ -45,7 +45,7 @@ jobs:
       - name: Download Artifact
         uses: actions/download-artifact@v1
         with:
-          name: AnimeListBot.zip
+          name: AnimeListBot
       
       - name: SCP build-files to Server
         uses: appleboy/scp-action@master
@@ -55,7 +55,7 @@ jobs:
           username: ${{ secrets.USERNAME }}
           key:  ${{ secrets.SSH_KEY }}
           passphrase: ${{ secrets.SSH_PASSPHRASE }}
-          source: /home/runner/work/AnimeListBot/AnimeListBot/AnimeListBot.zip
+          source: /home/runner/work/AnimeListBot/AnimeListBot/AnimeListBot
           target: ${{ secrets.TARGET_UPLOAD }}
       - name: Execute Restart Command
         uses: appleboy/ssh-action@master
@@ -76,7 +76,7 @@ jobs:
       - name: Download Artifact
         uses: actions/download-artifact@v1
         with:
-          name: AnimeListBot.zip
+          name: AnimeListBot
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
@@ -95,6 +95,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./AnimeListBot.zip
-          asset_name: AnimeListBot.zip
+          asset_path: ./AnimeListBot
+          asset_name: AnimeListBot
           asset_content_type: application/zip

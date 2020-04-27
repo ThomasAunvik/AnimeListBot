@@ -2,8 +2,6 @@ name: .NET Core Publish
 
 on:
   push:
-    branches: 
-      - master
     tags:
       - 'v*'
 
@@ -64,7 +62,7 @@ jobs:
           port: ${{ secrets.PORT }}
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.SSH_KEY }}
-          passphrase: ${{ secrets.SSH_KEY }}
+          passphrase: ${{ secrets.SSH_PASSPHRASE }}
           script: ${{ secrets.RESTART_COMMAND }}
           
   release:

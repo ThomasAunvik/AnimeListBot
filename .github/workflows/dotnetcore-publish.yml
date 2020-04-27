@@ -90,7 +90,7 @@ jobs:
         uses: appleboy/scp-action@master
         with:
           host: ${{ secrets.HOST }}
-          port: ${{ secrest.PORT }}
+          port: ${{ secrets.PORT }}
           username: ${{ secrets.USERNAME }}
           key:  ${{ secrets.SSH_KEY }}
           passphrase: ${{ secrets.SSH_PASSPHRASE }}

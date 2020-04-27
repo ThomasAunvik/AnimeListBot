@@ -97,8 +97,9 @@ namespace AnimeListBot
             };
 
             int[] shardIds = cluster.GetShardIds();
-            string shardIdstring = "[ " + shardIds;
+            string shardIdstring = "[ " + shardIds[0].ToString();
             for (int i = 1; i < shardIds.Length; i++) shardIdstring += ", " + shardIds[i].ToString();
+            shardIdstring += " ]";
 
             await _logger.Log("ShardStart: " + cluster.ShardIdStart
                 + "\nShardEnd: "
@@ -151,6 +152,7 @@ namespace AnimeListBot
             Cluster cluster = DatabaseConnection.db.Cluster.Find(Config.cached.cluster_id);
             if (current_ready_shards >= cluster.GetShardCount())
             {
+                await _logger.Log("Updated guild count: " + _client.Guilds.Count);
                 await _dbl.UpdateStats(_client.Guilds.Count);
             }
         }
@@ -162,6 +164,7 @@ namespace AnimeListBot
                 await DatabaseRequest.CreateServer(new DiscordServer(guild));
             }
 
+            await _logger.Log("Updated guild count: " + _client.Guilds.Count);
             await _dbl.UpdateStats(_client.Guilds.Count);
         }
 
@@ -173,6 +176,7 @@ namespace AnimeListBot
                 await DatabaseRequest.RemoveServer(server);
             }
 
+            await _logger.Log("Updated guild count: " + _client.Guilds.Count);
             await _dbl.UpdateStats(_client.Guilds.Count);
         }
 

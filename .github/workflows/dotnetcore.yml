@@ -33,7 +33,7 @@ jobs:
     - name: Packaging build
       uses: montudor/action-zip@v0.1.0
       with:
-        args: zip -qq -r ./AnimeListBot.zip /home/runner/work/AnimeListBot/AnimeListBot/AnimeListBot/bin/Release/netcoreapp3.1/
+        args: zip -qq -r ./AnimeListBot.zip . -i /home/runner/work/AnimeListBot/AnimeListBot/AnimeListBot/bin/Release/netcoreapp3.1/
 
     - name: Upload artifact
       uses: actions/upload-artifact@v1.0.0

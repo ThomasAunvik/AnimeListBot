@@ -102,7 +102,7 @@ namespace AnimeListBot
             shardIdstring += " ]";
 
             await _logger.Log("ShardStart: " + cluster.ShardIdStart
-                + "\nShardEnd: "
+                + "\nShardEnd: " + cluster.ShardIdEnd
                 + "\nShards: " + shardIdstring);
 
             using (var services = ConfigureServices(shard_config, cluster))

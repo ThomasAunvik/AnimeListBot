@@ -32,13 +32,13 @@ jobs:
     - name: Packaging build
       uses: montudor/action-zip@v0.1.0
       with:
-        args: zip -qq -r ./AnimeListBot-${{ github.ref }}.zip ./home/runner/work/AnimeListBot/AnimeListBot/AnimeListBot/bin/Release/netcoreapp3.1/
+        args: zip -qq -r ./AnimeListBot.zip /home/runner/work/AnimeListBot/AnimeListBot/AnimeListBot/bin/Release/netcoreapp3.1/
 
     - name: Upload artifact
       uses: actions/upload-artifact@v1.0.0
       with:
-        name: AnimeListBot-${{ github.ref }}.zip
-        path: ./AnimeListBot-${{ github.ref }}.zip
+        name: AnimeListBot.zip
+        path: ./AnimeListBot.zip
 
   release:
     name: Release
@@ -49,7 +49,7 @@ jobs:
       - name: Download Artifact
         uses: actions/download-artifact@v1
         with:
-          name: AnimeListBot-${{ github.ref }}.zip
+          name: AnimeListBot-::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}.zip
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
@@ -68,8 +68,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./AnimeListBot-${{ github.ref }}.zip
-          asset_name: AnimeListBot-${{ github.ref }}.zip
+          asset_path: ./AnimeListBot.zip
+          asset_name: AnimeListBot.zip
           asset_content_type: application/zip
   publish:
     name: Publish to Server
@@ -80,11 +80,11 @@ jobs:
       - name: Download Artifact
         uses: actions/download-artifact@v1
         with:
-          name: AnimeListBot-${{ github.ref }}.zip
+          name: AnimeListBot.zip
       
       - uses: montudor/action-zip@v0.1.0
         with:
-          args: unzip -qq AnimeListBot-${{ github.ref }}.zip -d ./AnimeListBot
+          args: unzip -qq AnimeListBot.zip -d ./AnimeListBot
       
       - name: SCP build-files to Server
         uses: appleboy/scp-action@master

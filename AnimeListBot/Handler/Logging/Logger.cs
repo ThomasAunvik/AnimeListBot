@@ -177,6 +177,8 @@ namespace AnimeListBot.Handler
 
         public string TrancuateStacktrace(string input)
         {
+            if (input == null) return "";
+
             input = Format.Sanitize(input);
             if(input.Length > MAX_FIELD_VALUE_LENGTH)
             {

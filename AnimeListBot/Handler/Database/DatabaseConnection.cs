@@ -96,9 +96,13 @@ namespace AnimeListBot.Handler
 
                 entity.Property(e => e.AnimeroleId).HasColumnName("animerole_id");
 
+                entity.Property(e => e.AnimeroleNames).HasColumnName("animerole_names");
+
                 entity.Property(e => e.MangaroleDays).HasColumnName("mangarole_days");
 
                 entity.Property(e => e.MangaroleId).HasColumnName("mangarole_id");
+
+                entity.Property(e => e.MangaroleNames).HasColumnName("mangarole_names");
 
                 entity.Property(e => e.Prefix).HasColumnName("prefix");
 
@@ -118,11 +122,11 @@ namespace AnimeListBot.Handler
 
                 entity.Property(e => e.AnilistUsername).HasColumnName("anilist_username");
 
-                entity.Property(e => e.AnimeDays).HasColumnName("anime_days");
-
                 entity.Property(e => e.ListPreference).HasColumnName("list_preference");
 
                 entity.Property(e => e.MalUsername).HasColumnName("mal_username");
+
+                entity.Property(e => e.AnimeDays).HasColumnName("anime_days");
 
                 entity.Property(e => e.MangaDays).HasColumnName("manga_days");
 

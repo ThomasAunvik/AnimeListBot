@@ -24,6 +24,7 @@ using System.Threading.Tasks;
 using System.Threading;
 using AnimeListBot.Handler;
 using Discord.WebSocket;
+using JikanDotNet;
 
 namespace AnimeListBot.Modules
 {
@@ -60,6 +61,10 @@ namespace AnimeListBot.Modules
                 roledays.Insert(roleIndex, days);
                 server.AnimeroleDays = roledays;
 
+                var rolenames = server.AnimeroleNames.ToList();
+                rolenames.Insert(roleIndex, role.Name);
+                server.AnimeroleNames = rolenames;
+
                 await DatabaseConnection.db.SaveChangesAsync();
                 embed.Title = "Added " + role.Name + " as the rank for having " + days + " days of watching anime";
             }
@@ -82,6 +87,10 @@ namespace AnimeListBot.Modules
                 var roledays = server.MangaroleDays.ToList();
                 roledays.Insert(roleIndex, days);
                 server.MangaroleDays = roledays;
+
+                var rolenames = server.MangaroleNames.ToList();
+                rolenames.Insert(roleIndex, role.Name);
+                server.MangaroleNames = rolenames;
 
                 await DatabaseConnection.db.SaveChangesAsync();
                 embed.Title = "Added " + role.Name + " as the rank for having " + days + " days of reading manga";
@@ -110,6 +119,7 @@ namespace AnimeListBot.Modules
                 int animeRoleIndex = server.AnimeroleId.ToList().FindIndex(x => x == (long)role.Id);
                 if (animeRoleIndex >= 0) {
                     server.AnimeroleDays[animeRoleIndex] = newDays;
+                    server.AnimeroleNames[animeRoleIndex] = role.Name;
                     embed.Title = "Anime rank: " + role.Name + " was set to " + newDays + " days.";
                 }
                 else
@@ -123,6 +133,7 @@ namespace AnimeListBot.Modules
                 if (mangaRoleIndex >= 0)
                 {
                     server.MangaroleDays[mangaRoleIndex] = newDays;
+                    server.MangaroleNames[mangaRoleIndex] = role.Name;
                     embed.Title = "Manga rank: " + role.Name + " was set to " + newDays + " days.";
                 }
                 else
@@ -425,6 +436,8 @@ namespace AnimeListBot.Modules
                     animeRank = ((ulong)server.AnimeroleId[i], server.AnimeroleDays[i]);
                     animeRole = Context.Guild.GetRole(animeRank.roleId);
                     animeRoleList += "\n" + animeRole.Name + " for " + animeRank.days + " days";
+
+                    server.AnimeroleNames[i] = animeRole.Name;
                 }
                 embed.AddFieldSecure(new EmbedFieldBuilder()
                 {
@@ -446,6 +459,8 @@ namespace AnimeListBot.Modules
                     mangaRank = ((ulong)server.MangaroleId[i], server.MangaroleDays[i]);
                     mangaRole = Context.Guild.GetRole(mangaRank.roleId);
                     mangaRoleList += "\n" + mangaRole.Name + " for " + mangaRank.days + " days";
+
+                    server.MangaroleNames[i] = mangaRole.Name;
                 }
                 embed.AddFieldSecure(new EmbedFieldBuilder()
                 {

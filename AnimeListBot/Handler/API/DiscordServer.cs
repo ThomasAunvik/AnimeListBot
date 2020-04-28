@@ -43,6 +43,9 @@ namespace AnimeListBot.Handler
         public List<double> AnimeroleDays { get; set; } = new List<double>();
         public List<double> MangaroleDays { get; set; } = new List<double>();
 
+        public List<string> AnimeroleNames { get; set; } = new List<string>();
+        public List<string> MangaroleNames { get; set; } = new List<string>();
+
         public DiscordServer() { }
         public DiscordServer(IGuild guild) { ServerId = guild.Id; }
 
@@ -60,6 +63,9 @@ namespace AnimeListBot.Handler
 
             AnimeroleDays = server.AnimeroleDays;
             MangaroleDays = server.MangaroleDays;
+
+            AnimeroleNames = server.AnimeroleNames;
+            MangaroleNames = server.MangaroleNames;
         }
     }
 }

@@ -27,6 +27,7 @@ using System.Globalization;
 using Discord.WebSocket;
 using Discord;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace AnimeListBot.Modules
 {
@@ -161,6 +162,47 @@ namespace AnimeListBot.Modules
                 (result.RateLimit_Reset.HasValue ? "**Rate Limit Reset:** " + result.RateLimit_Reset.Value.ToString("HH:mm:ss", en_US) + " UTC" : "") +
                 (result.RetryAfter > 0 ? "**Retry After:** " + result.RetryAfter + " seconds.\n" : "")
             );
+            await embed.UpdateEmbed();
+        }
+
+        [Command("refreshranks")]
+        public async Task UpdateServerRoleNames()
+        {
+            EmbedHandler embed = new EmbedHandler(Context.User, "Updating");
+            await embed.SendMessage(Context.Channel);
+
+            List<SocketGuild> guilds = Program._client.Guilds.ToList();
+            for(int guildIndex = 0; guildIndex < guilds.Count; guildIndex++)
+            {
+                SocketGuild guild = guilds[guildIndex];
+                DiscordServer server = await DatabaseRequest.GetServerById(guild.Id);
+
+                if (server.AnimeroleId.Count > 0)
+                {
+                    server.AnimeroleNames = new List<string>();
+                    for (int animeIndex = 0; animeIndex < server.AnimeroleId.Count; animeIndex++)
+                    {
+                        long id = server.AnimeroleId[animeIndex];
+                        IRole role = guild.GetRole((ulong)id);
+                        server.AnimeroleNames.Add(role.Name);
+                    }
+                }
+
+                if (server.MangaroleId.Count > 0)
+                {
+                    server.MangaroleNames = new List<string>();
+                    for (int mangaIndex = 0; mangaIndex < server.MangaroleId.Count; mangaIndex++)
+                    {
+                        long id = server.MangaroleId[mangaIndex];
+                        IRole role = guild.GetRole((ulong)id);
+                        server.MangaroleNames.Add(role.Name);
+                    }
+                }
+            }
+
+            await DatabaseConnection.db.SaveChangesAsync();
+
+            embed.Title = "Updated.";
             await embed.UpdateEmbed();
         }
     }

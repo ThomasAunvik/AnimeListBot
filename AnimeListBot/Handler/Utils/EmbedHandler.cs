@@ -69,7 +69,7 @@ namespace AnimeListBot.Handler
         {
             if (embedMessage == null) return;
 
-            await embedMessage.ModifyAsync(x => x.Embed = Build();
+            await embedMessage.ModifyAsync(x => x.Embed = Build());
                 
             await PermissionWrapper.DeleteAllEmotes(embedMessage);
 

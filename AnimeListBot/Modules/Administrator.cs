@@ -165,7 +165,7 @@ namespace AnimeListBot.Modules
             await embed.UpdateEmbed();
         }
 
-        [Command("refreshranks")]
+        [Command("refreshranks", RunMode = RunMode.Async)]
         public async Task UpdateServerRoleNames()
         {
             EmbedHandler embed = new EmbedHandler(Context.User, "Updating");

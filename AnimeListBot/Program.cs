@@ -34,6 +34,7 @@ using System.Net.Http;
 using Discord.Net;
 using Microsoft.CSharp.RuntimeBinder;
 using DiscordBotsList.Api;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace AnimeListBot
 {

@@ -96,6 +96,7 @@ namespace AnimeListBot.Handler
             if (result.IsSuccess)
             {
                 await BotInfo.CommandUsed();
+                if (server.server_statistics == null) server.server_statistics = new ServerStatistics();
                 server.server_statistics.CommandsUsed++;
                 await DatabaseConnection.db.SaveChangesAsync();
                 return;

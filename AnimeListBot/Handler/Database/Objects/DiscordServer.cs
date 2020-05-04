@@ -37,7 +37,6 @@ namespace AnimeListBot.Handler
         public ServerStatistics server_statistics { get; set; }
         public ServerRanks server_ranks { get; set; }
 
-
         public DiscordServer() { }
         public DiscordServer(IGuild guild) { ServerId = guild.Id; }
 

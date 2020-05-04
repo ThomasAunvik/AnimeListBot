@@ -33,17 +33,6 @@ namespace AnimeListBot.Handler
 
         public ulong ServerId { get; set; }
         public string Prefix { get; set; } = Program.botPrefix;
-        // OBSULETE
-
-        [Obsolete("Moved to ranks")] public ulong RegisterChannelId { get; set; } = 0;
-        [Obsolete("Moved to ranks")] public List<long> AnimeroleId { get; set; } = new List<long>();
-        [Obsolete("Moved to ranks")] public List<long> MangaroleId { get; set; } = new List<long>();
-
-        [Obsolete("Moved to ranks")] public List<double> AnimeroleDays { get; set; } = new List<double>();
-        [Obsolete("Moved to ranks")] public List<double> MangaroleDays { get; set; } = new List<double>();
-
-        [Obsolete("Moved to ranks")] public List<string> AnimeroleNames { get; set; } = new List<string>();
-        [Obsolete("Moved to ranks")] public List<string> MangaroleNames { get; set; } = new List<string>();
 
         public ServerStatistics server_statistics { get; set; }
         public ServerRanks server_ranks { get; set; }

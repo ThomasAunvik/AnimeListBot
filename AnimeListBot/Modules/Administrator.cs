@@ -205,37 +205,5 @@ namespace AnimeListBot.Modules
             embed.Title = "Updated.";
             await embed.UpdateEmbed();
         }
-
-        [Command("updateguilds", RunMode = RunMode.Async)]
-        public async Task UpdateGuilds()
-        {
-            EmbedHandler embed = new EmbedHandler(Context.User, "Updating");
-            await embed.SendMessage(Context.Channel);
-
-            List<SocketGuild> guilds = Program._client.Guilds.ToList();
-            for (int guildIndex = 0; guildIndex < guilds.Count; guildIndex++)
-            {
-                SocketGuild guild = guilds[guildIndex];
-                DiscordServer server = await DatabaseRequest.GetServerById(guild.Id);
-
-                // TODO FIX
-#pragma warning disable
-                ServerRanks ranks = new ServerRanks();
-                ranks.RegisterChannelId = server.RegisterChannelId;
-                ranks.AnimeroleDays = server.AnimeroleDays;
-                ranks.AnimeroleId = server.AnimeroleId;
-                ranks.AnimeroleNames = server.AnimeroleNames;
-                ranks.MangaroleDays = server.MangaroleDays;
-                ranks.MangaroleId = server.MangaroleId;
-                ranks.MangaroleNames = server.MangaroleNames;
-                server.server_ranks = ranks;
-#pragma warning restore
-            }
-
-            await DatabaseConnection.db.SaveChangesAsync();
-
-            embed.Title = "Updated.";
-            await embed.UpdateEmbed();
-        }
     }
 }

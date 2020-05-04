@@ -232,7 +232,7 @@ namespace AnimeListBot.Modules
             }
 
             server.Prefix = newPrefix;
-            await server.UpdateDatabase();
+            await DatabaseConnection.db.SaveChangesAsync();
 
             embed.Title = "Prefix Set to";
             embed.Description = "`" + server.Prefix + "`";

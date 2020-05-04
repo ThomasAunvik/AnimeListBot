@@ -177,27 +177,59 @@ namespace AnimeListBot.Modules
                 SocketGuild guild = guilds[guildIndex];
                 DiscordServer server = await DatabaseRequest.GetServerById(guild.Id);
 
-                if (server.AnimeroleId.Count > 0)
+                if (server.server_ranks.AnimeroleId.Count > 0)
                 {
-                    server.AnimeroleNames = new List<string>();
-                    for (int animeIndex = 0; animeIndex < server.AnimeroleId.Count; animeIndex++)
+                    server.server_ranks.AnimeroleNames = new List<string>();
+                    for (int animeIndex = 0; animeIndex < server.server_ranks.AnimeroleId.Count; animeIndex++)
                     {
-                        long id = server.AnimeroleId[animeIndex];
+                        long id = server.server_ranks.AnimeroleId[animeIndex];
                         IRole role = guild.GetRole((ulong)id);
-                        server.AnimeroleNames.Add(role.Name);
+                        server.server_ranks.AnimeroleNames.Add(role.Name);
                     }
                 }
 
-                if (server.MangaroleId.Count > 0)
+                if (server.server_ranks.MangaroleId.Count > 0)
                 {
-                    server.MangaroleNames = new List<string>();
-                    for (int mangaIndex = 0; mangaIndex < server.MangaroleId.Count; mangaIndex++)
+                    server.server_ranks.MangaroleNames = new List<string>();
+                    for (int mangaIndex = 0; mangaIndex < server.server_ranks.MangaroleId.Count; mangaIndex++)
                     {
-                        long id = server.MangaroleId[mangaIndex];
+                        long id = server.server_ranks.MangaroleId[mangaIndex];
                         IRole role = guild.GetRole((ulong)id);
-                        server.MangaroleNames.Add(role.Name);
+                        server.server_ranks.MangaroleNames.Add(role.Name);
                     }
                 }
+            }
+
+            await DatabaseConnection.db.SaveChangesAsync();
+
+            embed.Title = "Updated.";
+            await embed.UpdateEmbed();
+        }
+
+        [Command("updateguilds", RunMode = RunMode.Async)]
+        public async Task UpdateGuilds()
+        {
+            EmbedHandler embed = new EmbedHandler(Context.User, "Updating");
+            await embed.SendMessage(Context.Channel);
+
+            List<SocketGuild> guilds = Program._client.Guilds.ToList();
+            for (int guildIndex = 0; guildIndex < guilds.Count; guildIndex++)
+            {
+                SocketGuild guild = guilds[guildIndex];
+                DiscordServer server = await DatabaseRequest.GetServerById(guild.Id);
+
+                // TODO FIX
+#pragma warning disable
+                ServerRanks ranks = new ServerRanks();
+                ranks.RegisterChannelId = server.RegisterChannelId;
+                ranks.AnimeroleDays = server.AnimeroleDays;
+                ranks.AnimeroleId = server.AnimeroleId;
+                ranks.AnimeroleNames = server.AnimeroleNames;
+                ranks.MangaroleDays = server.MangaroleDays;
+                ranks.MangaroleId = server.MangaroleId;
+                ranks.MangaroleNames = server.MangaroleNames;
+                server.server_ranks = ranks;
+#pragma warning restore
             }
 
             await DatabaseConnection.db.SaveChangesAsync();

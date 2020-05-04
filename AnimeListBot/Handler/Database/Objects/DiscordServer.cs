@@ -28,23 +28,26 @@ namespace AnimeListBot.Handler
 {
     public class DiscordServer
     {
+        [NotMapped]
         public static List<ulong> rolesUpdating = new List<ulong>();
 
         public ulong ServerId { get; set; }
         public string Prefix { get; set; } = Program.botPrefix;
-        [NotMapped]
-
         // OBSULETE
 
-        public ulong RegisterChannelId { get; set; } = 0;
-        public List<long> AnimeroleId { get; set; } = new List<long>();
-        public List<long> MangaroleId { get; set; } = new List<long>();
+        [Obsolete("Moved to ranks")] public ulong RegisterChannelId { get; set; } = 0;
+        [Obsolete("Moved to ranks")] public List<long> AnimeroleId { get; set; } = new List<long>();
+        [Obsolete("Moved to ranks")] public List<long> MangaroleId { get; set; } = new List<long>();
 
-        public List<double> AnimeroleDays { get; set; } = new List<double>();
-        public List<double> MangaroleDays { get; set; } = new List<double>();
+        [Obsolete("Moved to ranks")] public List<double> AnimeroleDays { get; set; } = new List<double>();
+        [Obsolete("Moved to ranks")] public List<double> MangaroleDays { get; set; } = new List<double>();
 
-        public List<string> AnimeroleNames { get; set; } = new List<string>();
-        public List<string> MangaroleNames { get; set; } = new List<string>();
+        [Obsolete("Moved to ranks")] public List<string> AnimeroleNames { get; set; } = new List<string>();
+        [Obsolete("Moved to ranks")] public List<string> MangaroleNames { get; set; } = new List<string>();
+
+        public ServerStatistics server_statistics { get; set; }
+        public ServerRanks server_ranks { get; set; }
+
 
         public DiscordServer() { }
         public DiscordServer(IGuild guild) { ServerId = guild.Id; }
@@ -52,20 +55,6 @@ namespace AnimeListBot.Handler
         public IGuild GetGuild() { return Program._client.GetGuild(ServerId); }
         public async Task<IGuildUser> GetGuildUser(ulong userId) { return await GetGuildUser(GetGuild(), userId); }
         public static async Task<IGuildUser> GetGuildUser(IGuild guild, ulong userId) { return await guild.GetUserAsync(userId); }
-        public async Task UpdateDatabase() { await DatabaseRequest.UpdateServer(this); }
-
-        public void OverrideData(DiscordServer server)
-        {
-            Prefix = server.Prefix;
-            RegisterChannelId = server.RegisterChannelId;
-            AnimeroleId = server.AnimeroleId;
-            MangaroleId = server.MangaroleId;
-
-            AnimeroleDays = server.AnimeroleDays;
-            MangaroleDays = server.MangaroleDays;
-
-            AnimeroleNames = server.AnimeroleNames;
-            MangaroleNames = server.MangaroleNames;
-        }
+   
     }
 }

@@ -174,9 +174,9 @@ namespace AnimeListBot.Handler
 
         public (ulong, double) GetAnimeServerRank(DiscordServer server)
         {
-            if (server.AnimeroleId == null || server.AnimeroleId.Count <= 0) return (0, 0);
+            if (server.server_ranks.AnimeroleId == null || server.server_ranks.AnimeroleId.Count <= 0) return (0, 0);
 
-            var reverseDays = server.AnimeroleDays.ToList();
+            var reverseDays = server.server_ranks.AnimeroleDays.ToList();
             reverseDays.Reverse();
 
             int roleIndex = reverseDays.FindIndex(x => AnimeDays < x);
@@ -185,7 +185,7 @@ namespace AnimeListBot.Handler
 
             if (reverseDays.Count <= roleIndex) return (0, 0);
 
-            var reverseRoles = server.AnimeroleId.ToList();
+            var reverseRoles = server.server_ranks.AnimeroleId.ToList();
             reverseRoles.Reverse();
 
             return ((ulong)reverseRoles[roleIndex], reverseDays[roleIndex]);
@@ -319,9 +319,9 @@ namespace AnimeListBot.Handler
 
         public (ulong, double) GetMangaServerRank(DiscordServer server)
         {
-            if (server.MangaroleId == null || server.MangaroleId.Count <= 0) return (0, 0);
+            if (server.server_ranks.MangaroleId == null || server.server_ranks.MangaroleId.Count <= 0) return (0, 0);
 
-            var reverseDays = server.MangaroleDays.ToList();
+            var reverseDays = server.server_ranks.MangaroleDays.ToList();
             reverseDays.Reverse();
 
             int roleIndex = reverseDays.FindIndex(x => MangaDays < x);
@@ -330,7 +330,7 @@ namespace AnimeListBot.Handler
 
             if (reverseDays.Count <= roleIndex) return (0, 0);
 
-            var reverseRoles = server.MangaroleId.ToList();
+            var reverseRoles = server.server_ranks.MangaroleId.ToList();
             reverseRoles.Reverse();
 
             return ((ulong)reverseRoles[roleIndex], reverseDays[roleIndex]);

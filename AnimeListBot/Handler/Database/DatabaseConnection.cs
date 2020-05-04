@@ -92,6 +92,7 @@ namespace AnimeListBot.Handler
                     .HasColumnName("server_id")
                     .ValueGeneratedNever();
 
+#pragma warning disable
                 entity.Property(e => e.AnimeroleDays).HasColumnName("animerole_days");
 
                 entity.Property(e => e.AnimeroleId).HasColumnName("animerole_id");
@@ -107,6 +108,20 @@ namespace AnimeListBot.Handler
                 entity.Property(e => e.Prefix).HasColumnName("prefix");
 
                 entity.Property(e => e.RegisterChannelId).HasColumnName("register_channel_id");
+
+#pragma warning restore
+                /*entity.Property(e => e.server_statistics).HasConversion(
+                        v => JsonConvert.SerializeObject(v, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore }),
+                        v => JsonConvert.DeserializeObject<ServerStatistics>(v, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore })
+                    );
+
+                entity.Property(e => e.server_ranks).HasConversion(
+                        v => JsonConvert.SerializeObject(v, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore }),
+                        v => JsonConvert.DeserializeObject<ServerRanks>(v, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore })
+                    );*/
+
+                entity.Property(e => e.server_ranks).HasJsonConversion();
+                entity.Property(e => e.server_statistics).HasJsonConversion();
             });
 
             modelBuilder.Entity<DiscordUser>(entity =>

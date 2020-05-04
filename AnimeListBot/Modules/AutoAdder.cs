@@ -37,8 +37,8 @@ namespace AnimeListBot.Modules
         public async Task SetChannel(ITextChannel channel)
         {
             DiscordServer server = await DatabaseRequest.GetServerById(Context.Guild.Id);
-            server.RegisterChannelId = channel.Id;
-            await server.UpdateDatabase();
+            server.server_ranks.RegisterChannelId = channel.Id;
+            await DatabaseConnection.db.SaveChangesAsync();
 
             EmbedHandler embed = new EmbedHandler(Context.User, "Set auto anime list channel to:", "<#" + channel.Id + ">...");
             await embed.SendMessage(Context.Channel);
@@ -49,15 +49,15 @@ namespace AnimeListBot.Modules
         public async Task RemoveChannel()
         {
             DiscordServer server = await DatabaseRequest.GetServerById(Context.Guild.Id);
-            EmbedHandler embed = new EmbedHandler(Context.User, "Removed auto anime list channel from:", "<#" + server.RegisterChannelId + ">...");
+            EmbedHandler embed = new EmbedHandler(Context.User, "Removed auto anime list channel from:", "<#" + server.server_ranks.RegisterChannelId + ">...");
 
-            if (server.RegisterChannelId == 0)
+            if (server.server_ranks.RegisterChannelId == 0)
             {
                 embed.Title = "There is no set channel for auto-list.";
             }
 
-            server.RegisterChannelId = 0;
-            await server.UpdateDatabase();
+            server.server_ranks.RegisterChannelId = 0;
+            await DatabaseConnection.db.SaveChangesAsync();
 
             await embed.SendMessage(Context.Channel);
         }
@@ -67,7 +67,13 @@ namespace AnimeListBot.Modules
         public async Task AutoListUpdate()
         {
             DiscordServer server = await DatabaseRequest.GetServerById(Context.Guild.Id);
-            ITextChannel channel = Context.Guild.GetTextChannel(server.RegisterChannelId) as ITextChannel;
+            ITextChannel channel = Context.Guild.GetTextChannel(server.server_ranks.RegisterChannelId) as ITextChannel;
+            if (channel == null)
+            {
+                EmbedHandler errorEmbed = new EmbedHandler(Context.User, "No Auto List Channel Set, use command `autolist` first.");
+                await errorEmbed.SendMessage(Context.Channel);
+                return;
+            }
 
             EmbedHandler embed = new EmbedHandler(Context.User, "Updating Anime Lists from channel", "<#" + channel.Id + ">");
             await embed.SendMessage(Context.Channel);
@@ -110,10 +116,10 @@ namespace AnimeListBot.Modules
         {
             DiscordServer server = await DatabaseRequest.GetServerById(Context.Guild.Id);
             EmbedHandler embed = new EmbedHandler(Context.User);
-            if (server.RegisterChannelId != 0)
+            if (server.server_ranks.RegisterChannelId != 0)
             {
                 embed.Title = "Auto AnimeList is set to channel";
-                embed.Description = "<#" + server.RegisterChannelId + ">";
+                embed.Description = "<#" + server.server_ranks.RegisterChannelId + ">";
             }
             else
             {

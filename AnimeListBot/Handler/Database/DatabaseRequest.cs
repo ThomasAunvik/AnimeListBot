@@ -42,7 +42,7 @@ namespace AnimeListBot.Handler
 
         public static async Task<DiscordServer> GetServerById(ulong id)
         {
-            DiscordServer server = DatabaseConnection.db.DiscordServer.Find(id);
+            DiscordServer server = await DatabaseConnection.db.DiscordServer.FindAsync(id);
             if (server == null)
             {
                 server = new DiscordServer(Program._client.GetGuild(id));
@@ -54,14 +54,6 @@ namespace AnimeListBot.Handler
         public static async Task<bool> CreateServer(DiscordServer server)
         {
             DatabaseConnection.db.DiscordServer.Add(server);
-            await DatabaseConnection.db.SaveChangesAsync();
-            return true;
-        }
-
-        public static async Task<bool> UpdateServer(DiscordServer server)
-        {
-            DiscordServer foundServer = DatabaseConnection.db.DiscordServer.Find(server.ServerId);
-            foundServer.OverrideData(server);
             await DatabaseConnection.db.SaveChangesAsync();
             return true;
         }

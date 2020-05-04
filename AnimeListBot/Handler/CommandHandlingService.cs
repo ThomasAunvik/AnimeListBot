@@ -61,7 +61,9 @@ namespace AnimeListBot.Handler
                 return;
 
             DiscordServer server = await DatabaseRequest.GetServerById(guildChannel.GuildId);
-            if (message?.Channel?.Id == server?.RegisterChannelId)
+            if (server.server_ranks == null) server.server_ranks = new ServerRanks();
+
+            if (message?.Channel?.Id == server?.server_ranks?.RegisterChannelId)
             {
                 await DiscordUser.CheckAndCreateUser(message.Author.Id);
                 await AutoAdder.AddUser(message, server);
@@ -90,13 +92,14 @@ namespace AnimeListBot.Handler
                 await user.RefreshMutualGuilds();
             }
 
+            DiscordServer server = await DatabaseRequest.GetServerById(context.Guild.Id);
             if (result.IsSuccess)
             {
                 await BotInfo.CommandUsed();
+                server.server_statistics.CommandsUsed++;
+                await DatabaseConnection.db.SaveChangesAsync();
                 return;
             }
-
-            DiscordServer server = await DatabaseRequest.GetServerById(context.Guild.Id);
 
             if (result is ExecuteResult executeResult)
             {

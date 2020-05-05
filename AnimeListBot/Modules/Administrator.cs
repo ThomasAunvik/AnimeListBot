@@ -205,5 +205,29 @@ namespace AnimeListBot.Modules
             embed.Title = "Updated.";
             await embed.UpdateEmbed();
         }
+
+        [Command("updateallguilds")]
+        public async Task UpdateAllGuilds()
+        {
+            EmbedHandler embed = new EmbedHandler(Context.User, "Updating All Guilds");
+            await embed.SendMessage(Context.Channel);
+
+            List<SocketGuild> guilds = Program._client.Guilds.ToList();
+            for(int guildIndex = 0; guildIndex < guilds.Count; guildIndex++)
+            {
+                SocketGuild guild = guilds[guildIndex];
+                DiscordServer server = await DatabaseRequest.GetServerById(guild.Id);
+                server.UpdateGuildInfo(guild);
+
+                List<SocketRole> roles = Context.Guild.Roles.ToList();
+                roles.RemoveAll(x => server.server_ranks.AnimeroleId.Contains((long)x.Id));
+                server.server_ranks.NotSetRoleId = roles.Select(x => (long)x.Id).ToList();
+                server.server_ranks.NotSetRoleNames = roles.Select(x => x.Name).ToList();
+            }
+
+            await DatabaseConnection.db.SaveChangesAsync();
+            embed.Title = "All guilds are updated";
+            await embed.UpdateEmbed();
+        }
     }
 }

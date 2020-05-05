@@ -32,15 +32,31 @@ namespace AnimeListBot.Handler
         public static List<ulong> rolesUpdating = new List<ulong>();
 
         public ulong ServerId { get; set; }
+        public string name { get; set; }
+        public string icon { get; set; }
+
         public string Prefix { get; set; } = Program.botPrefix;
 
         public ServerStatistics server_statistics { get; set; }
         public ServerRanks server_ranks { get; set; }
 
         public DiscordServer() { }
-        public DiscordServer(IGuild guild) { ServerId = guild.Id; }
+        public DiscordServer(IGuild guild) { 
+            ServerId = guild.Id;
+            UpdateGuildInfo(guild);
+        }
 
-        public IGuild GetGuild() { return Program._client.GetGuild(ServerId); }
+        public void UpdateGuildInfo(IGuild guild)
+        {
+            name = guild.Name;
+            icon = guild.IconUrl;
+        }
+
+        public IGuild GetGuild() { 
+            IGuild guild = Program._client.GetGuild(ServerId);
+            UpdateGuildInfo(guild);
+            return guild;
+        }
         public async Task<IGuildUser> GetGuildUser(ulong userId) { return await GetGuildUser(GetGuild(), userId); }
         public static async Task<IGuildUser> GetGuildUser(IGuild guild, ulong userId) { return await guild.GetUserAsync(userId); }
    

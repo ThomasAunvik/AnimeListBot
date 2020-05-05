@@ -61,6 +61,8 @@ namespace AnimeListBot.Handler
                 return;
 
             DiscordServer server = await DatabaseRequest.GetServerById(guildChannel.GuildId);
+            server.UpdateGuildInfo(guildChannel.Guild);
+
             if (server.server_ranks == null) server.server_ranks = new ServerRanks();
 
             if (message?.Channel?.Id == server?.server_ranks?.RegisterChannelId)

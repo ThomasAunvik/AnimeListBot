@@ -93,6 +93,8 @@ namespace AnimeListBot.Handler
                     .ValueGeneratedNever();
 
                 entity.Property(e => e.Prefix).HasColumnName("prefix");
+                entity.Property(e => e.name).HasColumnName("name");
+                entity.Property(e => e.icon).HasColumnName("icon");
 
                 entity.Property(e => e.server_ranks).HasJsonConversion();
                 entity.Property(e => e.server_statistics).HasJsonConversion();

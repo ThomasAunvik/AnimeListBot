@@ -219,7 +219,7 @@ namespace AnimeListBot.Modules
                 DiscordServer server = await DatabaseRequest.GetServerById(guild.Id);
                 server.UpdateGuildInfo(guild);
 
-                List<SocketRole> roles = Context.Guild.Roles.ToList();
+                List<SocketRole> roles = guild.Roles.ToList();
                 roles.RemoveAll(x => server.server_ranks.AnimeroleId.Contains((long)x.Id));
                 server.server_ranks.NotSetRoleId = roles.Select(x => (long)x.Id).ToList();
                 server.server_ranks.NotSetRoleNames = roles.Select(x => x.Name).ToList();

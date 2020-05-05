@@ -100,7 +100,14 @@ namespace AnimeListBot.Modules
             else
             {
                 embed.Title = "Incorrect use of modes, the modes are: `anime` and `manga`";
+                return;
             }
+
+            List<SocketRole> roles = Context.Guild.Roles.ToList();
+            roles.RemoveAll(x => ranks.AnimeroleId.Contains((long)x.Id));
+            ranks.NotSetRoleId = roles.Select(x => (long)x.Id).ToList();
+            ranks.NotSetRoleNames = roles.Select(x => x.Name).ToList();
+
             server.server_ranks = ranks;
             await DatabaseConnection.db.SaveChangesAsync();
             await embed.UpdateEmbed();
@@ -148,7 +155,9 @@ namespace AnimeListBot.Modules
             else
             {
                 embed.Title = "Incorrect use of modes, the modes are: `anime` and `manga`";
+                return;
             }
+
             server.server_ranks = ranks;
             await DatabaseConnection.db.SaveChangesAsync();
             await embed.UpdateEmbed();
@@ -213,6 +222,11 @@ namespace AnimeListBot.Modules
                 embed.Title = "Incorrect use of options, the modes are: `anime` and `manga`";
                 return;
             }
+            List<SocketRole> roles = Context.Guild.Roles.ToList();
+            roles.RemoveAll(x => ranks.AnimeroleId.Contains((long)x.Id));
+            ranks.NotSetRoleId = roles.Select(x => (long)x.Id).ToList();
+            ranks.NotSetRoleNames = roles.Select(x => x.Name).ToList();
+
             server.server_ranks = ranks;
             await DatabaseConnection.db.SaveChangesAsync();
             await embed.UpdateEmbed();

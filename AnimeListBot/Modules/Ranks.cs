@@ -104,7 +104,10 @@ namespace AnimeListBot.Modules
             }
 
             List<SocketRole> roles = Context.Guild.Roles.ToList();
-            roles.RemoveAll(x => ranks.AnimeroleId.Contains((long)x.Id));
+            roles.RemoveAll(x =>
+                    server.server_ranks.AnimeroleId.Contains((long)x.Id) ||
+                    server.server_ranks.MangaroleId.Contains((long)x.Id)
+                );
             ranks.NotSetRoleId = roles.Select(x => (long)x.Id).ToList();
             ranks.NotSetRoleNames = roles.Select(x => x.Name).ToList();
 
@@ -223,7 +226,10 @@ namespace AnimeListBot.Modules
                 return;
             }
             List<SocketRole> roles = Context.Guild.Roles.ToList();
-            roles.RemoveAll(x => ranks.AnimeroleId.Contains((long)x.Id));
+            roles.RemoveAll(x =>
+                    server.server_ranks.AnimeroleId.Contains((long)x.Id) ||
+                    server.server_ranks.MangaroleId.Contains((long)x.Id)
+                );
             ranks.NotSetRoleId = roles.Select(x => (long)x.Id).ToList();
             ranks.NotSetRoleNames = roles.Select(x => x.Name).ToList();
 

@@ -18,6 +18,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using Discord;
 using Discord.WebSocket;
@@ -52,6 +53,19 @@ namespace AnimeListBot.Handler
             name = guild.Name;
             icon = guild.IconUrl;
             if (update) DatabaseConnection.db.SaveChanges();
+        }
+
+        public void UpdateGuildRoles()
+        {
+            IGuild guild = GetGuild();
+            List<IRole> roles = guild.Roles.ToList();
+            roles.RemoveAll(x =>
+                server_ranks.AnimeroleId.Contains((long)x.Id) ||
+                server_ranks.MangaroleId.Contains((long)x.Id)
+                );
+            roles.Remove(guild.EveryoneRole);
+            server_ranks.NotSetRoleId = roles.Select(x => (long)x.Id).ToList();
+            server_ranks.NotSetRoleNames = roles.Select(x => x.Name).ToList();
         }
 
         public IGuild GetGuild() { 

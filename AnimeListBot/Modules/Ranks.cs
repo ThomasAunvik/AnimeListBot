@@ -36,12 +36,18 @@ namespace AnimeListBot.Modules
         [RequireUserPermission(GuildPermission.ManageRoles)]
         public async Task AddRank(string option, IRole role, double days)
         {
-            DiscordServer server = await DatabaseRequest.GetServerById(Context.Guild.Id);
             EmbedHandler embed = new EmbedHandler(Context.User, "Adding rank " + role.Name + " (" + days +")...");
+            if(role.Id == Context.Guild.EveryoneRole.Id)
+            {
+                embed.Title = "You cannot set @everyone as a rank.";
+                await embed.SendMessage(Context.Channel);
+                return;
+            }
+
             await embed.SendMessage(Context.Channel);
 
+            DiscordServer server = await DatabaseRequest.GetServerById(Context.Guild.Id);
             ServerRanks ranks = server.server_ranks;
-
             if (option == "anime")
             {
                 if (ranks.AnimeroleId.Contains((long)role.Id))
@@ -103,14 +109,7 @@ namespace AnimeListBot.Modules
                 return;
             }
 
-            List<SocketRole> roles = Context.Guild.Roles.ToList();
-            roles.RemoveAll(x =>
-                    server.server_ranks.AnimeroleId.Contains((long)x.Id) ||
-                    server.server_ranks.MangaroleId.Contains((long)x.Id)
-                );
-            ranks.NotSetRoleId = roles.Select(x => (long)x.Id).ToList();
-            ranks.NotSetRoleNames = roles.Select(x => x.Name).ToList();
-
+            server.UpdateGuildRoles();
             server.server_ranks = ranks;
             await DatabaseConnection.db.SaveChangesAsync();
             await embed.UpdateEmbed();
@@ -225,14 +224,8 @@ namespace AnimeListBot.Modules
                 embed.Title = "Incorrect use of options, the modes are: `anime` and `manga`";
                 return;
             }
-            List<SocketRole> roles = Context.Guild.Roles.ToList();
-            roles.RemoveAll(x =>
-                    server.server_ranks.AnimeroleId.Contains((long)x.Id) ||
-                    server.server_ranks.MangaroleId.Contains((long)x.Id)
-                );
-            ranks.NotSetRoleId = roles.Select(x => (long)x.Id).ToList();
-            ranks.NotSetRoleNames = roles.Select(x => x.Name).ToList();
 
+            server.UpdateGuildRoles();
             server.server_ranks = ranks;
             await DatabaseConnection.db.SaveChangesAsync();
             await embed.UpdateEmbed();

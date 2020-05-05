@@ -218,14 +218,7 @@ namespace AnimeListBot.Modules
                 SocketGuild guild = guilds[guildIndex];
                 DiscordServer server = await DatabaseRequest.GetServerById(guild.Id);
                 server.UpdateGuildInfo(guild);
-
-                List<SocketRole> roles = guild.Roles.ToList();
-                roles.RemoveAll(x => 
-                    server.server_ranks.AnimeroleId.Contains((long)x.Id) ||
-                    server.server_ranks.MangaroleId.Contains((long)x.Id) 
-                    );
-                server.server_ranks.NotSetRoleId = roles.Select(x => (long)x.Id).ToList();
-                server.server_ranks.NotSetRoleNames = roles.Select(x => x.Name).ToList();
+                server.UpdateGuildRoles();
             }
 
             await DatabaseConnection.db.SaveChangesAsync();

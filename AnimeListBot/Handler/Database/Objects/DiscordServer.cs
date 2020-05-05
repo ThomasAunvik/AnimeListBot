@@ -48,8 +48,10 @@ namespace AnimeListBot.Handler
 
         public void UpdateGuildInfo(IGuild guild)
         {
+            bool update = name != guild.Name || icon != guild.IconUrl;
             name = guild.Name;
             icon = guild.IconUrl;
+            if (update) DatabaseConnection.db.SaveChanges();
         }
 
         public IGuild GetGuild() { 

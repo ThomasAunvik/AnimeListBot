@@ -74,6 +74,8 @@ namespace AnimeListBot.Modules
 
             RoleRank newRank = new RoleRank();
             newRank.Id = role.Id;
+            newRank.Name = role.Name;
+            newRank.Days = days;
             optionRanks.Add(newRank);
             embed.Title = "Added " + role.Name + " as the rank for having " + days + " days of watching " + Enum.GetName(typeof(RankOption), option).ToLower();
 
@@ -368,7 +370,7 @@ namespace AnimeListBot.Modules
 
             if (ranks.AnimeRanks.Count > 0)
             {
-                var animeRanks = ranks.AnimeRanks.OrderBy(o => o.Days).ToList();
+                var animeRanks = ranks.AnimeRanks.OrderBy(o => -o.Days).ToList();
 
                 RoleRank animeRank = animeRanks[0];
                 IRole animeRole = Context.Guild.GetRole(animeRank.Id);
@@ -391,7 +393,7 @@ namespace AnimeListBot.Modules
 
             if (ranks.MangaRanks.Count > 0)
             {
-                var mangaRanks = ranks.MangaRanks.OrderBy(o => o.Days).ToList();
+                var mangaRanks = ranks.MangaRanks.OrderBy(o => -o.Days).ToList();
 
                 RoleRank mangaRank = mangaRanks[0];
                 IRole mangaRole = Context.Guild.GetRole(mangaRank.Id);

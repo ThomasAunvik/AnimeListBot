@@ -42,12 +42,18 @@ namespace AnimeListBot.Handler
 
             _commands.CommandExecuted += CommandExecutedAsync;
             _commands.Log += Program.Log;
-            _discord.MessageReceived += MessageReceivedAsync;
+            _discord.ShardReady += Ready;
         }
 
         public async Task InitializeAsync()
         {
             await _commands.AddModulesAsync(Assembly.GetEntryAssembly(), _services);
+        }
+
+        private Task Ready(DiscordSocketClient arg)
+        {
+            _discord.MessageReceived += MessageReceivedAsync;
+            return Task.CompletedTask;
         }
 
         public async Task MessageReceivedAsync(SocketMessage rawMessage)

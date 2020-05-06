@@ -38,8 +38,8 @@ namespace AnimeListBot.Handler
 
         public string Prefix { get; set; } = Program.botPrefix;
 
-        public ServerStatistics server_statistics { get; set; }
-        public ServerRanks server_ranks { get; set; }
+        public ServerStatistics server_statistics { get; set; } = new ServerStatistics();
+        public ServerRanks server_ranks { get; set; } = new ServerRanks();
 
         public DiscordServer() { }
         public DiscordServer(IGuild guild) { 
@@ -58,14 +58,13 @@ namespace AnimeListBot.Handler
         public void UpdateGuildRoles()
         {
             IGuild guild = GetGuild();
-            List<IRole> roles = guild.Roles.ToList();
+            List<RoleRank> roles = guild.Roles.Select(x => new RoleRank() { Id = x.Id, Name = x.Name }).ToList();
             roles.RemoveAll(x =>
-                server_ranks.AnimeroleId.Contains((long)x.Id) ||
-                server_ranks.MangaroleId.Contains((long)x.Id)
+                server_ranks.AnimeRanks.Find(y => x.Id == y.Id) != null ||
+                server_ranks.MangaRanks.Find(y => x.Id == y.Id) != null
                 );
-            roles.Remove(guild.EveryoneRole);
-            server_ranks.NotSetRoleId = roles.Select(x => (long)x.Id).ToList();
-            server_ranks.NotSetRoleNames = roles.Select(x => x.Name).ToList();
+            roles.RemoveAll(x => x.Id == guild.EveryoneRole.Id);
+            server_ranks.NotSetRanks = roles;
         }
 
         public IGuild GetGuild() { 

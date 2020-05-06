@@ -28,6 +28,7 @@ using Discord.WebSocket;
 using Discord;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
+using JikanDotNet;
 
 namespace AnimeListBot.Modules
 {
@@ -165,47 +166,6 @@ namespace AnimeListBot.Modules
             await embed.UpdateEmbed();
         }
 
-        [Command("refreshranks", RunMode = RunMode.Async)]
-        public async Task UpdateServerRoleNames()
-        {
-            EmbedHandler embed = new EmbedHandler(Context.User, "Updating");
-            await embed.SendMessage(Context.Channel);
-
-            List<SocketGuild> guilds = Program._client.Guilds.ToList();
-            for(int guildIndex = 0; guildIndex < guilds.Count; guildIndex++)
-            {
-                SocketGuild guild = guilds[guildIndex];
-                DiscordServer server = await DatabaseRequest.GetServerById(guild.Id);
-
-                if (server.server_ranks.AnimeroleId.Count > 0)
-                {
-                    server.server_ranks.AnimeroleNames = new List<string>();
-                    for (int animeIndex = 0; animeIndex < server.server_ranks.AnimeroleId.Count; animeIndex++)
-                    {
-                        long id = server.server_ranks.AnimeroleId[animeIndex];
-                        IRole role = guild.GetRole((ulong)id);
-                        server.server_ranks.AnimeroleNames.Add(role.Name);
-                    }
-                }
-
-                if (server.server_ranks.MangaroleId.Count > 0)
-                {
-                    server.server_ranks.MangaroleNames = new List<string>();
-                    for (int mangaIndex = 0; mangaIndex < server.server_ranks.MangaroleId.Count; mangaIndex++)
-                    {
-                        long id = server.server_ranks.MangaroleId[mangaIndex];
-                        IRole role = guild.GetRole((ulong)id);
-                        server.server_ranks.MangaroleNames.Add(role.Name);
-                    }
-                }
-            }
-
-            await DatabaseConnection.db.SaveChangesAsync();
-
-            embed.Title = "Updated.";
-            await embed.UpdateEmbed();
-        }
-
         [Command("updateallguilds")]
         public async Task UpdateAllGuilds()
         {
@@ -218,6 +178,11 @@ namespace AnimeListBot.Modules
                 SocketGuild guild = guilds[guildIndex];
                 DiscordServer server = await DatabaseRequest.GetServerById(guild.Id);
                 server.UpdateGuildInfo(guild);
+
+                server.server_ranks.MangaRanks.ForEach(x => x.Name = Context.Guild.GetRole(x.Id)?.Name);
+                server.server_ranks.AnimeRanks.ForEach(x => x.Name = Context.Guild.GetRole(x.Id)?.Name);
+                server.server_ranks.NotSetRanks.ForEach(x => x.Name = Context.Guild.GetRole(x.Id)?.Name);
+
                 server.UpdateGuildRoles();
             }
 

@@ -186,10 +186,8 @@ namespace AnimeListBot.Modules
                     embed.Title = user.GetAnimelistUsername() + " Anime Statistics";
                     embed.Fields.Clear();
 
-                    (ulong, double) animeRank = user.GetAnimeServerRank(server);
-                    IRole animeRankRole = null;
-                    if (animeRank.Item1 != 0) animeRankRole = Context.Guild.GetRole(animeRank.Item1);
-                    if (animeRankRole != null) embed.AddFieldSecure("Rank", animeRankRole.Name, false);
+                    RoleRank animeRank = user.GetAnimeServerRank(server);
+                    if (animeRank != null) embed.AddFieldSecure("Rank", animeRank.Name, false);
 
                     embed.AddFieldSecure("Days", user.GetAnimeWatchDays(), true);
                     embed.AddFieldSecure("Mean Score", user.GetAnimeMeanScore(), true);
@@ -208,10 +206,8 @@ namespace AnimeListBot.Modules
                     embed.Title = user.GetAnimelistUsername() + " Manga Statistics";
                     embed.Fields.Clear();
 
-                    (ulong, double) mangaRank = user.GetMangaServerRank(server);
-                    IRole mangaRankRole = null;
-                    if (mangaRank.Item1 != 0) mangaRankRole = Context.Guild.GetRole(mangaRank.Item1);
-                    if (mangaRankRole != null) embed.AddFieldSecure("Rank", mangaRankRole.Name, false);
+                    RoleRank mangaRank = user.GetMangaServerRank(server);
+                    if (mangaRank != null) embed.AddFieldSecure("Rank", mangaRank.Name, false);
 
                     embed.AddFieldSecure("Days", user.GetMangaReadDays(), true);
                     embed.AddFieldSecure("Mean Score", user.GetMangaMeanScore(), true);
@@ -250,16 +246,12 @@ namespace AnimeListBot.Modules
                 {
                     embed.Title = user.GetAnimelistUsername() + " Profile";
 
-                    (ulong, double) animeRank = user.GetAnimeServerRank(server);
-                    (ulong, double) mangaRank = user.GetMangaServerRank(server);
-                    IRole animeRankRole = null;
-                    if (animeRank.Item1 != 0) animeRankRole = Context.Guild.GetRole(animeRank.Item1);
-                    IRole mangaRankRole = null;
-                    if (mangaRank.Item1 != 0) mangaRankRole = Context.Guild.GetRole(mangaRank.Item1);
+                    RoleRank animeRank = user.GetAnimeServerRank(server);
+                    RoleRank mangaRank = user.GetMangaServerRank(server);
 
-                    embed.AddFieldSecure("Anime:", (animeRankRole == null ? "No Rank" : "**Rank:** " + animeRankRole.Name) +
+                    embed.AddFieldSecure("Anime:", (animeRank == null ? "No Rank" : "**Rank:** " + animeRank.Name) +
                                              "\n**Days:** " + user.GetAnimeWatchDays());
-                    embed.AddFieldSecure("Manga:", (mangaRankRole == null ? "No Rank" : "**Rank:** " + mangaRankRole.Name) +
+                    embed.AddFieldSecure("Manga:", (mangaRank == null ? "No Rank" : "**Rank:** " + mangaRank.Name) +
                                              "\n**Days:** " + user.GetMangaReadDays());
                             
                 }

@@ -4,18 +4,16 @@ using System.Text;
 
 namespace AnimeListBot.Handler
 {
+    public enum RankOption
+    {
+        ANIME, MANGA
+    }
+
     public class ServerRanks
     {
         public ulong RegisterChannelId { get; set; } = 0;
-        public List<long> AnimeroleId { get; set; } = new List<long>();
-        public List<long> MangaroleId { get; set; } = new List<long>();
-        public List<long> NotSetRoleId { get; set; } = new List<long>();
-
-        public List<double> AnimeroleDays { get; set; } = new List<double>();
-        public List<double> MangaroleDays { get; set; } = new List<double>();
-
-        public List<string> AnimeroleNames { get; set; } = new List<string>();
-        public List<string> MangaroleNames { get; set; } = new List<string>();
-        public List<string> NotSetRoleNames { get; set; } = new List<string>();
+        public List<RoleRank> AnimeRanks { get; set; } = new List<RoleRank>();
+        public List<RoleRank> MangaRanks { get; set; } = new List<RoleRank>();
+        public List<RoleRank> NotSetRanks { get; set; } = new List<RoleRank>();
     }
 }

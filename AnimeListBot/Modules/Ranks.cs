@@ -25,6 +25,7 @@ using System.Threading;
 using AnimeListBot.Handler;
 using Discord.WebSocket;
 using JikanDotNet;
+using System.Security.Cryptography.X509Certificates;
 
 namespace AnimeListBot.Modules
 {
@@ -34,10 +35,28 @@ namespace AnimeListBot.Modules
         [Summary("Adds a rank for how many days you have spent with anime/manga (Options: [anime, manga]), Requires ManageRoles on both User and Bot")]
         [RequireBotPermission(GuildPermission.ManageRoles)]
         [RequireUserPermission(GuildPermission.ManageRoles)]
-        public async Task AddRank(string option, IRole role, double days)
+        public async Task AddRank(RankOption option, IRole role, double days)
         {
             EmbedHandler embed = new EmbedHandler(Context.User, "Adding rank " + role.Name + " (" + days +")...");
-            if(role.Id == Context.Guild.EveryoneRole.Id)
+            DiscordServer server = await DatabaseRequest.GetServerById(Context.Guild.Id);
+            ServerRanks ranks = server.server_ranks;
+
+            List<RoleRank> optionRanks;
+            switch (option)
+            {
+                case RankOption.ANIME:
+                    optionRanks = ranks.AnimeRanks;
+                    break;
+                case RankOption.MANGA:
+                    optionRanks = ranks.MangaRanks;
+                    break;
+                default:
+                    embed.Title = "Incorrect use of options, the modes are: `anime` and `manga`";
+                    await embed.SendMessage(Context.Channel);
+                    return;
+            }
+
+            if (role.Id == Context.Guild.EveryoneRole.Id)
             {
                 embed.Title = "You cannot set @everyone as a rank.";
                 await embed.SendMessage(Context.Channel);
@@ -46,80 +65,28 @@ namespace AnimeListBot.Modules
 
             await embed.SendMessage(Context.Channel);
 
-            DiscordServer server = await DatabaseRequest.GetServerById(Context.Guild.Id);
-            ServerRanks ranks = server.server_ranks;
-            if (option == "anime")
+            if (optionRanks.Find(x => x.Id == role.Id) != null)
             {
-                if (ranks.AnimeroleId.Contains((long)role.Id))
-                {
-                    embed.Title = "Anime Role: " + role.Name + " already exists.";
-                    await embed.UpdateEmbed();
-                    return;
-                }
-
-                int roleIndex = ranks.AnimeroleDays.FindIndex(x => days < x);
-                if (roleIndex == -1) roleIndex = 0;
-                else roleIndex++;
-
-                var roleid = ranks.AnimeroleId.ToList();
-                roleid.Insert(roleIndex, (long)role.Id);
-                ranks.AnimeroleId = roleid;
-
-                var roledays = ranks.AnimeroleDays.ToList();
-                roledays.Insert(roleIndex, days);
-                ranks.AnimeroleDays = roledays;
-
-                var rolenames = ranks.AnimeroleNames.ToList();
-                rolenames.Insert(roleIndex, role.Name);
-                ranks.AnimeroleNames = rolenames;
-
-                await DatabaseConnection.db.SaveChangesAsync();
-                embed.Title = "Added " + role.Name + " as the rank for having " + days + " days of watching anime";
-            }
-            else if(option == "manga")
-            {
-                if (ranks.MangaroleId.Contains((long)role.Id))
-                {
-                    embed.Title = "Manga Role: " + role.Name + " already exists.";
-                    await embed.UpdateEmbed();
-                    return;
-                }
-                int roleIndex = ranks.MangaroleDays.FindIndex(x => days < x);
-                if (roleIndex == -1) roleIndex = 0;
-                else roleIndex++;
-
-                var roleid = ranks.MangaroleId.ToList();
-                roleid.Insert(roleIndex, (long)role.Id);
-                ranks.MangaroleId = roleid;
-
-                var roledays = ranks.MangaroleDays.ToList();
-                roledays.Insert(roleIndex, days);
-                ranks.MangaroleDays = roledays;
-
-                var rolenames = ranks.MangaroleNames.ToList();
-                rolenames.Insert(roleIndex, role.Name);
-                ranks.MangaroleNames = rolenames;
-
-                await DatabaseConnection.db.SaveChangesAsync();
-                embed.Title = "Added " + role.Name + " as the rank for having " + days + " days of reading manga";
-            }
-            else
-            {
-                embed.Title = "Incorrect use of modes, the modes are: `anime` and `manga`";
+                embed.Title = "Role: " + role.Name + " already exists for " + Enum.GetName(typeof(RankOption), option);
+                await embed.UpdateEmbed();
                 return;
             }
 
-            server.UpdateGuildRoles();
-            server.server_ranks = ranks;
-            await DatabaseConnection.db.SaveChangesAsync();
+            RoleRank newRank = new RoleRank();
+            newRank.Id = role.Id;
+            optionRanks.Add(newRank);
+            embed.Title = "Added " + role.Name + " as the rank for having " + days + " days of watching " + Enum.GetName(typeof(RankOption), option).ToLower();
+
             await embed.UpdateEmbed();
+            server.UpdateGuildRoles();
+            await DatabaseConnection.db.SaveChangesAsync();
         }
 
         [Command("editrank")]
         [Summary("Edits a rank for how many days you have spent with anime/manga (Options: [anime, manga]), Requires ManageRoles on both User and Bot")]
         [RequireBotPermission(GuildPermission.ManageRoles)]
         [RequireUserPermission(GuildPermission.ManageRoles)]
-        public async Task EditRank(string option, IRole role, double newDays)
+        public async Task EditRank(RankOption option, IRole role, double newDays)
         {
             EmbedHandler embed = new EmbedHandler(Context.User, "Editing rank " + role.Name + " to " + newDays + "...");
             await embed.SendMessage(Context.Channel);
@@ -127,49 +94,42 @@ namespace AnimeListBot.Modules
             DiscordServer server = await DatabaseRequest.GetServerById(Context.Guild.Id);
             ServerRanks ranks = server.server_ranks;
 
-            if (option == "anime")
+            List<RoleRank> optionRanks;
+            switch (option)
             {
-                int animeRoleIndex = ranks.AnimeroleId.ToList().FindIndex(x => x == (long)role.Id);
-                if (animeRoleIndex >= 0) {
-                    ranks.AnimeroleDays[animeRoleIndex] = newDays;
-                    ranks.AnimeroleNames[animeRoleIndex] = role.Name;
-                    embed.Title = "Anime rank: " + role.Name + " was set to " + newDays + " days.";
-                }
-                else
-                {
-                    embed.Title = "Failed to change rank, the role is not set from before.";
-                }
+                case RankOption.ANIME:
+                    optionRanks = ranks.AnimeRanks;
+                    break;
+                case RankOption.MANGA:
+                    optionRanks = ranks.MangaRanks;
+                    break;
+                default:
+                    embed.Title = "Incorrect use of options, the modes are: `anime` and `manga`";
+                    await embed.UpdateEmbed();
+                    return;
             }
-            else if (option == "manga")
+
+            RoleRank animeRole = optionRanks.Find(x => x.Id == role.Id);
+            if (animeRole != null)
             {
-                int mangaRoleIndex = ranks.MangaroleId.ToList().FindIndex(x => x == (long)role.Id);
-                if (mangaRoleIndex >= 0)
-                {
-                    ranks.MangaroleDays[mangaRoleIndex] = newDays;
-                    ranks.MangaroleNames[mangaRoleIndex] = role.Name;
-                    embed.Title = "Manga rank: " + role.Name + " was set to " + newDays + " days.";
-                }
-                else
-                {
-                    embed.Title = "Failed to change rank, the role is not set from before.";
-                }
+                animeRole.Days = newDays;
+                animeRole.Name = role.Name;
+                embed.Title = "Anime rank: " + role.Name + " was set to " + newDays + " days.";
             }
             else
             {
-                embed.Title = "Incorrect use of modes, the modes are: `anime` and `manga`";
-                return;
+                embed.Title = "Failed to change rank, the role is not set from before.";
             }
-
-            server.server_ranks = ranks;
-            await DatabaseConnection.db.SaveChangesAsync();
             await embed.UpdateEmbed();
+            server.UpdateGuildRoles();
+            await DatabaseConnection.db.SaveChangesAsync();
         }
 
         [Command("removerank")]
         [Summary("Removes a rank (Options: [anime, manga]), Requires ManageRoles on both User and Bot")]
         [RequireBotPermission(GuildPermission.ManageRoles)]
         [RequireUserPermission(GuildPermission.ManageRoles)]
-        public async Task RemoveRank(string option, IRole role)
+        public async Task RemoveRank(RankOption option, IRole role)
         {
             EmbedHandler embed = new EmbedHandler(Context.User, "Removing role " + role.Name + " from ranks...");
             await embed.SendMessage(Context.Channel);
@@ -177,58 +137,30 @@ namespace AnimeListBot.Modules
             DiscordServer server = await DatabaseRequest.GetServerById(Context.Guild.Id);
             ServerRanks ranks = server.server_ranks;
 
-            if (option == "anime")
+            List<RoleRank> optionRanks;
+            switch (option)
             {
-                var roleid = ranks.AnimeroleId.ToList();
-                int animeRoleIndex = roleid.FindIndex(x => x == (long)role.Id);
-                if (animeRoleIndex >= 0)
-                {
-                    roleid.RemoveAt(animeRoleIndex);
-                    ranks.AnimeroleId = roleid;
-
-                    var roledays = ranks.AnimeroleDays.ToList();
-                    roledays.RemoveAt(animeRoleIndex);
-                    ranks.AnimeroleDays = roledays;
-
-                    await DatabaseConnection.db.SaveChangesAsync();
-                    embed.Title = "Anime Role " + role.Name + " was removed from the ranks.";
-                }
-                else
-                {
-                    embed.Title = "Failed to remove rank, the role is not set from before.";
-                }
+                case RankOption.ANIME:
+                    optionRanks = ranks.AnimeRanks;
+                    break;
+                case RankOption.MANGA:
+                    optionRanks = ranks.MangaRanks;
+                    break;
+                default:
+                    embed.Title = "Incorrect use of options, the modes are: `anime` and `manga`";
+                    await embed.UpdateEmbed();
+                    return;
             }
-            else if (option == "manga")
-            {
-                var roleid = ranks.MangaroleId.ToList();
-                int mangaRoleIndex = roleid.FindIndex(x => x == (long)role.Id);
-                if (mangaRoleIndex >= 0)
-                {
-                    roleid.RemoveAt(mangaRoleIndex);
-                    ranks.MangaroleId = roleid;
 
-                    var roledays = server.server_ranks.MangaroleDays.ToList();
-                    roledays.RemoveAt(mangaRoleIndex);
-                    ranks.MangaroleDays = roledays;
-
-                    await DatabaseConnection.db.SaveChangesAsync();
-                    embed.Title = "Manga Role " + role.Name + " was removed from the ranks.";
-                }
-                else
-                {
-                    embed.Title = "Failed to remove rank, the role is not set from before.";
-                }
-            }
+            int ranksRemoved = ranks.AnimeRanks.RemoveAll(x => x.Id == role.Id);
+            if (ranksRemoved > 0)
+                embed.Title = "Role (" + Enum.GetName(typeof(RankOption), option) + ") " + role.Name + " was removed from the ranks.";
             else
-            {
-                embed.Title = "Incorrect use of options, the modes are: `anime` and `manga`";
-                return;
-            }
+                embed.Title = "Failed to remove rank, the role is not set from before.";
 
-            server.UpdateGuildRoles();
-            server.server_ranks = ranks;
-            await DatabaseConnection.db.SaveChangesAsync();
             await embed.UpdateEmbed();
+            server.UpdateGuildRoles();
+            await DatabaseConnection.db.SaveChangesAsync();
         }
 
         [Command("updateranks")]
@@ -303,64 +235,56 @@ namespace AnimeListBot.Modules
                 // CALCULATING USER INFO
                 await user.UpdateUserInfo();
 
-                (ulong, double) animeRank = user.GetAnimeServerRank(server);
-                (ulong, double) mangaRank = user.GetMangaServerRank(server);
-                IRole animeRankRole = null;
-                if (animeRank.Item1 != 0) animeRankRole = guild.GetRole(animeRank.Item1);
-                IRole mangaRankRole = null;
-                if (mangaRank.Item1 != 0) mangaRankRole = guild.GetRole(mangaRank.Item1);
-
+                RoleRank animeRank = user.GetAnimeServerRank(server);
+                RoleRank mangaRank = user.GetMangaServerRank(server);
 
                 // DELETING ROLES
 
-                List<long> delAnimeRoles = new List<long>();
-                if (server.server_ranks.AnimeroleId != null && server.server_ranks.AnimeroleId.Count > 0)
-                {
-                    delAnimeRoles = server.server_ranks.AnimeroleId.ToList();
-                    if (animeRankRole != null) delAnimeRoles.Remove((long)animeRankRole.Id);
-                    delAnimeRoles.ToList().ForEach(x => {
-                        if (!guildUser.RoleIds.Contains((ulong)x))
-                            delAnimeRoles.Remove(x);
-                    });
-                }
+                List<RoleRank> delAnimeRoles = server.server_ranks.AnimeRanks.ToList();
+                if(mangaRank != null) delAnimeRoles.RemoveAll(x => x.Id == animeRank.Id);
+                delAnimeRoles.RemoveAll(x => guildUser.RoleIds.Contains(x.Id));
 
-                List<long> delMangaRoles = new List<long>();
-                if (server.server_ranks.MangaroleId != null &&  server.server_ranks.MangaroleId.Count > 0)
-                {
-                    delMangaRoles = server.server_ranks.MangaroleId.ToList();
-                    if (mangaRankRole != null) delMangaRoles.Remove((long)mangaRankRole.Id);
-                    delMangaRoles.ToList().ForEach(x => {
-                        if (!guildUser.RoleIds.Contains((ulong)x))
-                            delMangaRoles.Remove(x);
-                    });
-                }
+                List<RoleRank> delMangaRoles = server.server_ranks.MangaRanks.ToList();
+                if(mangaRank != null) delMangaRoles.RemoveAll(x => x.Id == mangaRank.Id);
+                delMangaRoles.RemoveAll(x => guildUser.RoleIds.Contains(x.Id));
 
                 if (delAnimeRoles.Count > 0 || delMangaRoles.Count > 0)
                 {
-                    var rolesToDelete = delAnimeRoles.Select(z => guild.GetRole((ulong)z)).ToList();
-                    delMangaRoles.ForEach(x => { rolesToDelete.Add(guild.GetRole((ulong)x)); });
+                    var animeRoles = delAnimeRoles.Select(z => guild.GetRole(z.Id)).ToArray();
+                    var mangaRoles = delMangaRoles.Select(z => guild.GetRole(z.Id)).ToArray();
+                    if(animeRoles.Length > 0)
+                    {
+                        var animeString = string.Join(", ", animeRoles.Select(x => x.Name));
+                        await Program._logger.Log("User: " + guildUser.Username + " lost these anime ranks: " + animeString);
+                        await guildUser.RemoveRolesAsync(animeRoles);
+                    }
 
-                    rolesToDelete.ForEach(async x => { await Program._logger.Log(guildUser.Username + " lost rank " + x.Name); });
-                    await guildUser.RemoveRolesAsync(rolesToDelete);
+                    if (mangaRoles.Length > 0)
+                    {
+                        var mangaString = string.Join(", ", mangaRoles.Select(x => x.Name));
+                        await Program._logger.Log("User: " + guildUser.Username + " lost these manga ranks: " + mangaString);
+                        await guildUser.RemoveRolesAsync(mangaRoles);
+                    }
+
                 }
 
                 // ADDING ROLES
 
-                if (animeRankRole != null)
+                if (animeRank != null)
                 {
-                    if (!guildUser.RoleIds.Contains(animeRankRole.Id))
+                    if (!guildUser.RoleIds.Contains(animeRank.Id))
                     {
-                        IRole role = guild.GetRole(animeRankRole.Id);
+                        IRole role = guild.GetRole(animeRank.Id);
                         await guildUser.AddRoleAsync(role);
                         await Program._logger.Log(guildUser.Username + " got anime rank " + role.Name + " in server " + guild.Name);
                     }
                 }
 
-                if (mangaRankRole != null)
+                if (mangaRank != null)
                 {
-                    if (!guildUser.RoleIds.Contains(mangaRankRole.Id))
+                    if (!guildUser.RoleIds.Contains(mangaRank.Id))
                     {
-                        IRole role = guild.GetRole(mangaRankRole.Id);
+                        IRole role = guild.GetRole(mangaRank.Id);
                         await guildUser.AddRoleAsync(role);
                         await Program._logger.Log(guildUser.Username + " got manga rank " + role.Name + " in server " + guild.Name);
                     }
@@ -393,11 +317,7 @@ namespace AnimeListBot.Modules
             List<IGuildUser> users = iro_users.ToList();
             for(int i = 0; i < users.Count; i++) {
                 IGuildUser sUser = users[i];
-                DiscordUser user;
-
-                if (!DatabaseRequest.DoesUserIdExist(sUser.Id))
-                    await DatabaseRequest.CreateUser(user = new DiscordUser(sUser));
-                else user = await DatabaseRequest.GetUserById(sUser.Id);
+                DiscordUser user = await DatabaseRequest.GetUserById(sUser.Id);
 
                 await UpdateUserRole(server, user, embed);
 
@@ -435,7 +355,8 @@ namespace AnimeListBot.Modules
             embed.Title = "List of Ranks";
 
             DiscordServer server = await DatabaseRequest.GetServerById(Context.Guild.Id);
-            if((server.server_ranks.AnimeroleId == null && server.server_ranks.AnimeroleDays == null) || (server.server_ranks.AnimeroleId.Count <= 0 && server.server_ranks.MangaroleId.Count <= 0))
+            ServerRanks ranks = server.server_ranks;
+            if(ranks.AnimeRanks.Count <= 0 && ranks.MangaRanks.Count <= 0)
             {
                 embed.Title = "This server does not have any anime and manga ranks.";
                 embed.Description = "For administrators: Use `" + server.Prefix + "addrank`";
@@ -445,19 +366,19 @@ namespace AnimeListBot.Modules
 
             // ANIME
 
-            if (server.server_ranks.AnimeroleId != null && server.server_ranks.AnimeroleId.Count > 0)
+            if (ranks.AnimeRanks.Count > 0)
             {
-                (ulong roleId, double days) animeRank = ((ulong)server.server_ranks.AnimeroleId[0], server.server_ranks.AnimeroleDays[0]);
-                IRole animeRole = Context.Guild.GetRole(animeRank.roleId);
+                var animeRanks = ranks.AnimeRanks.OrderBy(o => o.Days).ToList();
 
-                string animeRoleList = animeRole.Name + " for " + animeRank.days + " days";
-                for (int i = 1; i < server.server_ranks.AnimeroleId.Count; i++)
+                RoleRank animeRank = animeRanks[0];
+                IRole animeRole = Context.Guild.GetRole(animeRank.Id);
+
+                string animeRoleList = animeRole.Name + " for " + animeRank.Days + " days";
+                for (int i = 1; i < animeRanks.Count; i++)
                 {
-                    animeRank = ((ulong)server.server_ranks.AnimeroleId[i], server.server_ranks.AnimeroleDays[i]);
-                    animeRole = Context.Guild.GetRole(animeRank.roleId);
-                    animeRoleList += "\n" + animeRole.Name + " for " + animeRank.days + " days";
-
-                    server.server_ranks.AnimeroleNames[i] = animeRole.Name;
+                    animeRank = animeRanks[i];
+                    animeRole = Context.Guild.GetRole(animeRank.Id);
+                    animeRoleList += "\n" + animeRole.Name + " for " + animeRank.Days + " days";
                 }
                 embed.AddFieldSecure(new EmbedFieldBuilder()
                 {
@@ -468,19 +389,19 @@ namespace AnimeListBot.Modules
 
             // MANGA
 
-            if (server.server_ranks.MangaroleId != null && server.server_ranks.MangaroleId.Count > 0)
+            if (ranks.MangaRanks.Count > 0)
             {
-                (ulong roleId, double days) mangaRank = ((ulong)server.server_ranks.MangaroleId[0], server.server_ranks.MangaroleDays[0]);
-                IRole mangaRole = Context.Guild.GetRole(mangaRank.roleId);
+                var mangaRanks = ranks.MangaRanks.OrderBy(o => o.Days).ToList();
 
-                string mangaRoleList = mangaRole.Name + " for " + mangaRank.days + " days";
-                for (int i = 1; i < server.server_ranks.MangaroleId.Count; i++)
+                RoleRank mangaRank = mangaRanks[0];
+                IRole mangaRole = Context.Guild.GetRole(mangaRank.Id);
+
+                string mangaRoleList = mangaRole.Name + " for " + mangaRank.Days + " days";
+                for (int i = 1; i < mangaRanks.Count; i++)
                 {
-                    mangaRank = ((ulong)server.server_ranks.MangaroleId[i], server.server_ranks.MangaroleDays[i]);
-                    mangaRole = Context.Guild.GetRole(mangaRank.roleId);
-                    mangaRoleList += "\n" + mangaRole.Name + " for " + mangaRank.days + " days";
-
-                    server.server_ranks.MangaroleNames[i] = mangaRole.Name;
+                    mangaRank = mangaRanks[i];
+                    mangaRole = Context.Guild.GetRole(mangaRank.Id);
+                    mangaRoleList += "\n" + mangaRole.Name + " for " + mangaRank.Days + " days";
                 }
                 embed.AddFieldSecure(new EmbedFieldBuilder()
                 {

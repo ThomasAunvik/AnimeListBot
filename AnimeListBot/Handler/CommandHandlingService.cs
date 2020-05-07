@@ -43,6 +43,7 @@ namespace AnimeListBot.Handler
             _commands.CommandExecuted += CommandExecutedAsync;
             _commands.Log += Program.Log;
             _discord.ShardReady += Ready;
+            _discord.MessageReceived += MessageReceivedAsync;
         }
 
         public async Task InitializeAsync()
@@ -52,7 +53,6 @@ namespace AnimeListBot.Handler
 
         private Task Ready(DiscordSocketClient arg)
         {
-            _discord.MessageReceived += MessageReceivedAsync;
             return Task.CompletedTask;
         }
 

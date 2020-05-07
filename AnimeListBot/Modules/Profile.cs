@@ -263,7 +263,6 @@ namespace AnimeListBot.Modules
                     if (perm.ManageMessages)
                     {
                         await Ranks.UpdateUserRole(server, user, null);
-                        return;
                     }
                 }
             }

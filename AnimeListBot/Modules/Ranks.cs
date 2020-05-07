@@ -205,6 +205,7 @@ namespace AnimeListBot.Modules
 
         [RequireValidAnimelist]
         [Command("updaterank")]
+        [RequireBotPermission(GuildPermission.ManageRoles)]
         public async Task UpdateRank(IGuildUser user = null)
         {
             if (user == null) user = Context.User as IGuildUser;

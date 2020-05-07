@@ -69,9 +69,10 @@ namespace AnimeListBot.Handler
             DiscordServer server = await DatabaseRequest.GetServerById(guildChannel.GuildId);
             server.UpdateGuildInfo(guildChannel.Guild);
 
+            if (server.server_statistics == null) server.server_statistics = new ServerStatistics();
             if (server.server_ranks == null) server.server_ranks = new ServerRanks();
 
-            if (message?.Channel?.Id == server?.server_ranks?.RegisterChannelId)
+            if (guildChannel.Id == server.server_ranks.RegisterChannelId)
             {
                 await DiscordUser.CheckAndCreateUser(message.Author.Id);
                 await AutoAdder.AddUser(message, server);
@@ -81,6 +82,11 @@ namespace AnimeListBot.Handler
             // This value holds the offset where the prefix ends
             var argPos = 0;
             if (!(message.HasStringPrefix(server.Prefix, ref argPos) || message.HasMentionPrefix(Program._client.CurrentUser, ref argPos)))
+                return;
+
+            IGuildUser botUser = await guildChannel.Guild.GetCurrentUserAsync();
+            ChannelPermissions perm = botUser.GetPermissions(guildChannel);
+            if (!perm.SendMessages)
                 return;
 
             // A new kind of command context, ShardedCommandContext can be utilized with the commands framework
@@ -134,6 +140,7 @@ namespace AnimeListBot.Handler
                 string errorMessage = "Missing Permission Error";
                 EmbedHandler embed = new EmbedHandler(context.Message.Author, errorMessage, result.ErrorReason);
                 await embed.SendMessage(context.Channel);
+                
             }
         }
     }

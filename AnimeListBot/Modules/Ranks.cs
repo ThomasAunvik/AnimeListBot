@@ -245,11 +245,11 @@ namespace AnimeListBot.Modules
 
                 List<RoleRank> delAnimeRoles = server.server_ranks.AnimeRanks.ToList();
                 if(mangaRank != null) delAnimeRoles.RemoveAll(x => x.Id == animeRank.Id);
-                delAnimeRoles.RemoveAll(x => guildUser.RoleIds.Contains(x.Id));
+                delAnimeRoles.RemoveAll(x => !guildUser.RoleIds.Contains(x.Id));
 
                 List<RoleRank> delMangaRoles = server.server_ranks.MangaRanks.ToList();
                 if(mangaRank != null) delMangaRoles.RemoveAll(x => x.Id == mangaRank.Id);
-                delMangaRoles.RemoveAll(x => guildUser.RoleIds.Contains(x.Id));
+                delMangaRoles.RemoveAll(x => !guildUser.RoleIds.Contains(x.Id));
 
                 if (delAnimeRoles.Count > 0 || delMangaRoles.Count > 0)
                 {

@@ -133,8 +133,11 @@ namespace AnimeListBot.Handler
             embed.AddFieldSecure("Severity", Enum.GetName(typeof(LogSeverity), message.Severity));
             embed.AddFieldSecure("Source", message.Source);
             embed.AddFieldSecure("Exception Message", message.Exception.Message);
-            embed.AddFieldSecure("Type", message.Exception.GetType().FullName);
-            embed.AddFieldSecure("Stacktrace", TrancuateStacktrace(message.Exception.StackTrace));
+            if (message.Exception.StackTrace != null)
+            {
+                embed.AddFieldSecure("Type", message.Exception.GetType().FullName);
+                embed.AddFieldSecure("Stacktrace", TrancuateStacktrace(message.Exception.StackTrace));
+            }
             await LogError(message.Exception, embed);
         }
 

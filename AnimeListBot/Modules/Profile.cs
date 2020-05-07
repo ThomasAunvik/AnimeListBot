@@ -256,7 +256,16 @@ namespace AnimeListBot.Modules
                             
                 }
 
-                await Ranks.UpdateUserRole(server, user, null);
+                if (Context.Channel is ITextChannel channel)
+                {
+                    IGuildUser currUser = await channel.Guild.GetCurrentUserAsync();
+                    ChannelPermissions perm = currUser.GetPermissions(channel);
+                    if (perm.ManageMessages)
+                    {
+                        await Ranks.UpdateUserRole(server, user, null);
+                        return;
+                    }
+                }
             }
             else
             {

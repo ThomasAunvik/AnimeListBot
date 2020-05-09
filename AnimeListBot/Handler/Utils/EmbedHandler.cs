@@ -82,7 +82,7 @@ namespace AnimeListBot.Handler
             List<(IEmote, Action)> newEmotes = emojiActions.FindAll(x => allEmotes.Find(y=> y.Name == x.Item1.Name) == null);
             if (newEmotes.Count > 0 && embedMessage.Reactions.Select(x => x.Key) != newEmotes)
             {
-                if(newEmotes.Count > 0) await embedMessage.AddReactionsAsync(newEmotes.Select(x=>x.Item1).ToArray());
+                if(newEmotes.Count > 0) await embedMessage.AddReactionsAsync(newEmotes.Select(x => x.Item1).ToArray());
                 emoteTimeout = DateTime.Now.AddSeconds(120);
 
                 CheckTimeouts();

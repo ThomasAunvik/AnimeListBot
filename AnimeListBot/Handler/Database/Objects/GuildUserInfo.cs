@@ -13,14 +13,22 @@ namespace AnimeListBot.Handler
         [JsonProperty("server_id")]
         public ulong ServerId { get; set; }
         [JsonProperty("roles")]
-        public List<ulong> roles;
+        public List<ulong> Roles { get; set; }
+
+        [JsonProperty("admin")]
+        public bool Admin { get; set; }
+        [JsonProperty("manageroles")]
+        public bool ManageRoles { get; set; }
 
         public GuildUserInfo() { }
 
         public GuildUserInfo(IGuildUser guildUser)
         {
             ServerId = guildUser.GuildId;
-            roles = guildUser.RoleIds.ToList();
+            Roles = guildUser.RoleIds.ToList();
+
+            Admin = guildUser.GuildPermissions.Administrator;
+            ManageRoles = guildUser.GuildPermissions.ManageRoles;
         }
     }
 }

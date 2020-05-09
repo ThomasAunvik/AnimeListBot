@@ -65,12 +65,16 @@ namespace AnimeListBot
         public static bool stop = false;
         public static bool firstInitilized = false;
 
+        public static bool TestingMode { get; private set; }
+
         public static DateTime BOT_START_TIME { get; private set; }
 
-        private static void Main(string[] args) => new Program().RunBotAsync().GetAwaiter().GetResult();
+        private static void Main(string[] args) => new Program().RunBotAsync(args).GetAwaiter().GetResult();
 
-        public async Task RunBotAsync()
+        public async Task RunBotAsync(string[] args)
         {
+            if (args.Contains("-testing")) TestingMode = true;
+
             BOT_START_TIME = DateTime.Now;
 
             _logger = new Logger();
@@ -116,6 +120,10 @@ namespace AnimeListBot
                 _client.ShardReady += OnReadyAsync;
                 _client.JoinedGuild += OnJoinedGuild;
                 _client.LeftGuild += OnLeftGuild;
+                _client.GuildMemberUpdated += OnGuildMemberUpdated;
+                _client.UserLeft += OnUserLeft;
+                _client.UserBanned += OnUserBanned;
+                _client.RoleUpdated += OnRoleUpdated;
 
                 _client.ReactionAdded += OnReactionAdded;
 
@@ -179,6 +187,38 @@ namespace AnimeListBot
 
             await _logger.Log("Updated guild count: " + _client.Guilds.Count);
             await _dbl.UpdateStats(_client.Guilds.Count);
+        }
+
+        private async Task OnGuildMemberUpdated(SocketGuildUser arg1, SocketGuildUser arg2)
+        {
+            if (DatabaseRequest.DoesUserIdExist(arg2.Id)){
+                DiscordUser user = await DatabaseRequest.GetUserById(arg2.Id);
+                await user.RefreshMutualGuilds();
+            }
+        }
+
+        private async Task OnUserBanned(SocketUser arg1, SocketGuild arg2)
+        {
+            if(DatabaseRequest.DoesUserIdExist(arg2.Id))
+            {
+                DiscordUser user = await DatabaseRequest.GetUserById(arg1.Id);
+                user.Servers.RemoveAll(x => x.ServerId == arg2.Id);
+            }
+        }
+
+        private async Task OnUserLeft(SocketGuildUser arg)
+        {
+            if (DatabaseRequest.DoesUserIdExist(arg.Id))
+            {
+                DiscordUser user = await DatabaseRequest.GetUserById(arg.Id);
+                user.Servers.RemoveAll(x => x.ServerId == arg.Guild.Id);
+            }
+        }
+
+        private async Task OnRoleUpdated(SocketRole arg1, SocketRole arg2)
+        {
+            DiscordServer server = await DatabaseRequest.GetServerById(arg2.Guild.Id);
+            server.ranks.UpdateRankPermission(arg2.Id, arg2.Permissions.RawValue);
         }
 
         private Task OnReactionAdded(Cacheable<IUserMessage, ulong> arg1, ISocketMessageChannel arg2, SocketReaction arg3)

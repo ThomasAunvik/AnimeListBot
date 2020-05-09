@@ -39,7 +39,49 @@ namespace AnimeListBot.Handler.Anilist
    	                avatar{
                       large
                       medium
-                    } 
+                    }
+
+                    favourites {
+                      anime {
+                        nodes {
+                          id
+                          title {
+                            romaji
+                            english
+                            native
+                            userPreferred
+                          }
+          
+                        }
+                        pageInfo {
+                          total
+                          perPage
+                          currentPage
+                          lastPage
+                          hasNextPage
+                        }
+                      }
+
+                      manga {
+                        nodes {
+                          id
+                          title {
+                            romaji
+                            english
+                            native
+                            userPreferred
+                          }
+          
+                        }
+                        pageInfo {
+                          total
+                          perPage
+                          currentPage
+                          lastPage
+                          hasNextPage
+                        }
+                      }
+                    }
     
                     statistics{
                       anime{

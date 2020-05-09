@@ -39,7 +39,7 @@ namespace AnimeListBot.Modules
         {
             EmbedHandler embed = new EmbedHandler(Context.User, "Adding rank " + role.Name + " (" + days +")...");
             DiscordServer server = await DatabaseRequest.GetServerById(Context.Guild.Id);
-            ServerRanks ranks = server.server_ranks;
+            ServerRanks ranks = server.ranks;
 
             List<RoleRank> optionRanks;
             switch (option)
@@ -76,6 +76,7 @@ namespace AnimeListBot.Modules
             newRank.Id = role.Id;
             newRank.Name = role.Name;
             newRank.Days = days;
+            newRank.RawGuildPermissionsValue = role.Permissions.RawValue;
             optionRanks.Add(newRank);
             embed.Title = "Added " + role.Name + " as the rank for having " + days + " days of watching " + Enum.GetName(typeof(RankOption), option).ToLower();
 
@@ -94,7 +95,7 @@ namespace AnimeListBot.Modules
             await embed.SendMessage(Context.Channel);
 
             DiscordServer server = await DatabaseRequest.GetServerById(Context.Guild.Id);
-            ServerRanks ranks = server.server_ranks;
+            ServerRanks ranks = server.ranks;
 
             List<RoleRank> optionRanks;
             switch (option)
@@ -137,7 +138,7 @@ namespace AnimeListBot.Modules
             await embed.SendMessage(Context.Channel);
 
             DiscordServer server = await DatabaseRequest.GetServerById(Context.Guild.Id);
-            ServerRanks ranks = server.server_ranks;
+            ServerRanks ranks = server.ranks;
 
             List<RoleRank> optionRanks;
             switch (option)
@@ -243,11 +244,11 @@ namespace AnimeListBot.Modules
 
                 // DELETING ROLES
 
-                List<RoleRank> delAnimeRoles = server.server_ranks.AnimeRanks.ToList();
+                List<RoleRank> delAnimeRoles = server.ranks.AnimeRanks.ToList();
                 if(mangaRank != null) delAnimeRoles.RemoveAll(x => x.Id == animeRank.Id);
                 delAnimeRoles.RemoveAll(x => !guildUser.RoleIds.Contains(x.Id));
 
-                List<RoleRank> delMangaRoles = server.server_ranks.MangaRanks.ToList();
+                List<RoleRank> delMangaRoles = server.ranks.MangaRanks.ToList();
                 if(mangaRank != null) delMangaRoles.RemoveAll(x => x.Id == mangaRank.Id);
                 delMangaRoles.RemoveAll(x => !guildUser.RoleIds.Contains(x.Id));
 
@@ -358,7 +359,7 @@ namespace AnimeListBot.Modules
             embed.Title = "List of Ranks";
 
             DiscordServer server = await DatabaseRequest.GetServerById(Context.Guild.Id);
-            ServerRanks ranks = server.server_ranks;
+            ServerRanks ranks = server.ranks;
             if(ranks.AnimeRanks.Count <= 0 && ranks.MangaRanks.Count <= 0)
             {
                 embed.Title = "This server does not have any anime and manga ranks.";

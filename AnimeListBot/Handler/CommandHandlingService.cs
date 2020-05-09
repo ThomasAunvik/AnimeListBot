@@ -66,13 +66,27 @@ namespace AnimeListBot.Handler
             if (message.Source != MessageSource.User)
                 return;
 
+            if (Program.TestingMode)
+            {
+                if (guildChannel.Id != Config.cached.test_channel) return;
+
+                if (!Program.botOwners.Contains(message.Author.Id))
+                {
+                    return;
+                }
+            }
+            else
+            {
+                if (guildChannel.Id == Config.cached.error_channel) return;
+            }
+
             DiscordServer server = await DatabaseRequest.GetServerById(guildChannel.GuildId);
             server.UpdateGuildInfo(guildChannel.Guild);
 
-            if (server.server_statistics == null) server.server_statistics = new ServerStatistics();
-            if (server.server_ranks == null) server.server_ranks = new ServerRanks();
+            if (server.stats == null) server.stats = new ServerStatistics();
+            if (server.ranks == null) server.ranks = new ServerRanks();
 
-            if (guildChannel.Id == server.server_ranks.RegisterChannelId)
+            if (guildChannel.Id == server.ranks.RegisterChannelId)
             {
                 await DiscordUser.CheckAndCreateUser(message.Author.Id);
                 await AutoAdder.AddUser(message, server);
@@ -110,8 +124,8 @@ namespace AnimeListBot.Handler
             if (result.IsSuccess)
             {
                 await BotInfo.CommandUsed();
-                if (server.server_statistics == null) server.server_statistics = new ServerStatistics();
-                server.server_statistics.CommandsUsed++;
+                if (server.stats == null) server.stats = new ServerStatistics();
+                server.stats.CommandsUsed++;
                 await DatabaseConnection.db.SaveChangesAsync();
                 return;
             }

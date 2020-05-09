@@ -90,8 +90,9 @@ namespace AnimeListBot.Handler
             if (Program._client == null) return;
 
             const ulong ownerId = 96580514021912576;
-            ulong channelId = Config.cached.error_channel;
+            ulong channelId = Program.TestingMode ? Config.cached.test_error_channel : Config.cached.error_channel;
             SocketUser owner = Program._client.GetUser(ownerId);
+
             SocketTextChannel channel = (SocketTextChannel)Program._client.GetChannel(channelId);
 
             if (owner != null)

@@ -53,7 +53,7 @@ namespace AnimeListBot.Handler
         public double AnimeDays { get; set; }
         public double MangaDays { get; set; }
 
-        public List<long> Servers { get; set; } = new List<long>();
+        public List<GuildUserInfo> Servers { get; set; } = new List<GuildUserInfo>();
 
         [NotMapped]
         public DateTime malCachedTime = DateTime.MinValue;
@@ -105,14 +105,16 @@ namespace AnimeListBot.Handler
         {
             SocketUser user = GetUser();
             if (user == null) return;
-            if (Servers == null) Servers = new List<long>();
+            if (Servers == null) Servers = new List<GuildUserInfo>();
+
             List<SocketGuild> mutualGuilds = user.MutualGuilds.ToList();
             for(int guildIndex = 0; guildIndex < mutualGuilds.Count; guildIndex++)
             {
-                long guildId = (long)mutualGuilds[guildIndex].Id;
-                if (!Servers.Contains(guildId))
+                SocketGuild guild = mutualGuilds[guildIndex];
+                if (Servers.Find(x => x.ServerId == guild.Id) == null)
                 {
-                    Servers.Add(guildId);
+                    SocketGuildUser guildUser = guild.GetUser(user.Id);
+                    Servers.Add(new GuildUserInfo(guildUser));
                 }
             }
             await UpdateDatabase();
@@ -174,9 +176,9 @@ namespace AnimeListBot.Handler
 
         public RoleRank GetAnimeServerRank(DiscordServer server)
         {
-            if (server.server_ranks.AnimeRanks.Count <= 0) return null;
+            if (server.ranks.AnimeRanks.Count <= 0) return null;
 
-            var roles = server.server_ranks.AnimeRanks.OrderBy(x => x.Days).ToList();
+            var roles = server.ranks.AnimeRanks.OrderBy(x => x.Days).ToList();
 
             int roleIndex = roles.FindIndex(x => AnimeDays < x.Days);
             if (roleIndex == -1) roleIndex = roles.Count - 1;
@@ -315,9 +317,9 @@ namespace AnimeListBot.Handler
 
         public RoleRank GetMangaServerRank(DiscordServer server)
         {
-            if (server.server_ranks.MangaRanks.Count <= 0) return null;
+            if (server.ranks.MangaRanks.Count <= 0) return null;
 
-            var roles = server.server_ranks.MangaRanks.OrderBy(x => x.Days).ToList();
+            var roles = server.ranks.MangaRanks.OrderBy(x => x.Days).ToList();
 
             int roleIndex = roles.FindIndex(x => MangaDays < x.Days);
             if (roleIndex == -1) roleIndex = roles.Count - 1;

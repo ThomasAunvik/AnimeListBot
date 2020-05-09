@@ -49,6 +49,11 @@ namespace AnimeListBot.Handler
             }
 
             Color = Program.embedColor;
+
+            if (Program.TestingMode)
+            {
+                AddFieldSecure("Testing Mode", "On");
+            }
         }
 
         public void SetOwner(IUser user)

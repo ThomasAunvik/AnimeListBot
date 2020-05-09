@@ -48,7 +48,7 @@ namespace AnimeListBot.Modules
             System.Random rnd = new System.Random();
             int rndNumber = rnd.Next(0, ids.sfw.Count);
 
-            await Search.GetAnime(embed, Context.User, ids.sfw[rndNumber]);
+            await Search.GetAnime(embed, DiscordUser.AnimeList.MAL, Context.User, ids.sfw[rndNumber]);
         }
 
         [Command("randommanga")]
@@ -64,7 +64,7 @@ namespace AnimeListBot.Modules
             System.Random rnd = new System.Random();
             int rndNumber = rnd.Next(0, ids.sfw.Count);
 
-            await Search.GetManga(embed, Context.User, ids.sfw[rndNumber]);
+            await Search.GetManga(embed, DiscordUser.AnimeList.MAL, Context.User, ids.sfw[rndNumber]);
         }
     }
 }

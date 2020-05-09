@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "AnimeListBot": {
+      "commandName": "Project",
+      "commandLineArgs": "-testing"
+    }
+  }
+}

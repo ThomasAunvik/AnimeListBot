@@ -96,8 +96,8 @@ namespace AnimeListBot.Handler
                 entity.Property(e => e.name).HasColumnName("name");
                 entity.Property(e => e.icon).HasColumnName("icon");
 
-                entity.Property(e => e.server_ranks).HasJsonConversion();
-                entity.Property(e => e.server_statistics).HasJsonConversion();
+                entity.Property(e => e.ranks).HasColumnName("server_ranks").HasJsonConversion();
+                entity.Property(e => e.stats).HasColumnName("server_statistics").HasJsonConversion();
             });
 
             modelBuilder.Entity<DiscordUser>(entity =>
@@ -121,7 +121,7 @@ namespace AnimeListBot.Handler
 
                 entity.Property(e => e.MangaDays).HasColumnName("manga_days");
 
-                entity.Property(e => e.Servers).HasColumnName("servers");
+                entity.Property(e => e.Servers).HasColumnName("guilds").HasJsonConversion();
             });
 
             modelBuilder.Entity<Cluster>(entity =>

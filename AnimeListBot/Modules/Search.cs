@@ -47,20 +47,38 @@ namespace AnimeListBot.Modules
         }
 
         [Command("midanime")]
-        public static async Task GetAnime(EmbedHandler embed, IUser targetUser, long id)
+        public static async Task GetAnime(EmbedHandler embed, DiscordUser.AnimeList list, IUser targetUser, long id)
         {
-            DiscordUser globalUser = await DatabaseRequest.GetUserById(targetUser.Id);
-
-            Anime malAnime = await Program._jikan.GetAnime(id);
-
-            embed.Title = "No Anime Found";
-
-            if (malAnime != null)
+            if(id == 0)
             {
-                AnimeSearchEntry entry = MalClassTransfer.AnimeToSearchEntry(malAnime);
-                await SetAnimeMalInfo(entry, embed, globalUser, targetUser);
+                embed.Title = "No Anime Found";
+                await embed.UpdateEmbed();
+                return;
             }
 
+            DiscordUser globalUser = await DatabaseRequest.GetUserById(targetUser.Id);
+            embed.Title = "No Anime Found";
+
+            switch (list)
+            {
+                case DiscordUser.AnimeList.MAL:
+                    Anime malAnime = await Program._jikan.GetAnime(id);
+
+                    if (malAnime != null)
+                    {
+                        AnimeSearchEntry entry = MalClassTransfer.AnimeToSearchEntry(malAnime);
+                        await SetAnimeMalInfo(entry, embed, globalUser, targetUser);
+                    }
+                    break;
+
+                case DiscordUser.AnimeList.Anilist:
+                    IAniMedia media = await AniMediaQuery.GetMedia((int)id, AniMediaType.ANIME);
+                    if (media != null)
+                    {
+                        await SetAnimeAniInfo(media, embed, globalUser, targetUser);
+                    }
+                    break;
+            }
             await embed.UpdateEmbed();
         }
 
@@ -138,18 +156,37 @@ namespace AnimeListBot.Modules
         }
 
         [Command("midmanga")]
-        public static async Task GetManga(EmbedHandler embed, IUser targetUser, long id)
+        public static async Task GetManga(EmbedHandler embed, DiscordUser.AnimeList list, IUser targetUser, long id)
         {
-            DiscordUser globalUser = await DatabaseRequest.GetUserById(targetUser.Id);
+            if (id != 0)
+            {
+                embed.Title = "No Manga Found";
+                await embed.UpdateEmbed();
+                return;
+            }
 
-            Manga malManga = await Program._jikan.GetManga(id);
-            
+            DiscordUser globalUser = await DatabaseRequest.GetUserById(targetUser.Id);
             embed.Title = "No Manga Found";
 
-            if (malManga != null)
+            switch (list)
             {
-                MangaSearchEntry entry = MalClassTransfer.MangaToSearchEntry(malManga);
-                await SetMangaMalInfo(entry, embed, globalUser, targetUser);
+                case DiscordUser.AnimeList.MAL:
+                    Manga malManga = await Program._jikan.GetManga(id);
+
+                    if (malManga != null)
+                    {
+                        MangaSearchEntry entry = MalClassTransfer.MangaToSearchEntry(malManga);
+                        await SetMangaMalInfo(entry, embed, globalUser, targetUser);
+                    }
+                    break;
+
+                case DiscordUser.AnimeList.Anilist:
+                    IAniMedia media = await AniMediaQuery.GetMedia((int)id, AniMediaType.MANGA);
+                    if (media != null)
+                    {
+                        await SetMangaAniInfo(media, embed, globalUser, targetUser);
+                    }
+                    break;
             }
             await embed.UpdateEmbed();
         }

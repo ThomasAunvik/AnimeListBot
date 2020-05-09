@@ -29,6 +29,8 @@ namespace AnimeListBot.Handler.Anilist
             public AniUserAvatar Avatar { get; set; }
 
             public AniUserStatisticTypes statistics { get; set; }
+
+            public AniFavourites favourites { get; set; }
         }
     }
 }

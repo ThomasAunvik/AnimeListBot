@@ -25,5 +25,7 @@ namespace AnimeListBot.Handler.Anilist
          AniUserAvatar Avatar { get; }
 
          AniUserStatisticTypes statistics { get; }
+
+         AniFavourites favourites { get; }
     }
 }

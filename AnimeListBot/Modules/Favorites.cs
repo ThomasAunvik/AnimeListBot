@@ -15,14 +15,13 @@
  * along with AnimeList Bot.  If not, see <https://www.gnu.org/licenses/>
  */
 using AnimeListBot.Handler;
+using AnimeListBot.Handler.Anilist;
 using Discord;
 using Discord.Commands;
 using JikanDotNet;
-using System;
 using System.Collections.Generic;
-using System.Text;
-using System.Threading.Tasks;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace AnimeListBot.Modules
 {
@@ -43,28 +42,57 @@ namespace AnimeListBot.Modules
             if (gUser.HasValidAnimelist())
             {
                 await gUser.UpdateUserInfo();
-                UserProfile profile = gUser.malProfile;
-                List<MALImageSubItem> favAnimeList = profile.Favorites.Anime.ToList();
-                embed.Title = "";
-                if (favAnimeList.Count <= 0) embed.Description = "No Anime Favorites...";
-
-                string favListMessage = string.Empty;
-
-                for (int i = 0; i < favAnimeList.Count && i < 10; i++)
+                if (gUser.ListPreference == DiscordUser.AnimeList.MAL)
                 {
-                    int index = i;
-                    MALImageSubItem subItem = favAnimeList[index];
-                    Emoji emote = new Emoji(Emotes.NUMBERS_EMOTES[index]);
+                    UserProfile profile = gUser.malProfile;
+                    List<MALImageSubItem> favAnimeList = profile.Favorites.Anime.ToList();
+                    embed.Title = "";
+                    if (favAnimeList.Count <= 0) embed.Description = "No Anime Favorites...";
 
-                    favListMessage += emote + " " + subItem.Name + "\n";
-                    embed.AddEmojiAction(emote, async () => {
-                        embed.Fields.Clear();
-                        embed.RemoveAllEmojiActions();
-                        await Search.GetAnime(embed, user, subItem.MalId); 
-                    });
+                    string favListMessage = string.Empty;
+
+                    for (int i = 0; i < favAnimeList.Count && i < 10; i++)
+                    {
+                        int index = i;
+                        MALImageSubItem subItem = favAnimeList[index];
+                        Emoji emote = new Emoji(Emotes.NUMBERS_EMOTES[index]);
+
+                        favListMessage += emote + " " + subItem.Name + "\n";
+                        embed.AddEmojiAction(emote, async () =>
+                        {
+                            embed.Fields.Clear();
+                            embed.RemoveAllEmojiActions();
+                            await Search.GetAnime(embed, gUser.ListPreference, user, subItem.MalId);
+                        });
+                    }
+
+                    if (favListMessage != string.Empty) embed.AddField("Favorite Anime", favListMessage);
+                }else if(gUser.ListPreference == DiscordUser.AnimeList.Anilist)
+                {
+                    IAniUser profile = gUser.anilistProfile;
+                    List<AniMediaResponse.AniMedia> favAnimeList = profile.favourites.anime.nodes;
+                    embed.Title = "";
+                    if (favAnimeList.Count <= 0) embed.Description = "No Anime Favorites...";
+
+                    string favListMessage = string.Empty;
+
+                    for (int i = 0; i < favAnimeList.Count && i < 10; i++)
+                    {
+                        int index = i;
+                        AniMediaResponse.AniMedia subItem = favAnimeList[index];
+                        Emoji emote = new Emoji(Emotes.NUMBERS_EMOTES[index]);
+
+                        favListMessage += emote + " " + subItem.title.english + "\n";
+                        embed.AddEmojiAction(emote, async () =>
+                        {
+                            embed.Fields.Clear();
+                            embed.RemoveAllEmojiActions();
+                            await Search.GetAnime(embed, gUser.ListPreference, user, subItem.id.GetValueOrDefault());
+                        });
+                    }
+
+                    if (favListMessage != string.Empty) embed.AddField("Favorite Anime", favListMessage);
                 }
-
-                if(favListMessage != string.Empty) embed.AddField("Favorite Anime", favListMessage);
             }
             else
             {
@@ -88,28 +116,58 @@ namespace AnimeListBot.Modules
             if (gUser.HasValidAnimelist())
             {
                 await gUser.UpdateUserInfo();
-                UserProfile profile = gUser.malProfile;
-                List<MALImageSubItem> favMangaList = profile.Favorites.Manga.ToList();
-                embed.Title = "";
-                if (favMangaList.Count <= 0) embed.Description = "No Manga Favorites...";
-
-                string favListMessage = string.Empty;
-
-                for (int i = 0; i < favMangaList.Count && i < 10; i++)
+                if (gUser.ListPreference == DiscordUser.AnimeList.MAL)
                 {
-                    int index = i;
-                    MALImageSubItem subItem = favMangaList[index];
-                    Emoji emote = new Emoji(Emotes.NUMBERS_EMOTES[index]);
+                    UserProfile profile = gUser.malProfile;
+                    List<MALImageSubItem> favMangaList = profile.Favorites.Manga.ToList();
+                    embed.Title = "";
+                    if (favMangaList.Count <= 0) embed.Description = "No Manga Favorites...";
 
-                    favListMessage += emote + " " + subItem.Name + "\n";
-                    embed.AddEmojiAction(emote, async () => {
-                        embed.Fields.Clear();
-                        embed.RemoveAllEmojiActions();
-                        await Search.GetManga(embed, user, subItem.MalId);
-                    });
+                    string favListMessage = string.Empty;
+
+                    for (int i = 0; i < favMangaList.Count && i < 10; i++)
+                    {
+                        int index = i;
+                        MALImageSubItem subItem = favMangaList[index];
+                        Emoji emote = new Emoji(Emotes.NUMBERS_EMOTES[index]);
+
+                        favListMessage += emote + " " + subItem.Name + "\n";
+                        embed.AddEmojiAction(emote, async () =>
+                        {
+                            embed.Fields.Clear();
+                            embed.RemoveAllEmojiActions();
+                            await Search.GetManga(embed, gUser.ListPreference, user, subItem.MalId);
+                        });
+                    }
+
+                    if (favListMessage != string.Empty) embed.AddField("Favorite Manga", favListMessage);
                 }
+                else if (gUser.ListPreference == DiscordUser.AnimeList.Anilist)
+                {
+                    IAniUser profile = gUser.anilistProfile;
+                    List<AniMediaResponse.AniMedia> favManagList = profile.favourites.manga.nodes;
+                    embed.Title = "";
+                    if (favManagList.Count <= 0) embed.Description = "No Manga Favorites...";
 
-                if (favListMessage != string.Empty) embed.AddField("Favorite Manga", favListMessage);
+                    string favListMessage = string.Empty;
+
+                    for (int i = 0; i < favManagList.Count && i < 10; i++)
+                    {
+                        int index = i;
+                        AniMediaResponse.AniMedia subItem = favManagList[index];
+                        Emoji emote = new Emoji(Emotes.NUMBERS_EMOTES[index]);
+
+                        favListMessage += emote + " " + subItem.title.english + "\n";
+                        embed.AddEmojiAction(emote, async () =>
+                        {
+                            embed.Fields.Clear();
+                            embed.RemoveAllEmojiActions();
+                            await Search.GetAnime(embed, gUser.ListPreference, user, subItem.id.GetValueOrDefault());
+                        });
+                    }
+
+                    if (favListMessage != string.Empty) embed.AddField("Favorite Anime", favListMessage);
+                }
             }
             else
             {

@@ -37,6 +37,8 @@ namespace AnimeListBot.Handler
         public string dbl_token;
 
         public ulong error_channel;
+        public ulong test_error_channel;
+        public ulong test_channel;
 
         // Database
         public string ip;

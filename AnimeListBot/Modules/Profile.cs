@@ -316,7 +316,7 @@ namespace AnimeListBot.Modules
 
             List<DiscordUser> users = DatabaseConnection.db.DiscordUser.ToList();
             List<DiscordUser> guildUsers = users.Where(y => y.Servers != null)
-                                                .Where(x => x.Servers.Contains((long)server.ServerId)).ToList();
+                                                .Where(x => x.Servers.Find(y => y.ServerId == server.ServerId) != null).ToList();
 
             List<DiscordUser> animeLeaderboard = guildUsers.OrderByDescending(x => x.GetAnimeWatchDays()).ToList();
             animeLeaderboard.RemoveAll(x => x.GetAnimeWatchDays() == 0);

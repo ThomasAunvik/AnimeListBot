@@ -173,21 +173,37 @@ namespace AnimeListBot.Modules
             await embed.SendMessage(Context.Channel);
 
             List<SocketGuild> guilds = Program._client.Guilds.ToList();
-            for(int guildIndex = 0; guildIndex < guilds.Count; guildIndex++)
+            for (int guildIndex = 0; guildIndex < guilds.Count; guildIndex++)
             {
                 SocketGuild guild = guilds[guildIndex];
                 DiscordServer server = await DatabaseRequest.GetServerById(guild.Id);
                 server.UpdateGuildInfo(guild);
 
-                server.server_ranks.MangaRanks.ForEach(x => x.Name = Context.Guild.GetRole(x.Id)?.Name);
-                server.server_ranks.AnimeRanks.ForEach(x => x.Name = Context.Guild.GetRole(x.Id)?.Name);
-                server.server_ranks.NotSetRanks.ForEach(x => x.Name = Context.Guild.GetRole(x.Id)?.Name);
-
+                server.ranks.MangaRanks.ForEach(x => x.UpdateRank(guild));
+                server.ranks.AnimeRanks.ForEach(x => x.UpdateRank(guild));
                 server.UpdateGuildRoles();
             }
 
             await DatabaseConnection.db.SaveChangesAsync();
             embed.Title = "All guilds are updated";
+            await embed.UpdateEmbed();
+        }
+
+        [Command("updateallusers")]
+        public async Task UpdateAllUsers()
+        {
+            EmbedHandler embed = new EmbedHandler(Context.User, "Updating All Users");
+            await embed.SendMessage(Context.Channel);
+
+            List<DiscordUser> users = DatabaseConnection.db.DiscordUser.ToList();
+            for (int userIndex = 0; userIndex < users.Count; userIndex++)
+            {
+                DiscordUser user = users[userIndex];
+                await user.RefreshMutualGuilds();
+            }
+
+            await DatabaseConnection.db.SaveChangesAsync();
+            embed.Title = "All users are updated";
             await embed.UpdateEmbed();
         }
     }

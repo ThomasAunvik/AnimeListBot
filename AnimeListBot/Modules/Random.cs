@@ -15,7 +15,9 @@
  * along with AnimeList Bot.  If not, see <https://www.gnu.org/licenses/>
  */
 using AnimeListBot.Handler;
+using AnimeListBot.Handler.Database;
 using Discord.Commands;
+using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -27,6 +29,8 @@ namespace AnimeListBot.Modules
 {
     public class Random : ModuleBase<ShardedCommandContext>
     {
+        public DatabaseService _db { get; set; }
+
         class ListRequest
         {
             public List<long> sfw = new List<long>();
@@ -48,7 +52,8 @@ namespace AnimeListBot.Modules
             System.Random rnd = new System.Random();
             int rndNumber = rnd.Next(0, ids.sfw.Count);
 
-            await Search.GetAnime(embed, DiscordUser.AnimeList.MAL, Context.User, ids.sfw[rndNumber]);
+            DiscordUser user = await _db.GetUserById(Context.User.Id);
+            await Search.GetAnime(embed, user, ids.sfw[rndNumber], AnimeListPreference.MAL);
         }
 
         [Command("randommanga")]
@@ -64,7 +69,8 @@ namespace AnimeListBot.Modules
             System.Random rnd = new System.Random();
             int rndNumber = rnd.Next(0, ids.sfw.Count);
 
-            await Search.GetManga(embed, DiscordUser.AnimeList.MAL, Context.User, ids.sfw[rndNumber]);
+            DiscordUser user = await _db.GetUserById(Context.User.Id);
+            await Search.GetManga(embed, user, ids.sfw[rndNumber], AnimeListPreference.MAL);
         }
     }
 }

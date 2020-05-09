@@ -30,11 +30,12 @@ namespace AnimeListBot.Handler
 {
     public partial class DatabaseConnection : DbContext
     {
+        /*
         private static DatabaseConnection _db;
         public static DatabaseConnection db { get {
                 if (_db == null) _db = new DatabaseConnection();
                 return _db;
-            } }
+            } }*/
 
         public virtual DbSet<DiscordServer> DiscordServer { get; set; }
         public virtual DbSet<DiscordUser> DiscordUser { get; set; }

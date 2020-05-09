@@ -7,7 +7,7 @@ namespace AnimeListBot.Handler
 {
     public class RoleRank
     {
-        public ulong Id { get; set; }
+        public string Id { get; set; }
         public string Name { get; set; }
         public double Days { get; set; }
 
@@ -15,9 +15,25 @@ namespace AnimeListBot.Handler
 
         public void UpdateRank(IGuild guild)
         {
-            IRole role = guild.GetRole(Id);
-            Name = role.Name;
-            RawGuildPermissionsValue = role.Permissions.RawValue;
+            ulong idResult;
+            if (ulong.TryParse(Id, out idResult))
+            {
+                IRole role = guild.GetRole(idResult);
+                if (role == null) return;
+
+                Name = role.Name;
+                RawGuildPermissionsValue = role.Permissions.RawValue;
+            }
+        }
+
+        public ulong GetRoleID()
+        {
+            ulong idResult;
+            if (ulong.TryParse(Id, out idResult))
+            {
+                return idResult;
+            }
+            return 0;
         }
     }
 }

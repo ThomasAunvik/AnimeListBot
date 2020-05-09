@@ -15,6 +15,7 @@
  * along with AnimeList Bot.  If not, see <https://www.gnu.org/licenses/>
  */
 using AnimeListBot.Handler;
+using AnimeListBot.Handler.Database;
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
@@ -29,11 +30,13 @@ namespace AnimeListBot.Modules
     {
         private CommandService _service;
         private readonly IServiceProvider _services;
+        private DatabaseService _db;
 
-        public HelpModule(CommandService service, IServiceProvider services)
+        public HelpModule(CommandService service, IServiceProvider services, DatabaseService db)
         {
             _service = service;
             _services = services;
+            _db = db;
         }
 
         [Command("help")]
@@ -129,7 +132,7 @@ namespace AnimeListBot.Modules
         {
             var foo = await Context.Client.GetApplicationInfoAsync();
 
-            DiscordServer server = await DatabaseRequest.GetServerById(Context.Guild.Id);
+            DiscordServer server = await _db.GetServerById(Context.Guild.Id);
 
             var builder = GetHelpEmbed();
             builder.Description = $"These are the commands you can use \nFor more detailed command explanations type `{server.Prefix}help <command>`";
@@ -205,7 +208,7 @@ namespace AnimeListBot.Modules
         public async Task Prefix(string newPrefix = "")
         {
             EmbedHandler embed = new EmbedHandler(Context.User);
-            DiscordServer server = await DatabaseRequest.GetServerById(Context.Guild.Id);
+            DiscordServer server = await _db.GetServerById(Context.Guild.Id);
 
             IGuildUser user = Context.Guild.GetUser(Context.User.Id);
             if (!user.GuildPermissions.Administrator)
@@ -232,7 +235,7 @@ namespace AnimeListBot.Modules
             }
 
             server.Prefix = newPrefix;
-            await DatabaseConnection.db.SaveChangesAsync();
+            await _db.SaveChangesAsync();
 
             embed.Title = "Prefix Set to";
             embed.Description = "`" + server.Prefix + "`";

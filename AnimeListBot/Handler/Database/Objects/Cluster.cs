@@ -28,15 +28,6 @@ namespace AnimeListBot.Handler
         public int ShardIdStart { get; set; }
         public int ShardIdEnd { get; set; }
 
-        public static async Task<int> GetTotalShards()
-        {
-            if (Config.cached.override_shard_amount > 0) return Config.cached.override_shard_amount;
-
-            int total = 0;
-            await DatabaseConnection.db.Cluster.ForEachAsync(x => total += x.GetShardCount());
-            return total;
-        }
-
         public int GetShardCount()
         {
             if (Config.cached.override_shard_amount > 0) return Config.cached.override_shard_amount;

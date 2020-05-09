@@ -23,6 +23,7 @@ using System.Data.SqlTypes;
 
 namespace AnimeListBot.Handler
 {
+    /*
     public class DatabaseRequest
     {
         public static List<DiscordServer> GetAllServers()
@@ -115,5 +116,5 @@ namespace AnimeListBot.Handler
             await DatabaseConnection.db.SaveChangesAsync();
             return true;
         }
-    }
+    }*/
 }

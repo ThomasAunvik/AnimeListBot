@@ -49,21 +49,19 @@ namespace AnimeListBot.Handler
 
         public void UpdateGuildInfo(IGuild guild)
         {
-            bool update = name != guild.Name || icon != guild.IconUrl;
             name = guild.Name;
             icon = guild.IconUrl;
-            if (update) DatabaseConnection.db.SaveChanges();
         }
 
         public void UpdateGuildRoles()
         {
             IGuild guild = GetGuild();
-            List<RoleRank> roles = guild.Roles.Select(x => new RoleRank() { Id = x.Id, Name = x.Name, RawGuildPermissionsValue = x.Permissions.RawValue }).ToList();
+            List<RoleRank> roles = guild.Roles.Select(x => new RoleRank() { Id = x.Id.ToString(), Name = x.Name, RawGuildPermissionsValue = x.Permissions.RawValue }).ToList();
             roles.RemoveAll(x =>
                 ranks.AnimeRanks.Find(y => x.Id == y.Id) != null ||
                 ranks.MangaRanks.Find(y => x.Id == y.Id) != null
                 );
-            roles.RemoveAll(x => x.Id == guild.EveryoneRole.Id);
+            roles.RemoveAll(x => x.Id == guild.EveryoneRole.Id.ToString());
             ranks.NotSetRanks = roles;
         }
 

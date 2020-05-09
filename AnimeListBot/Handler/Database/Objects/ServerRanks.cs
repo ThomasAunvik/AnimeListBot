@@ -11,7 +11,7 @@ namespace AnimeListBot.Handler
 
     public class ServerRanks
     {
-        public ulong RegisterChannelId { get; set; } = 0;
+        public string RegisterChannelId { get; set; } = "";
         public List<RoleRank> AnimeRanks { get; set; } = new List<RoleRank>();
         public List<RoleRank> MangaRanks { get; set; } = new List<RoleRank>();
         public List<RoleRank> NotSetRanks { get; set; } = new List<RoleRank>();
@@ -19,15 +19,15 @@ namespace AnimeListBot.Handler
         public void UpdateRankPermission(ulong id, ulong permission)
         {
             RoleRank rank;
-            if((rank = AnimeRanks.Find(x => x.Id == id)) != null)
+            if((rank = AnimeRanks.Find(x => x.Id == id.ToString())) != null)
             {
                 rank.RawGuildPermissionsValue = permission;
             }
-            else if ((rank = MangaRanks.Find(x => x.Id == id)) != null)
+            else if ((rank = MangaRanks.Find(x => x.Id == id.ToString())) != null)
             {
                 rank.RawGuildPermissionsValue = permission;
             }
-            else if ((rank = NotSetRanks.Find(x => x.Id == id)) != null)
+            else if ((rank = NotSetRanks.Find(x => x.Id == id.ToString())) != null)
             {
                 rank.RawGuildPermissionsValue = permission;
             }

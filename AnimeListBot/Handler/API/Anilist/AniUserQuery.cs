@@ -127,11 +127,9 @@ namespace AnimeListBot.Handler.Anilist
                         name = username
                     }
                 };
-                using (var graphQLClient = new GraphQLHttpClient(AnilistConstants.AnilistAPILink, new NewtonsoftJsonSerializer()))
-                {
-                    var response = await graphQLClient.SendQueryAsync<AniUserResponse>(userRequest);
-                    return response.Data.User;
-                }
+                using var graphQLClient = new GraphQLHttpClient(AnilistConstants.AnilistAPILink, new NewtonsoftJsonSerializer());
+                var response = await graphQLClient.SendQueryAsync<AniUserResponse>(userRequest);
+                return response.Data.User;
             }
             catch (GraphQLHttpException http)
             {

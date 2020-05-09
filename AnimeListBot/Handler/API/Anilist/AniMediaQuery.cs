@@ -42,13 +42,11 @@ namespace AnimeListBot.Handler.Anilist
                         asHtml = false
                     }
                 };
-                using (var graphQLClient = new GraphQLHttpClient(AnilistConstants.AnilistAPILink, new NewtonsoftJsonSerializer()))
-                {
-                    var response = await graphQLClient.SendQueryAsync<AniMediaResponse>(mediaRequest);
-                    var media = response.Data.Media;
-                    media.description = media?.description?.Replace("<br>", "\n");
-                    return media;
-                }
+                using var graphQLClient = new GraphQLHttpClient(AnilistConstants.AnilistAPILink, new NewtonsoftJsonSerializer());
+                var response = await graphQLClient.SendQueryAsync<AniMediaResponse>(mediaRequest);
+                var media = response.Data.Media;
+                media.description = media?.description?.Replace("<br>", "\n");
+                return media;
             }
             catch (GraphQLHttpException http)
             {
@@ -77,13 +75,11 @@ namespace AnimeListBot.Handler.Anilist
                         asHtml = false
                     }
                 };
-                using (var graphQLClient = new GraphQLHttpClient(AnilistConstants.AnilistAPILink, new NewtonsoftJsonSerializer()))
-                {
-                    var response = await graphQLClient.SendQueryAsync<AniMediaResponse>(mediaRequest);
-                    var media = response.Data.Media;
-                    media.description = media?.description?.Replace("<br>", "\n");
-                    return media;
-                }
+                using var graphQLClient = new GraphQLHttpClient(AnilistConstants.AnilistAPILink, new NewtonsoftJsonSerializer());
+                var response = await graphQLClient.SendQueryAsync<AniMediaResponse>(mediaRequest);
+                var media = response.Data.Media;
+                media.description = media?.description?.Replace("<br>", "\n");
+                return media;
             }
             catch (GraphQLHttpException http)
             {

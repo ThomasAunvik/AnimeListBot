@@ -18,7 +18,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
@@ -29,12 +28,10 @@ using JikanDotNet;
 
 using AnimeListBot.Handler;
 using AnimeListBot.Modules;
-using System.Threading;
 using System.Net.Http;
-using Discord.Net;
-using Microsoft.CSharp.RuntimeBinder;
 using DiscordBotsList.Api;
-using Microsoft.EntityFrameworkCore.Storage;
+using AnimeListBot.Handler.Database;
+using Microsoft.EntityFrameworkCore;
 
 namespace AnimeListBot
 {
@@ -49,6 +46,7 @@ namespace AnimeListBot
 
         public static DiscordShardedClient _client;
         public static IServiceProvider _services;
+        public static DatabaseService _db;
 
         public static Logger _logger;
 
@@ -79,9 +77,12 @@ namespace AnimeListBot
 
             _logger = new Logger();
 
+
             Config bot_config = Config.GetConfig();
             botOwners = bot_config.bot_owners;
-            Cluster cluster = DatabaseConnection.db.Cluster.Find(bot_config.cluster_id);
+
+            _db = new DatabaseService();
+            Cluster cluster = _db.Cluster.Find(bot_config.cluster_id);
 
             if (File.Exists("current_commit.txt"))
             {
@@ -98,7 +99,7 @@ namespace AnimeListBot
 
             var shard_config = new DiscordSocketConfig
             {
-                TotalShards = await Cluster.GetTotalShards(), 
+                TotalShards = GetTotalShards(), 
             };
 
             int[] shardIds = cluster.GetShardIds();
@@ -115,6 +116,7 @@ namespace AnimeListBot
                 _services = services;
                 _client?.Dispose();
                 _client = services.GetRequiredService<DiscordShardedClient>();
+                _db = services.GetRequiredService<DatabaseService>();
 
                 _client.Log += Log;
                 _client.ShardReady += OnReadyAsync;
@@ -142,12 +144,22 @@ namespace AnimeListBot
             return;
         }
 
+        public int GetTotalShards()
+        {
+            if (Config.cached.override_shard_amount > 0) return Config.cached.override_shard_amount;
+
+            int total = 0;
+            _db.Cluster.ToList().ForEach(x => total += x.GetShardCount());
+            return total;
+        }
+
         private ServiceProvider ConfigureServices(DiscordSocketConfig shard_config, Cluster cluster)
         {
             return new ServiceCollection()
                 .AddSingleton(new DiscordShardedClient(cluster.GetShardIds(), shard_config))
                 .AddSingleton<CommandService>()
                 .AddSingleton<CommandHandlingService>()
+                .AddDbContext<DatabaseService>()
                 .BuildServiceProvider();
         }
 
@@ -158,7 +170,7 @@ namespace AnimeListBot
             await BotInfo.LoadStats();
 
             current_ready_shards++;
-            Cluster cluster = DatabaseConnection.db.Cluster.Find(Config.cached.cluster_id);
+            Cluster cluster = _db.Cluster.Find(Config.cached.cluster_id);
             if (current_ready_shards >= cluster.GetShardCount())
             {
                 await _logger.Log("Updated guild count: " + _client.Guilds.Count);
@@ -168,9 +180,9 @@ namespace AnimeListBot
 
         public async Task OnJoinedGuild(SocketGuild guild)
         {
-            if (!DatabaseRequest.DoesServerIdExist(guild.Id))
+            if (!_db.DoesServerIdExist(guild.Id))
             {
-                await DatabaseRequest.CreateServer(new DiscordServer(guild));
+                await _db.CreateServer(new DiscordServer(guild));
             }
 
             await _logger.Log("Updated guild count: " + _client.Guilds.Count);
@@ -179,10 +191,10 @@ namespace AnimeListBot
 
         private async Task OnLeftGuild(SocketGuild arg)
         {
-            DiscordServer server = await DatabaseRequest.GetServerById(arg.Id);
+            DiscordServer server = await _db.GetServerById(arg.Id);
             if(server != null)
             {
-                await DatabaseRequest.RemoveServer(server);
+                await _db.RemoveServer(server);
             }
 
             await _logger.Log("Updated guild count: " + _client.Guilds.Count);
@@ -191,33 +203,33 @@ namespace AnimeListBot
 
         private async Task OnGuildMemberUpdated(SocketGuildUser arg1, SocketGuildUser arg2)
         {
-            if (DatabaseRequest.DoesUserIdExist(arg2.Id)){
-                DiscordUser user = await DatabaseRequest.GetUserById(arg2.Id);
-                await user.RefreshMutualGuilds();
+            if (_db.DoesUserIdExist(arg2.Id)){
+                DiscordUser user = await _db.GetUserById(arg2.Id);
+                user.RefreshMutualGuilds();
             }
         }
 
         private async Task OnUserBanned(SocketUser arg1, SocketGuild arg2)
         {
-            if(DatabaseRequest.DoesUserIdExist(arg2.Id))
+            if(_db.DoesUserIdExist(arg2.Id))
             {
-                DiscordUser user = await DatabaseRequest.GetUserById(arg1.Id);
+                DiscordUser user = await _db.GetUserById(arg1.Id);
                 user.Servers.RemoveAll(x => x.ServerId == arg2.Id.ToString());
             }
         }
 
         private async Task OnUserLeft(SocketGuildUser arg)
         {
-            if (DatabaseRequest.DoesUserIdExist(arg.Id))
+            if (_db.DoesUserIdExist(arg.Id))
             {
-                DiscordUser user = await DatabaseRequest.GetUserById(arg.Id);
+                DiscordUser user = await _db.GetUserById(arg.Id);
                 user.Servers.RemoveAll(x => x.ServerId == arg.Guild.Id.ToString());
             }
         }
 
         private async Task OnRoleUpdated(SocketRole arg1, SocketRole arg2)
         {
-            DiscordServer server = await DatabaseRequest.GetServerById(arg2.Guild.Id);
+            DiscordServer server = await _db.GetServerById(arg2.Guild.Id);
             server.ranks.UpdateRankPermission(arg2.Id, arg2.Permissions.RawValue);
         }
 

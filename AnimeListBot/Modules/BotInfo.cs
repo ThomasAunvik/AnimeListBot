@@ -27,11 +27,14 @@ using System.Diagnostics;
 using Discord;
 using System.Net.NetworkInformation;
 using System.Reflection;
+using AnimeListBot.Handler.Database;
 
 namespace AnimeListBot.Modules
 {
     public class BotInfo : ModuleBase<ShardedCommandContext>
     {
+        public DatabaseService _db { get; set; }
+
         struct SavedStats
         {
             public int totalCommands;
@@ -111,7 +114,7 @@ namespace AnimeListBot.Modules
         [Command("support")]
         public async Task Support()
         {
-            DiscordServer server = await DatabaseRequest.GetServerById(Context.Guild.Id);
+            DiscordServer server = await _db.GetServerById(Context.Guild.Id);
 
             EmbedHandler embed = new EmbedHandler(Context.User, "Support");
             embed.AddFieldSecure("Join Support Server", "https://discord.gg/Q9cf46R");

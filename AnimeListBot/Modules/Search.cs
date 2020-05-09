@@ -26,18 +26,22 @@ using System.Globalization;
 using Discord;
 using AnimeListBot.Handler.Anilist;
 using AnimeListBot.Handler.Misc;
+using AnimeListBot.Handler.Database;
 
 namespace AnimeListBot.Modules
 {
     public class Search : ModuleBase<ShardedCommandContext>
     {
+        public DatabaseService _db { get; set; }
+
         [Command("anime")]
         public async Task SearchAnime(IUser targetUser, [Remainder]string search)
         {
             EmbedHandler embed = new EmbedHandler(targetUser, "Searching for " + search + "...");
             await embed.SendMessage(Context.Channel);
 
-            await SearchAnime(embed, targetUser, search);
+            DiscordUser user = await _db.GetUserById(targetUser.Id);
+            await SearchAnime(embed, user, search);
         }
         
         [Command("anime")]
@@ -47,7 +51,7 @@ namespace AnimeListBot.Modules
         }
 
         [Command("midanime")]
-        public static async Task GetAnime(EmbedHandler embed, DiscordUser.AnimeList list, IUser targetUser, long id)
+        public static async Task GetAnime(EmbedHandler embed, DiscordUser targetUser, long id, AnimeListPreference listOverride = AnimeListPreference.None)
         {
             if(id == 0)
             {
@@ -55,51 +59,50 @@ namespace AnimeListBot.Modules
                 await embed.UpdateEmbed();
                 return;
             }
-
-            DiscordUser globalUser = await DatabaseRequest.GetUserById(targetUser.Id);
             embed.Title = "No Anime Found";
 
-            switch (list)
+            AnimeListPreference preference = targetUser.ListPreference;
+            if (listOverride != AnimeListPreference.None) preference = listOverride;
+
+            switch (preference)
             {
-                case DiscordUser.AnimeList.MAL:
+                case AnimeListPreference.MAL:
                     Anime malAnime = await Program._jikan.GetAnime(id);
 
                     if (malAnime != null)
                     {
                         AnimeSearchEntry entry = MalClassTransfer.AnimeToSearchEntry(malAnime);
-                        await SetAnimeMalInfo(entry, embed, globalUser, targetUser);
+                        await SetAnimeMalInfo(entry, embed, targetUser);
                     }
                     break;
 
-                case DiscordUser.AnimeList.Anilist:
+                case AnimeListPreference.Anilist:
                     IAniMedia media = await AniMediaQuery.GetMedia((int)id, AniMediaType.ANIME);
                     if (media != null)
                     {
-                        await SetAnimeAniInfo(media, embed, globalUser, targetUser);
+                        await SetAnimeAniInfo(media, embed, targetUser);
                     }
                     break;
             }
             await embed.UpdateEmbed();
         }
 
-        public static async Task SearchAnime(EmbedHandler embed, IUser targetUser, string search)
+        public static async Task SearchAnime(EmbedHandler embed, DiscordUser targetUser, string search)
         {
             embed.Title = "Searching for " + search + "...";
             await embed.UpdateEmbed();
-
-            DiscordUser globalUser = await DatabaseRequest.GetUserById(targetUser.Id);
 
             AnimeSearchResult searchResult = await Program._jikan.SearchAnime(search);
             IAniMedia media = await AniMediaQuery.SearchMedia(search, AniMediaType.ANIME);
 
             embed.Title = "No Anime Found";
 
-            bool mal = globalUser.ListPreference == DiscordUser.AnimeList.MAL;
+            bool mal = targetUser.ListPreference == AnimeListPreference.MAL;
             if (mal && (searchResult != null && searchResult.Results.Count > 0))
             {
                 List<AnimeSearchEntry> results = searchResult.Results.ToList();
                 AnimeSearchEntry entry = results[0];
-                await SetAnimeMalInfo(entry, embed, globalUser, targetUser);
+                await SetAnimeMalInfo(entry, embed, targetUser);
             }
             else if (mal && media != null)
             {
@@ -108,85 +111,13 @@ namespace AnimeListBot.Modules
 
             if (!mal && media != null)
             {
-                await SetAnimeAniInfo(media, embed, globalUser, targetUser);
+                await SetAnimeAniInfo(media, embed, targetUser);
             }
             else if (!mal && (searchResult != null && searchResult.Results.Count > 0))
             {
                 List<AnimeSearchEntry> results = searchResult.Results.ToList();
                 AnimeSearchEntry entry = results[0];
-                await SetAnimeMalInfo(entry, embed, globalUser, targetUser);
-            }
-            await embed.UpdateEmbed();
-        }
-
-        [Command("manga")]
-        public static async Task SearchManga(EmbedHandler embed, IUser targetUser, [Remainder]string search)
-        {
-            DiscordUser globalUser = await DatabaseRequest.GetUserById(targetUser.Id);
-
-            MangaSearchResult searchResult = await Program._jikan.SearchManga(search);
-            IAniMedia media = await AniMediaQuery.SearchMedia(search, AniMediaType.MANGA);
-
-            embed.Title = "No Manga Found";
-
-            bool mal = globalUser.ListPreference == DiscordUser.AnimeList.MAL;
-            if (mal && (searchResult != null && searchResult.Results.Count > 0))
-            {
-                List<MangaSearchEntry> results = searchResult.Results.ToList();
-                MangaSearchEntry entry = results[0];
-                await SetMangaMalInfo(entry, embed, globalUser, targetUser);
-            }
-            else if (mal && media != null)
-            {
-                mal = false;
-            }
-
-            if (!mal && media != null)
-            {
-                await SetMangaAniInfo(media, embed, globalUser, targetUser);
-            }
-            else if (!mal && (searchResult != null && searchResult.Results.Count > 0))
-            {
-                List<MangaSearchEntry> results = searchResult.Results.ToList();
-                MangaSearchEntry entry = results[0];
-                await SetMangaMalInfo(entry, embed, globalUser, targetUser);
-            }
-
-            await embed.UpdateEmbed();
-        }
-
-        [Command("midmanga")]
-        public static async Task GetManga(EmbedHandler embed, DiscordUser.AnimeList list, IUser targetUser, long id)
-        {
-            if (id != 0)
-            {
-                embed.Title = "No Manga Found";
-                await embed.UpdateEmbed();
-                return;
-            }
-
-            DiscordUser globalUser = await DatabaseRequest.GetUserById(targetUser.Id);
-            embed.Title = "No Manga Found";
-
-            switch (list)
-            {
-                case DiscordUser.AnimeList.MAL:
-                    Manga malManga = await Program._jikan.GetManga(id);
-
-                    if (malManga != null)
-                    {
-                        MangaSearchEntry entry = MalClassTransfer.MangaToSearchEntry(malManga);
-                        await SetMangaMalInfo(entry, embed, globalUser, targetUser);
-                    }
-                    break;
-
-                case DiscordUser.AnimeList.Anilist:
-                    IAniMedia media = await AniMediaQuery.GetMedia((int)id, AniMediaType.MANGA);
-                    if (media != null)
-                    {
-                        await SetMangaAniInfo(media, embed, globalUser, targetUser);
-                    }
-                    break;
+                await SetAnimeMalInfo(entry, embed, targetUser);
             }
             await embed.UpdateEmbed();
         }
@@ -197,13 +128,85 @@ namespace AnimeListBot.Modules
             EmbedHandler embed = new EmbedHandler(targetUser, "Searching for " + search + "...");
             await embed.SendMessage(Context.Channel);
 
-            await SearchManga(embed, targetUser, search);
+            DiscordUser user = await _db.GetUserById(targetUser.Id);
+            await SearchManga(embed, user, search);
         }
 
         [Command("manga")]
         public async Task SearchManga([Remainder]string search)
         {
             await SearchManga(Context.User, search);
+        }
+
+        public static async Task SearchManga(EmbedHandler embed, DiscordUser targetUser, [Remainder]string search)
+        {
+            MangaSearchResult searchResult = await Program._jikan.SearchManga(search);
+            IAniMedia media = await AniMediaQuery.SearchMedia(search, AniMediaType.MANGA);
+
+            embed.Title = "No Manga Found";
+
+            bool mal = targetUser.ListPreference == AnimeListPreference.MAL;
+            if (mal && (searchResult != null && searchResult.Results.Count > 0))
+            {
+                List<MangaSearchEntry> results = searchResult.Results.ToList();
+                MangaSearchEntry entry = results[0];
+                await SetMangaMalInfo(entry, embed, targetUser);
+            }
+            else if (mal && media != null)
+            {
+                mal = false;
+            }
+
+            if (!mal && media != null)
+            {
+                await SetMangaAniInfo(media, embed, targetUser);
+            }
+            else if (!mal && (searchResult != null && searchResult.Results.Count > 0))
+            {
+                List<MangaSearchEntry> results = searchResult.Results.ToList();
+                MangaSearchEntry entry = results[0];
+                await SetMangaMalInfo(entry, embed, targetUser);
+            }
+
+            await embed.UpdateEmbed();
+        }
+
+        [Command("midmanga")]
+        public static async Task GetManga(EmbedHandler embed, DiscordUser targetUser, long id, AnimeListPreference listOverride = AnimeListPreference.None)
+        {
+            if (id != 0)
+            {
+                embed.Title = "No Manga Found";
+                await embed.UpdateEmbed();
+                return;
+            }
+
+            embed.Title = "No Manga Found";
+
+            AnimeListPreference preference = targetUser.ListPreference;
+            if (listOverride != AnimeListPreference.None) preference = listOverride;
+
+            switch (preference)
+            {
+                case AnimeListPreference.MAL:
+                    Manga malManga = await Program._jikan.GetManga(id);
+
+                    if (malManga != null)
+                    {
+                        MangaSearchEntry entry = MalClassTransfer.MangaToSearchEntry(malManga);
+                        await SetMangaMalInfo(entry, embed, targetUser);
+                    }
+                    break;
+
+                case AnimeListPreference.Anilist:
+                    IAniMedia media = await AniMediaQuery.GetMedia((int)id, AniMediaType.MANGA);
+                    if (media != null)
+                    {
+                        await SetMangaAniInfo(media, embed, targetUser);
+                    }
+                    break;
+            }
+            await embed.UpdateEmbed();
         }
 
         [Command("character")]
@@ -214,12 +217,12 @@ namespace AnimeListBot.Modules
 
             embed.Title = "No Character Found";
 
-            DiscordUser globalUser = await DatabaseRequest.GetUserById(Context.User.Id);
+            DiscordUser globalUser = await _db.GetUserById(Context.User.Id);
 
             CharacterSearchResult result = await Program._jikan.SearchCharacter(search);
             IAniCharacter character = await AniCharacterQuery.SearchCharacter(search);
 
-            bool mal = globalUser.ListPreference == DiscordUser.AnimeList.MAL;
+            bool mal = globalUser.ListPreference == AnimeListPreference.MAL;
             if (mal && result != null && result.Results.Count > 0)
             {
                 List<CharacterSearchEntry> results = result.Results.ToList();
@@ -256,11 +259,11 @@ namespace AnimeListBot.Modules
 
             embed.Title = "No Staff Found";
 
-            DiscordUser globalUser = await DatabaseRequest.GetUserById(Context.User.Id);
+            DiscordUser globalUser = await _db.GetUserById(Context.User.Id);
 
             PersonSearchResult result = await Program._jikan.SearchPerson(search);
             IAniStaff staff = await AniStaffQuery.SearchStaff(search);
-            bool mal = globalUser.ListPreference == DiscordUser.AnimeList.MAL;
+            bool mal = globalUser.ListPreference == AnimeListPreference.MAL;
             if (mal && result != null && result.Results.Count > 0)
             {
                 List<PersonSearchEntry> results = result.Results.ToList();
@@ -284,7 +287,7 @@ namespace AnimeListBot.Modules
             await embed.UpdateEmbed();
         }
 
-        private static async Task SetAnimeMalInfo(AnimeSearchEntry entry, EmbedHandler embed, DiscordUser globalUser, IUser targetUser)
+        private static async Task SetAnimeMalInfo(AnimeSearchEntry entry, EmbedHandler embed, DiscordUser globalUser)
         {
             embed.Title = entry.Title;
             embed.Description = EmbedHandler.SecureEmbedText(entry.Description);
@@ -298,6 +301,7 @@ namespace AnimeListBot.Modules
                     "\nAired: " + GetDate(entry.StartDate.GetValueOrDefault(), entry.EndDate.GetValueOrDefault())
             );
 
+            IUser user = globalUser.GetUser();
             if (globalUser.malProfile != null)
             {
                 if (!string.IsNullOrWhiteSpace(globalUser.malProfile.Username))
@@ -324,7 +328,7 @@ namespace AnimeListBot.Modules
                 else
                 {
                     embed.AddFieldSecure(
-                            Format.Sanitize(targetUser.Username) + " Stats",
+                            Format.Sanitize(user.Username) + " Stats",
                             "There are no stats available for this user."
                     );
                 }
@@ -332,13 +336,13 @@ namespace AnimeListBot.Modules
             else
             {
                 embed.AddFieldSecure(
-                        Format.Sanitize(targetUser.Username) + " Stats",
+                        Format.Sanitize(user.Username) + " Stats",
                         "There are no stats available for this user."
                 );
             }
         }
 
-        private static async Task SetAnimeAniInfo(IAniMedia media, EmbedHandler embed, DiscordUser globalUser, IUser targetUser)
+        private static async Task SetAnimeAniInfo(IAniMedia media, EmbedHandler embed, DiscordUser globalUser)
         {
             if (media == null) return;
             embed.Title = media.title.english;
@@ -354,6 +358,7 @@ namespace AnimeListBot.Modules
                     "\nAired: " + GetDate(media.startDate, media.endDate)
             );
 
+            IUser user = globalUser.GetUser();
             if (globalUser.anilistProfile != null)
             {
                 if (!string.IsNullOrWhiteSpace(globalUser.anilistProfile?.name))
@@ -377,7 +382,7 @@ namespace AnimeListBot.Modules
                 else
                 {
                     embed.AddFieldSecure(
-                            Format.Sanitize(targetUser.Username) + " Stats",
+                            Format.Sanitize(user.Username) + " Stats",
                             "There are no stats available for this user."
                     );
                 }
@@ -385,13 +390,13 @@ namespace AnimeListBot.Modules
             else
             {
                 embed.AddFieldSecure(
-                        Format.Sanitize(targetUser.Username) + " Stats",
+                        Format.Sanitize(user.Username) + " Stats",
                         "There are no stats available for this user."
                 );
             }
         }
 
-        private static async Task SetMangaMalInfo(MangaSearchEntry entry, EmbedHandler embed, DiscordUser globalUser, IUser targetUser)
+        private static async Task SetMangaMalInfo(MangaSearchEntry entry, EmbedHandler embed, DiscordUser globalUser)
         {
             if (entry == null) return;
             embed.Title = entry.Title;
@@ -407,6 +412,7 @@ namespace AnimeListBot.Modules
                     "\nPublished: " + GetDate(entry.StartDate.GetValueOrDefault(), entry.EndDate.GetValueOrDefault())
             );
 
+            IUser user = globalUser.GetUser();
             if (globalUser.malProfile != null)
             {
                 if (!string.IsNullOrWhiteSpace(globalUser.malProfile.Username))
@@ -434,7 +440,7 @@ namespace AnimeListBot.Modules
                 else
                 {
                     embed.AddFieldSecure(
-                            Format.Sanitize(targetUser.Username) + " Stats",
+                            Format.Sanitize(user.Username) + " Stats",
                             "There are no stats available for this user."
                     );
                 }
@@ -442,13 +448,13 @@ namespace AnimeListBot.Modules
             else
             {
                 embed.AddFieldSecure(
-                        Format.Sanitize(targetUser.Username) + " Stats",
+                        Format.Sanitize(user.Username) + " Stats",
                         "There are no stats available for this user."
                 );
             }
         }
 
-        private static async Task SetMangaAniInfo(IAniMedia media, EmbedHandler embed, DiscordUser globalUser, IUser targetUser)
+        private static async Task SetMangaAniInfo(IAniMedia media, EmbedHandler embed, DiscordUser globalUser)
         {
             embed.Title = media.title.english;
             embed.Description = EmbedHandler.SecureEmbedText(media.description);
@@ -464,6 +470,7 @@ namespace AnimeListBot.Modules
                     "\nAired: " + GetDate(media.startDate, media.endDate)
             );
 
+            IUser user = globalUser.GetUser();
             if (globalUser.anilistProfile != null)
             {
                 if (!string.IsNullOrWhiteSpace(globalUser.anilistProfile?.name))
@@ -488,7 +495,7 @@ namespace AnimeListBot.Modules
                 else
                 {
                     embed.AddFieldSecure(
-                            Format.Sanitize(targetUser.Username) + " Stats",
+                            Format.Sanitize(user.Username) + " Stats",
                             "There are no stats available for this user."
                     );
                 }
@@ -496,7 +503,7 @@ namespace AnimeListBot.Modules
             else
             {
                 embed.AddFieldSecure(
-                        Format.Sanitize(targetUser.Username) + " Stats",
+                        Format.Sanitize(user.Username) + " Stats",
                         "There are no stats available for this user."
                 );
             }

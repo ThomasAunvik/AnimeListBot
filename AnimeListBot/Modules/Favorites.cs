@@ -16,6 +16,7 @@
  */
 using AnimeListBot.Handler;
 using AnimeListBot.Handler.Anilist;
+using AnimeListBot.Handler.Database;
 using Discord;
 using Discord.Commands;
 using JikanDotNet;
@@ -27,6 +28,8 @@ namespace AnimeListBot.Modules
 {
     public class Favorites : ModuleBase<ShardedCommandContext>
     {
+        public DatabaseService _db { get; set; }
+
         [Command("favoriteanime")]
         public async Task FavAnime(IUser user = null)
         {
@@ -35,14 +38,14 @@ namespace AnimeListBot.Modules
             embed.SetOwner(Context.User);
             await embed.SendMessage(Context.Channel);
 
-            DiscordUser gUser = await DatabaseRequest.GetUserById(user.Id);
+            DiscordUser gUser = await _db.GetUserById(user.Id);
 
-            DiscordServer server = await DatabaseRequest.GetServerById(Context.Guild.Id);
+            DiscordServer server = await _db.GetServerById(Context.Guild.Id);
 
             if (gUser.HasValidAnimelist())
             {
                 await gUser.UpdateUserInfo();
-                if (gUser.ListPreference == DiscordUser.AnimeList.MAL)
+                if (gUser.ListPreference == AnimeListPreference.MAL)
                 {
                     UserProfile profile = gUser.malProfile;
                     List<MALImageSubItem> favAnimeList = profile.Favorites.Anime.ToList();
@@ -62,12 +65,12 @@ namespace AnimeListBot.Modules
                         {
                             embed.Fields.Clear();
                             embed.RemoveAllEmojiActions();
-                            await Search.GetAnime(embed, gUser.ListPreference, user, subItem.MalId);
+                            await Search.GetAnime(embed, gUser, subItem.MalId);
                         });
                     }
 
                     if (favListMessage != string.Empty) embed.AddField("Favorite Anime", favListMessage);
-                }else if(gUser.ListPreference == DiscordUser.AnimeList.Anilist)
+                }else if(gUser.ListPreference == AnimeListPreference.Anilist)
                 {
                     IAniUser profile = gUser.anilistProfile;
                     List<AniMediaResponse.AniMedia> favAnimeList = profile.favourites.anime.nodes;
@@ -87,7 +90,7 @@ namespace AnimeListBot.Modules
                         {
                             embed.Fields.Clear();
                             embed.RemoveAllEmojiActions();
-                            await Search.GetAnime(embed, gUser.ListPreference, user, subItem.id.GetValueOrDefault());
+                            await Search.GetAnime(embed, gUser, subItem.id.GetValueOrDefault());
                         });
                     }
 
@@ -109,14 +112,14 @@ namespace AnimeListBot.Modules
             embed.SetOwner(Context.User);
             await embed.SendMessage(Context.Channel);
 
-            DiscordUser gUser = await DatabaseRequest.GetUserById(user.Id);
+            DiscordUser gUser = await _db.GetUserById(user.Id);
 
-            DiscordServer server = await DatabaseRequest.GetServerById(Context.Guild.Id);
+            DiscordServer server = await _db.GetServerById(Context.Guild.Id);
 
             if (gUser.HasValidAnimelist())
             {
                 await gUser.UpdateUserInfo();
-                if (gUser.ListPreference == DiscordUser.AnimeList.MAL)
+                if (gUser.ListPreference == AnimeListPreference.MAL)
                 {
                     UserProfile profile = gUser.malProfile;
                     List<MALImageSubItem> favMangaList = profile.Favorites.Manga.ToList();
@@ -136,13 +139,13 @@ namespace AnimeListBot.Modules
                         {
                             embed.Fields.Clear();
                             embed.RemoveAllEmojiActions();
-                            await Search.GetManga(embed, gUser.ListPreference, user, subItem.MalId);
+                            await Search.GetManga(embed, gUser, subItem.MalId);
                         });
                     }
 
                     if (favListMessage != string.Empty) embed.AddField("Favorite Manga", favListMessage);
                 }
-                else if (gUser.ListPreference == DiscordUser.AnimeList.Anilist)
+                else if (gUser.ListPreference == AnimeListPreference.Anilist)
                 {
                     IAniUser profile = gUser.anilistProfile;
                     List<AniMediaResponse.AniMedia> favManagList = profile.favourites.manga.nodes;
@@ -162,7 +165,7 @@ namespace AnimeListBot.Modules
                         {
                             embed.Fields.Clear();
                             embed.RemoveAllEmojiActions();
-                            await Search.GetAnime(embed, gUser.ListPreference, user, subItem.id.GetValueOrDefault());
+                            await Search.GetAnime(embed, gUser, subItem.id.GetValueOrDefault());
                         });
                     }
 

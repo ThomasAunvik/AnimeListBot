@@ -25,6 +25,7 @@ using Discord.Net;
 using AnimeListBot.Modules;
 using System.Linq;
 using System.Collections.Generic;
+using AnimeListBot.Handler.Database;
 
 namespace AnimeListBot.Handler
 {
@@ -33,11 +34,13 @@ namespace AnimeListBot.Handler
         private readonly CommandService _commands;
         private readonly DiscordShardedClient _discord;
         private readonly IServiceProvider _services;
+        private readonly DatabaseService _db;
 
         public CommandHandlingService(IServiceProvider services)
         {
             _commands = services.GetRequiredService<CommandService>();
             _discord = services.GetRequiredService<DiscordShardedClient>();
+            _db = services.GetRequiredService<DatabaseService>();
             _services = services;
 
             _commands.CommandExecuted += CommandExecutedAsync;
@@ -80,16 +83,16 @@ namespace AnimeListBot.Handler
                 if (guildChannel.Id == Config.cached.test_channel) return;
             }
 
-            DiscordServer server = await DatabaseRequest.GetServerById(guildChannel.GuildId);
+            DiscordServer server = await _db.GetServerById(guildChannel.GuildId);
             server.UpdateGuildInfo(guildChannel.Guild);
 
             if (server.stats == null) server.stats = new ServerStatistics();
             if (server.ranks == null) server.ranks = new ServerRanks();
 
-            if (guildChannel.Id == server.ranks.RegisterChannelId)
+            if (guildChannel.Id.ToString() == server.ranks.RegisterChannelId)
             {
-                await DiscordUser.CheckAndCreateUser(message.Author.Id);
-                await AutoAdder.AddUser(message, server);
+                DiscordUser user = await _db.GetUserById(message.Author.Id);
+                await AutoAdder.AddUser(message, user, server);
                 return;
             }
 
@@ -114,19 +117,19 @@ namespace AnimeListBot.Handler
             if (!command.IsSpecified)
                 return;
 
-            DiscordUser user = await DatabaseRequest.GetUserById(context.Message.Author.Id);
+            DiscordUser user = await _db.GetUserById(context.Message.Author.Id);
             if (context.Message.Channel is IGuildChannel)
             {
-                await user.RefreshMutualGuilds();
+                user.RefreshMutualGuilds();
             }
 
-            DiscordServer server = await DatabaseRequest.GetServerById(context.Guild.Id);
+            DiscordServer server = await _db.GetServerById(context.Guild.Id);
             if (result.IsSuccess)
             {
                 await BotInfo.CommandUsed();
                 if (server.stats == null) server.stats = new ServerStatistics();
                 server.stats.CommandsUsed++;
-                await DatabaseConnection.db.SaveChangesAsync();
+                await _db.SaveChangesAsync();
                 return;
             }
 

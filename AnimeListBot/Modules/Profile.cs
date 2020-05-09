@@ -28,31 +28,34 @@ using AnimeListBot.Handler.Anilist;
 using System.Globalization;
 using Discord.WebSocket;
 using System.Reflection.Metadata.Ecma335;
+using AnimeListBot.Handler.Database;
 
 namespace AnimeListBot.Modules
 {
     public class Profile : ModuleBase<ShardedCommandContext>
     {
+        public DatabaseService _db { get; set; }
+
         [Command("setup"), Summary(
             "Registers your discord account with MAL. Possible options: [mal, anilist]\n" +
             "MAL = 0\n" +
             "Anilist = 1"
         )]
-        public async Task SetupProfile(DiscordUser.AnimeList animeList, string username)
+        public async Task SetupProfile(AnimeListPreference animeList, string username)
         {
             EmbedHandler embed = new EmbedHandler(Context.User, "Setting up profile...");
             await embed.SendMessage(Context.Channel);
 
-            DiscordServer server = await DatabaseRequest.GetServerById(Context.Guild.Id);
+            DiscordServer server = await _db.GetServerById(Context.Guild.Id);
             DiscordUser user;
-            if (!DatabaseRequest.DoesUserIdExist(Context.User.Id))
-                await DatabaseRequest.CreateUser(user = new DiscordUser(Context.User));
-            else user = await DatabaseRequest.GetUserById(Context.User.Id);
+            if (!_db.DoesUserIdExist(Context.User.Id))
+                await _db.CreateUser(user = new DiscordUser(Context.User));
+            else user = await _db.GetUserById(Context.User.Id);
 
             Uri link = null;
             bool isValidLink = Uri.TryCreate(username, UriKind.Absolute, out link);
 
-            if(animeList == DiscordUser.AnimeList.MAL)
+            if(animeList == AnimeListPreference.MAL)
             {
                 if (isValidLink && username.Contains("myanimelist.net"))
                 {
@@ -75,9 +78,9 @@ namespace AnimeListBot.Modules
                     Value = "User registered " + username
                 });
 
-                user.ListPreference = DiscordUser.AnimeList.MAL;
+                user.ListPreference = AnimeListPreference.MAL;
             }
-            else if(animeList == DiscordUser.AnimeList.Anilist)
+            else if(animeList == AnimeListPreference.Anilist)
             {
                 if (isValidLink && username.Contains("anilist.co"))
                 {
@@ -99,7 +102,7 @@ namespace AnimeListBot.Modules
                     Name = "Anilist Account Setup",
                     Value = "User registered: " + username
                 });
-                user.ListPreference = DiscordUser.AnimeList.Anilist;
+                user.ListPreference = AnimeListPreference.Anilist;
             }
             else
             {
@@ -107,8 +110,8 @@ namespace AnimeListBot.Modules
                 await embed.UpdateEmbed();
             }
             await embed.UpdateEmbed();
-            await DatabaseRequest.UpdateUser(user);
             await Ranks.UpdateUserRole(server, user, embed);
+            await _db.SaveChangesAsync();
         }
 
         [RequireValidAnimelist]
@@ -118,17 +121,17 @@ namespace AnimeListBot.Modules
             "MAL = 0\n" +
             "Anilist = 1"
         )]
-        public async Task SetList(DiscordUser.AnimeList animeList)
+        public async Task SetList(AnimeListPreference animeList)
         {
-            if (!DatabaseRequest.DoesUserIdExist(Context.User.Id)) return;
-            DiscordUser user = await DatabaseRequest.GetUserById(Context.User.Id);
-            DiscordServer server = await DatabaseRequest.GetServerById(Context.Guild.Id);
+            if (!_db.DoesUserIdExist(Context.User.Id)) return;
+            DiscordUser user = await _db.GetUserById(Context.User.Id);
+            DiscordServer server = await _db.GetServerById(Context.Guild.Id);
 
             EmbedHandler embed = new EmbedHandler(Context.User, "Setting List...");
             await embed.SendMessage(Context.Channel);
 
             await user.UpdateUserInfo();
-            if (animeList == DiscordUser.AnimeList.MAL)
+            if (animeList == AnimeListPreference.MAL)
             {
                 if (user.malProfile == null)
                 {
@@ -137,10 +140,10 @@ namespace AnimeListBot.Modules
                     return;
                 }
 
-                user.ListPreference = DiscordUser.AnimeList.MAL;
+                user.ListPreference = AnimeListPreference.MAL;
                 embed.Title = "List set to MAL";
             }
-            else if(animeList == DiscordUser.AnimeList.Anilist)
+            else if(animeList == AnimeListPreference.Anilist)
             {
                 if (user.anilistProfile == null)
                 {
@@ -148,7 +151,7 @@ namespace AnimeListBot.Modules
                     await embed.UpdateEmbed();
                     return;
                 }
-                user.ListPreference = DiscordUser.AnimeList.Anilist;
+                user.ListPreference = AnimeListPreference.Anilist;
                 embed.Title = "List set to Anilist";
             }
             else
@@ -159,7 +162,6 @@ namespace AnimeListBot.Modules
                 return;
             }
             await embed.UpdateEmbed();
-
             await Ranks.UpdateUserRole(server, user, embed);
         }
 
@@ -171,8 +173,8 @@ namespace AnimeListBot.Modules
             EmbedHandler embed = new EmbedHandler(targetUser, "Loading Profile Info...");
             await embed.SendMessage(Context.Channel);
 
-            DiscordUser user = await DiscordUser.CheckAndCreateUser(targetUser.Id);
-            DiscordServer server = await DatabaseRequest.GetServerById(Context.Guild.Id);
+            DiscordUser user = await _db.GetUserById(targetUser.Id);
+            DiscordServer server = await _db.GetServerById(Context.Guild.Id);
 
             option = option.ToLower();
 
@@ -224,7 +226,7 @@ namespace AnimeListBot.Modules
                 }
                 else if(option == "cache")
                 {
-                    if (user.ListPreference == DiscordUser.AnimeList.MAL)
+                    if (user.ListPreference == AnimeListPreference.MAL)
                     {
                         CultureInfo en_US = new CultureInfo("en-US");
 
@@ -236,7 +238,7 @@ namespace AnimeListBot.Modules
                             "\nCache Expiry In: " + new DateTime().AddSeconds(user.malProfile.RequestCacheExpiry).ToString("mm:ss", en_US) : "")
                         );
                     }
-                    else if(user.ListPreference == DiscordUser.AnimeList.Anilist)
+                    else if(user.ListPreference == AnimeListPreference.Anilist)
                     {
                         embed.Title = user.GetAnimelistUsername() + " Profile Cache";
                         embed.Description = "There is no cache option yet for Anilist";
@@ -311,10 +313,10 @@ namespace AnimeListBot.Modules
             EmbedHandler embed = new EmbedHandler(Context.User, "Getting Leaderboard...");
             await embed.SendMessage(Context.Channel);
 
-            DiscordUser gUser = await DatabaseRequest.GetUserById(Context.User.Id);
-            DiscordServer server = await DatabaseRequest.GetServerById(Context.Guild.Id);
+            DiscordUser gUser = await _db.GetUserById(Context.User.Id);
+            DiscordServer server = await _db.GetServerById(Context.Guild.Id);
 
-            List<DiscordUser> users = DatabaseConnection.db.DiscordUser.ToList();
+            List<DiscordUser> users = _db.DiscordUser.ToList();
             List<DiscordUser> guildUsers = users.Where(y => y.Servers != null)
                                                 .Where(x => x.Servers.Find(y => y.ServerId == server.ServerId.ToString()) != null).ToList();
 
@@ -415,7 +417,7 @@ namespace AnimeListBot.Modules
         [Command("resetuser")]
         public async Task RemoveUser(string confirm = "n")
         {
-            DiscordUser user = await DatabaseRequest.GetUserById(Context.User.Id);
+            DiscordUser user = await _db.GetUserById(Context.User.Id);
 
             EmbedHandler embed = new EmbedHandler(Context.User);
             if(user == null)
@@ -428,7 +430,7 @@ namespace AnimeListBot.Modules
             if(confirm == "Y")
             {
                 embed.Title = "Your user info is removed from the bot.";
-                await DatabaseRequest.RemoveUser(user);
+                await _db.RemoveUser(user);
             }
             else
             {

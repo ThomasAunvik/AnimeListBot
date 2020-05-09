@@ -27,18 +27,21 @@ using AnimeListBot.Handler;
 using JikanDotNet;
 using AnimeListBot.Handler.Anilist;
 using Discord.WebSocket;
+using AnimeListBot.Handler.Database;
 
 namespace AnimeListBot.Modules
 {
     public class AutoAdder : ModuleBase<ShardedCommandContext>
     {
+        public DatabaseService _db { get; set; }
+
         [Command("autolist")]
         [RequireUserPermission(GuildPermission.ManageRoles)]
         public async Task SetChannel(ITextChannel channel)
         {
-            DiscordServer server = await DatabaseRequest.GetServerById(Context.Guild.Id);
-            server.ranks.RegisterChannelId = channel.Id;
-            await DatabaseConnection.db.SaveChangesAsync();
+            DiscordServer server = await _db.GetServerById(Context.Guild.Id);
+            server.ranks.RegisterChannelId = channel.Id.ToString();
+            await _db.SaveChangesAsync();
 
             EmbedHandler embed = new EmbedHandler(Context.User, "Set auto anime list channel to:", "<#" + channel.Id + ">...");
             await embed.SendMessage(Context.Channel);
@@ -48,16 +51,16 @@ namespace AnimeListBot.Modules
         [RequireUserPermission(GuildPermission.ManageRoles)]
         public async Task RemoveChannel()
         {
-            DiscordServer server = await DatabaseRequest.GetServerById(Context.Guild.Id);
+            DiscordServer server = await _db.GetServerById(Context.Guild.Id);
             EmbedHandler embed = new EmbedHandler(Context.User, "Removed auto anime list channel from:", "<#" + server.ranks.RegisterChannelId + ">...");
 
-            if (server.ranks.RegisterChannelId == 0)
+            if (server.ranks.RegisterChannelId == "")
             {
                 embed.Title = "There is no set channel for auto-list.";
             }
 
-            server.ranks.RegisterChannelId = 0;
-            await DatabaseConnection.db.SaveChangesAsync();
+            server.ranks.RegisterChannelId = "";
+            await _db.SaveChangesAsync();
 
             await embed.SendMessage(Context.Channel);
         }
@@ -66,8 +69,11 @@ namespace AnimeListBot.Modules
         [Command("autolistupdate", RunMode = RunMode.Async)]
         public async Task AutoListUpdate()
         {
-            DiscordServer server = await DatabaseRequest.GetServerById(Context.Guild.Id);
-            ITextChannel channel = Context.Guild.GetTextChannel(server.ranks.RegisterChannelId) as ITextChannel;
+            DiscordServer server = await _db.GetServerById(Context.Guild.Id);
+            ulong channelId;
+            if(!ulong.TryParse(server.ranks.RegisterChannelId, out channelId)) return;
+
+            ITextChannel channel = Context.Guild.GetTextChannel(channelId) as ITextChannel;
             if (channel == null)
             {
                 EmbedHandler errorEmbed = new EmbedHandler(Context.User, "No Auto List Channel Set, use command `autolist` first.");
@@ -87,7 +93,8 @@ namespace AnimeListBot.Modules
                 await embed.UpdateEmbed();
                 for (int messageIndex = 0; messageIndex < messageCount; messageIndex++)
                 {
-                    await AddUser(listMessages[messageIndex], server, true);
+                    DiscordUser user = await _db.GetUserById(listMessages[messageIndex].Author.Id);
+                    await AddUser(listMessages[messageIndex], user, server, true);
                     int progressValue = (int)((messageIndex / (float)messageCount) * 100);
                     embed.Fields[fieldIndex].Value = progressValue.ToString() + "%";
 
@@ -114,9 +121,9 @@ namespace AnimeListBot.Modules
         [Command("autolistchannel")]
         public async Task GetAutoMalChannel()
         {
-            DiscordServer server = await DatabaseRequest.GetServerById(Context.Guild.Id);
+            DiscordServer server = await _db.GetServerById(Context.Guild.Id);
             EmbedHandler embed = new EmbedHandler(Context.User);
-            if (server.ranks.RegisterChannelId != 0)
+            if (server.ranks.RegisterChannelId != "")
             {
                 embed.Title = "Auto AnimeList is set to channel";
                 embed.Description = "<#" + server.ranks.RegisterChannelId + ">";
@@ -128,7 +135,7 @@ namespace AnimeListBot.Modules
             await embed.SendMessage(Context.Channel);
         }
 
-        public static async Task AddUser(IMessage message, DiscordServer server, bool ignoreMessage = false)
+        public static async Task AddUser(IMessage message, DiscordUser user, DiscordServer server, bool ignoreMessage = false)
         {
             if (string.IsNullOrWhiteSpace(message.Content)) return;
 
@@ -139,16 +146,7 @@ namespace AnimeListBot.Modules
                 if (message.Source != MessageSource.User)
                     return;
 
-                DiscordUser user = await DatabaseRequest.GetUserById(message.Author.Id);
-                if(user == null)
-                {
-                    user = new DiscordUser(message.Author);
-                    if (user == null || user.UserId == 0) return;
-
-                    await user.CreateUserDatabase();
-                }
-
-                await user.RefreshMutualGuilds();
+                user.RefreshMutualGuilds();
 
                 string currentLink = message.Content;
 
@@ -200,7 +198,7 @@ namespace AnimeListBot.Modules
                     UserProfile profile = await Program._jikan.GetUserProfile(usernamePart);
                     if (profile != null)
                     {
-                        user.ListPreference = DiscordUser.AnimeList.MAL;
+                        user.ListPreference = AnimeListPreference.MAL;
                         await user.UpdateMALInfo(usernamePart);
                     }
                 }
@@ -209,12 +207,10 @@ namespace AnimeListBot.Modules
                     IAniUser profile = await AniUserQuery.GetUser(usernamePart);
                     if (profile != null)
                     {
-                        user.ListPreference = DiscordUser.AnimeList.Anilist;
+                        user.ListPreference = AnimeListPreference.Anilist;
                         await user.UpdateAnilistInfo(usernamePart);
                     }
                 }
-
-                await user.UpdateDatabase();
 
                 await Ranks.UpdateUserRole(server, user, null);
             }

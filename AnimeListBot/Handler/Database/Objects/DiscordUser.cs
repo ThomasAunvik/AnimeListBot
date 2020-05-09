@@ -111,11 +111,11 @@ namespace AnimeListBot.Handler
             for(int guildIndex = 0; guildIndex < mutualGuilds.Count; guildIndex++)
             {
                 SocketGuild guild = mutualGuilds[guildIndex];
-                if (Servers.Find(x => x.ServerId == guild.Id) == null)
-                {
-                    SocketGuildUser guildUser = guild.GetUser(user.Id);
-                    Servers.Add(new GuildUserInfo(guildUser));
-                }
+                SocketGuildUser guildUser = guild.GetUser(user.Id);
+                GuildUserInfo userInfo = Servers.Find(x => x.ServerId == guild.Id);
+
+                if (userInfo == null) Servers.Add(new GuildUserInfo(guildUser));
+                else userInfo.UpdateUserInfo(guildUser);
             }
             await UpdateDatabase();
         }

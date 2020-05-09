@@ -30,5 +30,13 @@ namespace AnimeListBot.Handler
             Admin = guildUser.GuildPermissions.Administrator;
             ManageRoles = guildUser.GuildPermissions.ManageRoles;
         }
+
+        public void UpdateUserInfo(IGuildUser guildUser)
+        {
+            Roles = guildUser.RoleIds.ToList();
+
+            Admin = guildUser.GuildPermissions.Administrator;
+            ManageRoles = guildUser.GuildPermissions.ManageRoles;
+        }
     }
 }

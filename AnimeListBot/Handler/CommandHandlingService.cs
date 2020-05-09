@@ -77,7 +77,7 @@ namespace AnimeListBot.Handler
             }
             else
             {
-                if (guildChannel.Id == Config.cached.error_channel) return;
+                if (guildChannel.Id == Config.cached.test_channel) return;
             }
 
             DiscordServer server = await DatabaseRequest.GetServerById(guildChannel.GuildId);

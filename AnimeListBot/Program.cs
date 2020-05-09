@@ -202,7 +202,7 @@ namespace AnimeListBot
             if(DatabaseRequest.DoesUserIdExist(arg2.Id))
             {
                 DiscordUser user = await DatabaseRequest.GetUserById(arg1.Id);
-                user.Servers.RemoveAll(x => x.ServerId == arg2.Id);
+                user.Servers.RemoveAll(x => x.ServerId == arg2.Id.ToString());
             }
         }
 
@@ -211,7 +211,7 @@ namespace AnimeListBot
             if (DatabaseRequest.DoesUserIdExist(arg.Id))
             {
                 DiscordUser user = await DatabaseRequest.GetUserById(arg.Id);
-                user.Servers.RemoveAll(x => x.ServerId == arg.Guild.Id);
+                user.Servers.RemoveAll(x => x.ServerId == arg.Guild.Id.ToString());
             }
         }
 

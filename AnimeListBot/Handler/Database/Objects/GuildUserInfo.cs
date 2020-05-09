@@ -11,7 +11,7 @@ namespace AnimeListBot.Handler
     public class GuildUserInfo
     {
         [JsonProperty("server_id")]
-        public ulong ServerId { get; set; }
+        public string ServerId { get; set; }
         [JsonProperty("roles")]
         public List<ulong> Roles { get; set; }
 
@@ -24,7 +24,7 @@ namespace AnimeListBot.Handler
 
         public GuildUserInfo(IGuildUser guildUser)
         {
-            ServerId = guildUser.GuildId;
+            ServerId = guildUser.GuildId.ToString();
             Roles = guildUser.RoleIds.ToList();
 
             Admin = guildUser.GuildPermissions.Administrator;

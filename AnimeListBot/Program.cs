@@ -46,7 +46,7 @@ namespace AnimeListBot
 
         public static DiscordShardedClient _client;
         public static IServiceProvider _services;
-        public static DatabaseService _db;
+        public static DatabaseService db;
 
         public static Logger _logger;
 
@@ -81,8 +81,8 @@ namespace AnimeListBot
             Config bot_config = Config.GetConfig();
             botOwners = bot_config.bot_owners;
 
-            _db = new DatabaseService();
-            Cluster cluster = _db.Cluster.Find(bot_config.cluster_id);
+            db = new DatabaseService();
+            Cluster cluster = db.Cluster.Find(bot_config.cluster_id);
 
             if (File.Exists("current_commit.txt"))
             {
@@ -116,7 +116,6 @@ namespace AnimeListBot
                 _services = services;
                 _client?.Dispose();
                 _client = services.GetRequiredService<DiscordShardedClient>();
-                _db = services.GetRequiredService<DatabaseService>();
 
                 _client.Log += Log;
                 _client.ShardReady += OnReadyAsync;
@@ -149,7 +148,8 @@ namespace AnimeListBot
             if (Config.cached.override_shard_amount > 0) return Config.cached.override_shard_amount;
 
             int total = 0;
-            _db.Cluster.ToList().ForEach(x => total += x.GetShardCount());
+            
+            db.Cluster.ToList().ForEach(x => total += x.GetShardCount());
             return total;
         }
 
@@ -159,7 +159,7 @@ namespace AnimeListBot
                 .AddSingleton(new DiscordShardedClient(cluster.GetShardIds(), shard_config))
                 .AddSingleton<CommandService>()
                 .AddSingleton<CommandHandlingService>()
-                .AddDbContext<DatabaseService>()
+                .AddDbContext<DatabaseService>(ServiceLifetime.Transient)
                 .BuildServiceProvider();
         }
 
@@ -170,7 +170,10 @@ namespace AnimeListBot
             await BotInfo.LoadStats();
 
             current_ready_shards++;
-            Cluster cluster = _db.Cluster.Find(Config.cached.cluster_id);
+
+            DatabaseService db = _services.GetRequiredService<DatabaseService>();
+
+            Cluster cluster = db.Cluster.Find(Config.cached.cluster_id);
             if (current_ready_shards >= cluster.GetShardCount())
             {
                 await _logger.Log("Updated guild count: " + _client.Guilds.Count);
@@ -180,9 +183,10 @@ namespace AnimeListBot
 
         public async Task OnJoinedGuild(SocketGuild guild)
         {
-            if (!_db.DoesServerIdExist(guild.Id))
+            DatabaseService db = _services.GetRequiredService<DatabaseService>();
+            if (!db.DoesServerIdExist(guild.Id))
             {
-                await _db.CreateServer(new DiscordServer(guild));
+                await db.CreateServer(new DiscordServer(guild));
             }
 
             await _logger.Log("Updated guild count: " + _client.Guilds.Count);
@@ -191,10 +195,11 @@ namespace AnimeListBot
 
         private async Task OnLeftGuild(SocketGuild arg)
         {
-            DiscordServer server = await _db.GetServerById(arg.Id);
+            DatabaseService db = _services.GetRequiredService<DatabaseService>();
+            DiscordServer server = await db.GetServerById(arg.Id);
             if(server != null)
             {
-                await _db.RemoveServer(server);
+                await db.RemoveServer(server);
             }
 
             await _logger.Log("Updated guild count: " + _client.Guilds.Count);
@@ -203,33 +208,37 @@ namespace AnimeListBot
 
         private async Task OnGuildMemberUpdated(SocketGuildUser arg1, SocketGuildUser arg2)
         {
-            if (_db.DoesUserIdExist(arg2.Id)){
-                DiscordUser user = await _db.GetUserById(arg2.Id);
+            DatabaseService db = _services.GetRequiredService<DatabaseService>();
+            if (db.DoesUserIdExist(arg2.Id)){
+                DiscordUser user = await db.GetUserById(arg2.Id);
                 user.RefreshMutualGuilds();
             }
         }
 
         private async Task OnUserBanned(SocketUser arg1, SocketGuild arg2)
         {
-            if(_db.DoesUserIdExist(arg2.Id))
+            DatabaseService db = _services.GetRequiredService<DatabaseService>();
+            if (db.DoesUserIdExist(arg2.Id))
             {
-                DiscordUser user = await _db.GetUserById(arg1.Id);
+                DiscordUser user = await db.GetUserById(arg1.Id);
                 user.Servers.RemoveAll(x => x.ServerId == arg2.Id.ToString());
             }
         }
 
         private async Task OnUserLeft(SocketGuildUser arg)
         {
-            if (_db.DoesUserIdExist(arg.Id))
+            DatabaseService db = _services.GetRequiredService<DatabaseService>();
+            if (db.DoesUserIdExist(arg.Id))
             {
-                DiscordUser user = await _db.GetUserById(arg.Id);
+                DiscordUser user = await db.GetUserById(arg.Id);
                 user.Servers.RemoveAll(x => x.ServerId == arg.Guild.Id.ToString());
             }
         }
 
         private async Task OnRoleUpdated(SocketRole arg1, SocketRole arg2)
         {
-            DiscordServer server = await _db.GetServerById(arg2.Guild.Id);
+            DatabaseService db = _services.GetRequiredService<DatabaseService>();
+            DiscordServer server = await db.GetServerById(arg2.Guild.Id);
             server.ranks.UpdateRankPermission(arg2.Id, arg2.Permissions.RawValue);
         }
 

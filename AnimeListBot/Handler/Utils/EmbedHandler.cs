@@ -75,8 +75,6 @@ namespace AnimeListBot.Handler
             if (embedMessage == null) return;
 
             await embedMessage.ModifyAsync(x => x.Embed = Build());
-                
-            await PermissionWrapper.DeleteAllEmotes(embedMessage);
 
             List<IEmote> allEmotes = embedMessage.Reactions.Keys.ToList();
             List<(IEmote, Action)> newEmotes = emojiActions.FindAll(x => allEmotes.Find(y=> y.Name == x.Item1.Name) == null);
@@ -87,6 +85,11 @@ namespace AnimeListBot.Handler
 
                 CheckTimeouts();
             }
+        }
+
+        public async Task RemoveAllEmotes()
+        {
+            await PermissionWrapper.DeleteAllEmotes(embedMessage);
         }
 
         public async Task EditMessage(string message)
@@ -158,10 +161,11 @@ namespace AnimeListBot.Handler
             emojiActions.Add((emote, action));
         }
 
-        public void RemoveAllEmojiActions()
+        public async Task RemoveAllEmojiActions()
         {
             emojiActions.Clear();
             activatedEmoteActions.Remove(this);
+            await RemoveAllEmotes();
         }
 
         public static void ExecuteAnyEmoteAction(SocketReaction socketReaction)

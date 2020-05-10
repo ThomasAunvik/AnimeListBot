@@ -63,13 +63,13 @@ namespace AnimeListBot.Modules
                     {
                         int index = i;
                         MALImageSubItem subItem = favAnimeList[index];
-                        Emoji emote = new Emoji(Emotes.NUMBERS_EMOTES[index]);
+                        Emoji emote = new Emoji(Emotes.NUMBERS_EMOTES[index+1]);
 
                         favListMessage += emote + " " + subItem.Name + "\n";
                         embed.AddEmojiAction(emote, async () =>
                         {
                             embed.Fields.Clear();
-                            embed.RemoveAllEmojiActions();
+                            await embed.RemoveAllEmojiActions();
                             await Search.GetAnime(embed, gUser, subItem.MalId);
                         });
                     }
@@ -94,7 +94,7 @@ namespace AnimeListBot.Modules
                         embed.AddEmojiAction(emote, async () =>
                         {
                             embed.Fields.Clear();
-                            embed.RemoveAllEmojiActions();
+                            await embed.RemoveAllEmojiActions();
                             await Search.GetAnime(embed, gUser, subItem.id.GetValueOrDefault());
                         });
                     }
@@ -143,7 +143,7 @@ namespace AnimeListBot.Modules
                         embed.AddEmojiAction(emote, async () =>
                         {
                             embed.Fields.Clear();
-                            embed.RemoveAllEmojiActions();
+                            await embed.RemoveAllEmojiActions();
                             await Search.GetManga(embed, gUser, subItem.MalId);
                         });
                     }
@@ -169,7 +169,7 @@ namespace AnimeListBot.Modules
                         embed.AddEmojiAction(emote, async () =>
                         {
                             embed.Fields.Clear();
-                            embed.RemoveAllEmojiActions();
+                            await embed.RemoveAllEmojiActions();
                             await Search.GetAnime(embed, gUser, subItem.id.GetValueOrDefault());
                         });
                     }

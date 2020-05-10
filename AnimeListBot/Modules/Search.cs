@@ -27,6 +27,7 @@ using Discord;
 using AnimeListBot.Handler.Anilist;
 using AnimeListBot.Handler.Misc;
 using AnimeListBot.Handler.Database;
+using System.Xml.Schema;
 
 namespace AnimeListBot.Modules
 {
@@ -44,6 +45,7 @@ namespace AnimeListBot.Modules
         {
             EmbedHandler embed = new EmbedHandler(targetUser, "Searching for " + search + "...");
             await embed.SendMessage(Context.Channel);
+            embed.SetOwner(Context.User);
 
             DiscordUser user = await _db.GetUserById(targetUser.Id);
             await SearchAnime(embed, user, search);
@@ -106,6 +108,12 @@ namespace AnimeListBot.Modules
             if (mal && (searchResult != null && searchResult.Results.Count > 0))
             {
                 List<AnimeSearchEntry> results = searchResult.Results.ToList();
+                if(results.Count > 1)
+                {
+                    await SetMalAnimeSearchList(embed, targetUser, results, 1);
+                    return;
+                }
+
                 AnimeSearchEntry entry = results[0];
                 await SetAnimeMalInfo(entry, embed, targetUser);
             }
@@ -121,9 +129,72 @@ namespace AnimeListBot.Modules
             else if (!mal && (searchResult != null && searchResult.Results.Count > 0))
             {
                 List<AnimeSearchEntry> results = searchResult.Results.ToList();
+                if (results.Count > 1)
+                {
+                    await SetMalAnimeSearchList(embed, targetUser, results, 1);
+                    return;
+                }
+
                 AnimeSearchEntry entry = results[0];
                 await SetAnimeMalInfo(entry, embed, targetUser);
             }
+            await embed.UpdateEmbed();
+        }
+
+        public static async Task SetMalAnimeSearchList(EmbedHandler embed, DiscordUser targetUser, List<AnimeSearchEntry> searchList, int page)
+        {
+            bool nextPage = true;
+            int maxIndex = 5 * page;
+            int startPage = 5 * (page - 1);
+            bool previousPage = startPage > 0;
+            if (searchList.Count <= maxIndex)
+            {
+                maxIndex = searchList.Count;
+                nextPage = false;
+            }
+
+            if (previousPage)
+            {
+                int currentPage = page;
+                Emoji emote = new Emoji(Emotes.PREVIOUS_PAGE);
+                embed.AddEmojiAction(emote, async () =>
+                {
+                    embed.Fields.Clear();
+                    await embed.RemoveAllEmojiActions();
+                    await SetMalAnimeSearchList(embed, targetUser, searchList, currentPage - 1);
+                });
+            }
+
+            string favListMessage = string.Empty;
+            for (int resultIndex = startPage; resultIndex < maxIndex; resultIndex++)
+            {
+                AnimeSearchEntry indexEntry = searchList[resultIndex];
+                Emoji emote = new Emoji(Emotes.NUMBERS_EMOTES[resultIndex - startPage + 1]);
+                favListMessage += emote + " " + indexEntry.Title + "\n";
+                embed.AddEmojiAction(emote, async () =>
+                {
+                    embed.Title = "Searching for " + indexEntry.Title + "...";
+                    embed.Fields.Clear();
+                    await embed.RemoveAllEmojiActions();
+                    await embed.UpdateEmbed();
+                    await SetAnimeMalInfo(indexEntry, embed, targetUser);
+                    await embed.UpdateEmbed();
+                });
+            }
+
+            if (nextPage)
+            {
+                int currentPage = page;
+                Emoji emote = new Emoji(Emotes.NEXT_PAGE);
+                embed.AddEmojiAction(emote, async () =>
+                {
+                    embed.Fields.Clear();
+                    await embed.RemoveAllEmojiActions();
+                    await SetMalAnimeSearchList(embed, targetUser, searchList, currentPage + 1);
+                });
+            }
+            embed.Title = "Select Anime";
+            embed.AddField("Page " + page, favListMessage);
             await embed.UpdateEmbed();
         }
 
@@ -132,6 +203,7 @@ namespace AnimeListBot.Modules
         {
             EmbedHandler embed = new EmbedHandler(targetUser, "Searching for " + search + "...");
             await embed.SendMessage(Context.Channel);
+            embed.SetOwner(Context.User);
 
             DiscordUser user = await _db.GetUserById(targetUser.Id);
             await SearchManga(embed, user, search);
@@ -154,6 +226,12 @@ namespace AnimeListBot.Modules
             if (mal && (searchResult != null && searchResult.Results.Count > 0))
             {
                 List<MangaSearchEntry> results = searchResult.Results.ToList();
+                if (results.Count > 1)
+                {
+                    await SetMalMangaSearchList(embed, targetUser, results, 1);
+                    return;
+                }
+
                 MangaSearchEntry entry = results[0];
                 await SetMangaMalInfo(entry, embed, targetUser);
             }
@@ -169,6 +247,11 @@ namespace AnimeListBot.Modules
             else if (!mal && (searchResult != null && searchResult.Results.Count > 0))
             {
                 List<MangaSearchEntry> results = searchResult.Results.ToList();
+                if (results.Count > 1)
+                {
+                    await SetMalMangaSearchList(embed, targetUser, results, 1);
+                    return;
+                }
                 MangaSearchEntry entry = results[0];
                 await SetMangaMalInfo(entry, embed, targetUser);
             }
@@ -512,6 +595,63 @@ namespace AnimeListBot.Modules
                         "There are no stats available for this user."
                 );
             }
+        }
+
+        public static async Task SetMalMangaSearchList(EmbedHandler embed, DiscordUser targetUser, List<MangaSearchEntry> searchList, int page)
+        {
+            bool nextPage = true;
+            int maxIndex = 5 * page;
+            int startPage = 5 * (page - 1);
+            bool previousPage = startPage > 0;
+            if (searchList.Count <= maxIndex)
+            {
+                maxIndex = searchList.Count;
+                nextPage = false;
+            }
+
+            if (previousPage)
+            {
+                int currentPage = page;
+                Emoji emote = new Emoji(Emotes.PREVIOUS_PAGE);
+                embed.AddEmojiAction(emote, async () =>
+                {
+                    embed.Fields.Clear();
+                    await embed.RemoveAllEmojiActions();
+                    await SetMalMangaSearchList(embed, targetUser, searchList, currentPage - 1);
+                });
+            }
+
+            string favListMessage = string.Empty;
+            for (int resultIndex = startPage; resultIndex < maxIndex; resultIndex++)
+            {
+                MangaSearchEntry indexEntry = searchList[resultIndex];
+                Emoji emote = new Emoji(Emotes.NUMBERS_EMOTES[resultIndex - startPage + 1]);
+                favListMessage += emote + " " + indexEntry.Title + "\n";
+                embed.AddEmojiAction(emote, async () =>
+                {
+                    embed.Title = "Searching for " + indexEntry.Title + "...";
+                    embed.Fields.Clear();
+                    await embed.RemoveAllEmojiActions();
+                    await embed.UpdateEmbed();
+                    await SetMangaMalInfo(indexEntry, embed, targetUser);
+                    await embed.UpdateEmbed();
+                });
+            }
+
+            if (nextPage)
+            {
+                int currentPage = page;
+                Emoji emote = new Emoji(Emotes.NEXT_PAGE);
+                embed.AddEmojiAction(emote, async () =>
+                {
+                    embed.Fields.Clear();
+                    await embed.RemoveAllEmojiActions();
+                    await SetMalMangaSearchList(embed, targetUser, searchList, currentPage + 1);
+                });
+            }
+            embed.Title = "Select Manga";
+            embed.AddField("Page " + page, favListMessage);
+            await embed.UpdateEmbed();
         }
 
         public static string GetAnimeStatus(AnimeSearchEntry entry)

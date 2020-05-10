@@ -34,7 +34,12 @@ namespace AnimeListBot.Modules
 {
     public class Profile : ModuleBase<ShardedCommandContext>
     {
-        public DatabaseService _db { get; set; }
+        private IDatabaseService _db;
+
+        public Profile(IDatabaseService db)
+        {
+            _db = db;
+        }
 
         [Command("setup"), Summary(
             "Registers your discord account with MAL. Possible options: [mal, anilist]\n" +
@@ -316,7 +321,7 @@ namespace AnimeListBot.Modules
             DiscordUser gUser = await _db.GetUserById(Context.User.Id);
             DiscordServer server = await _db.GetServerById(Context.Guild.Id);
 
-            List<DiscordUser> users = _db.DiscordUser.ToList();
+            List<DiscordUser> users = _db.GetAllUsers();
             List<DiscordUser> guildUsers = users.Where(y => y.Servers != null)
                                                 .Where(x => x.Servers.Find(y => y.ServerId == server.ServerId.ToString()) != null).ToList();
 

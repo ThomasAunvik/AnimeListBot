@@ -32,7 +32,12 @@ namespace AnimeListBot.Modules
 {
     public class Search : ModuleBase<ShardedCommandContext>
     {
-        public DatabaseService _db { get; set; }
+        private IDatabaseService _db;
+
+        public Search(IDatabaseService db)
+        {
+            _db = db;
+        }
 
         [Command("anime")]
         public async Task SearchAnime(IUser targetUser, [Remainder]string search)

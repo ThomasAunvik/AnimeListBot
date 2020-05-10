@@ -33,7 +33,12 @@ namespace AnimeListBot.Modules
 {
     public class BotInfo : ModuleBase<ShardedCommandContext>
     {
-        public DatabaseService _db { get; set; }
+        private IDatabaseService _db;
+
+        public BotInfo(IDatabaseService db)
+        {
+            _db = db;
+        }
 
         struct SavedStats
         {

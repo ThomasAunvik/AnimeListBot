@@ -6,26 +6,33 @@ using System.Threading.Tasks;
 
 namespace AnimeListBot.Handler.Database
 {
-    public class DatabaseService : DatabaseConnection, IDisposable
+    public class DatabaseService : IDatabaseService
     {
+        protected readonly DatabaseConnection dbConn;
+
+        public DatabaseService(DatabaseConnection db)
+        {
+            dbConn = db;
+        }
+
         public List<DiscordServer> GetAllServers()
         {
-            return DiscordServer.ToList();
+            return dbConn.DiscordServer.ToList();
         }
 
         public List<DiscordUser> GetAllUsers()
         {
-            return DiscordUser.ToList();
+            return dbConn.DiscordUser.ToList();
         }
 
         public bool DoesServerIdExist(ulong id)
         {
-            return DiscordServer.Find(id) == null;
+            return dbConn.DiscordServer.Find(id) == null;
         }
 
         public async Task<DiscordServer> GetServerById(ulong id)
         {
-            DiscordServer server = await DiscordServer.FindAsync(id);
+            DiscordServer server = await dbConn.DiscordServer.FindAsync(id);
             if (server == null)
             {
                 server = new DiscordServer(Program._client.GetGuild(id));
@@ -36,21 +43,21 @@ namespace AnimeListBot.Handler.Database
 
         public async Task<bool> CreateServer(DiscordServer server)
         {
-            DiscordServer.Add(server);
-            await SaveChangesAsync();
+            dbConn.DiscordServer.Add(server);
+            await dbConn.SaveChangesAsync();
             return true;
         }
 
         public async Task<bool> RemoveServer(DiscordServer server)
         {
-            DiscordServer.Remove(await GetServerById(server.ServerId));
-            await SaveChangesAsync();
+            dbConn.DiscordServer.Remove(await GetServerById(server.ServerId));
+            await dbConn.SaveChangesAsync();
             return true;
         }
 
         public async Task<DiscordUser> GetUserById(ulong id, bool forceUpdate = false)
         {
-            DiscordUser user = DiscordUser.Find(id);
+            DiscordUser user = dbConn.DiscordUser.Find(id);
             if (user == null)
             {
                 await CreateUser(user = new DiscordUser(Program._client.GetUser(id)));
@@ -74,22 +81,42 @@ namespace AnimeListBot.Handler.Database
 
         public bool DoesUserIdExist(ulong id)
         {
-            return DiscordUser.Find(id) != null;
+            return dbConn.DiscordUser.Find(id) != null;
         }
 
         public async Task<bool> CreateUser(DiscordUser user)
         {
             if (user == null || user.UserId == 0) return false;
-            DiscordUser.Add(user);
-            await SaveChangesAsync();
+            dbConn.DiscordUser.Add(user);
+            await dbConn.SaveChangesAsync();
             return true;
         }
 
         public async Task<bool> RemoveUser(DiscordUser user)
         {
-            DiscordUser.Remove(await GetUserById(user.UserId));
-            await SaveChangesAsync();
+            dbConn.DiscordUser.Remove(await GetUserById(user.UserId));
+            await dbConn.SaveChangesAsync();
             return true;
+        }
+
+        public Cluster GetCluster(int id)
+        {
+            return dbConn.Cluster.Find(id);
+        }
+
+        public List<Cluster> GetAllClusters()
+        {
+            return dbConn.Cluster.ToList();
+        }
+
+        public async Task SaveChangesAsync()
+        {
+            await dbConn.SaveChangesAsync();
+        }
+
+        public void Dispose()
+        {
+            dbConn.Dispose();
         }
     }
 }

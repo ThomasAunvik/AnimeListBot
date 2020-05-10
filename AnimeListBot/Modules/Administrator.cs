@@ -36,7 +36,12 @@ namespace AnimeListBot.Modules
     [RequireOwner]
     public class Administrator : ModuleBase<ShardedCommandContext>
     {
-        public DatabaseService _db { get; set; }
+        private IDatabaseService _db;
+
+        public Administrator(IDatabaseService db)
+        {
+            _db = db;
+        }
 
         [Command("stop")]
         public async Task StopBot()
@@ -175,7 +180,7 @@ namespace AnimeListBot.Modules
             EmbedHandler embed = new EmbedHandler(Context.User, "Updating All Guilds");
             await embed.SendMessage(Context.Channel);
 
-            List<DiscordServer> guilds = _db.DiscordServer.ToList();
+            List<DiscordServer> guilds = _db.GetAllServers();
             for (int guildIndex = 0; guildIndex < guilds.Count; guildIndex++)
             {
                 SocketGuild guild = Program._client.GetGuild(guilds[guildIndex].ServerId);
@@ -198,7 +203,7 @@ namespace AnimeListBot.Modules
             EmbedHandler embed = new EmbedHandler(Context.User, "Updating All Users");
             await embed.SendMessage(Context.Channel);
 
-            List<DiscordUser> users = _db.DiscordUser.ToList();
+            List<DiscordUser> users = _db.GetAllUsers();
             for (int userIndex = 0; userIndex < users.Count; userIndex++)
             {
                 DiscordUser user = users[userIndex];
@@ -215,7 +220,7 @@ namespace AnimeListBot.Modules
         {
             EmbedHandler embed = new EmbedHandler(Context.User, "Current Prefix");
 
-            DiscordServer server = _db.DiscordServer.Find(Context.Guild.Id);
+            DiscordServer server = await _db.GetServerById(Context.Guild.Id);
             embed.Description = server.Prefix;
 
             await _db.SaveChangesAsync();

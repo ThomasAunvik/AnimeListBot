@@ -32,7 +32,12 @@ namespace AnimeListBot.Modules
 {
     public class Ranks : ModuleBase<ShardedCommandContext>
     {
-        public DatabaseService _db { get; set; }
+        private IDatabaseTrancientService _db;
+
+        public Ranks(IDatabaseTrancientService db)
+        {
+            _db = db;
+        }
 
         [Command("addrank")]
         [Summary("Adds a rank for how many days you have spent with anime/manga (Options: [anime, manga]), Requires ManageRoles on both User and Bot")]
@@ -192,7 +197,7 @@ namespace AnimeListBot.Modules
 
                 IGuild guild = server.GetGuild();
 
-                List<DiscordUser> users = _db.DiscordUser.ToList();
+                List<DiscordUser> users = _db.GetAllUsers();
                 List<DiscordUser> serverUsers = users.FindAll(x => x.Servers.Find(x => x.ServerId == server.ServerId.ToString()) != null);
 
                 await UpdateUserRoles(server, serverUsers, embed);

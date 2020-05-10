@@ -35,7 +35,7 @@ namespace AnimeListBot.Handler
         public virtual DbSet<DiscordUser> DiscordUser { get; set; }
         public virtual DbSet<Cluster> Cluster { get; set; }
 
-        private string GetConnectionString()
+        public static string GetConnectionString()
         {
             Config login = Config.GetConfig();
             return string.Format("Server={0};Port={1};" +
@@ -44,26 +44,9 @@ namespace AnimeListBot.Handler
                     login.password, login.catalog);
         }
 
-        public static async Task<DataSet> SendSql(string sql)
+        public DatabaseConnection(DbContextOptions<DatabaseConnection> options) : base(options)
         {
-            Config login = Config.GetConfig();
 
-            string connstring = String.Format("Server={0};Port={1};" +
-                    "User Id={2};Password={3};Database={4};",
-                    login.ip, login.port, login.userid,
-                    login.password, login.catalog);
-            NpgsqlConnection conn = new NpgsqlConnection(connstring);
-            await conn.OpenAsync();
-
-            NpgsqlDataAdapter da = new NpgsqlDataAdapter(sql, conn);
-            DataSet ds = new DataSet();
-            ds.Reset();
-
-            da.Fill(ds);
-
-            conn.Close();
-
-            return ds;
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

@@ -29,7 +29,12 @@ namespace AnimeListBot.Modules
 {
     public class Random : ModuleBase<ShardedCommandContext>
     {
-        public DatabaseService _db { get; set; }
+        private IDatabaseService _db;
+
+        public Random(IDatabaseService db)
+        {
+            _db = db;
+        }
 
         class ListRequest
         {

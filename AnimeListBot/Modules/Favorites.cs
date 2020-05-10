@@ -28,7 +28,12 @@ namespace AnimeListBot.Modules
 {
     public class Favorites : ModuleBase<ShardedCommandContext>
     {
-        public DatabaseService _db { get; set; }
+        private IDatabaseService _db;
+
+        public Favorites(IDatabaseService db)
+        {
+            _db = db;
+        }
 
         [Command("favoriteanime")]
         public async Task FavAnime(IUser user = null)

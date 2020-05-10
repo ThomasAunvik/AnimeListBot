@@ -81,7 +81,7 @@ namespace AnimeListBot.Handler
                 if (guildChannel.Id == Config.cached.test_channel) return;
             }
 
-            DatabaseService db = _services.GetRequiredService<DatabaseService>();
+            IDatabaseTrancientService db = _services.GetRequiredService<IDatabaseTrancientService>();
 
             DiscordServer server = await db.GetServerById(guildChannel.GuildId);
             server.UpdateGuildInfo(guildChannel.Guild);
@@ -98,6 +98,7 @@ namespace AnimeListBot.Handler
 
             // This value holds the offset where the prefix ends
             var argPos = 0;
+            
             if (!(message.HasStringPrefix(server.Prefix, ref argPos) || message.HasMentionPrefix(Program._client.CurrentUser, ref argPos)))
                 return;
 
@@ -117,7 +118,7 @@ namespace AnimeListBot.Handler
             if (!command.IsSpecified)
                 return;
 
-            DatabaseService db = _services.GetRequiredService<DatabaseService>();
+            IDatabaseService db = _services.GetRequiredService<IDatabaseService>();
 
             DiscordUser user = await db.GetUserById(context.Message.Author.Id);
             if (context.Message.Channel is IGuildChannel)

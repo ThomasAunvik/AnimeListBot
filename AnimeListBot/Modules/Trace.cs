@@ -24,11 +24,19 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 using System.Linq;
+using AnimeListBot.Handler.Database;
 
 namespace AnimeListBot.Modules
 {
     public class Trace : ModuleBase<ShardedCommandContext>
     {
+        private IDatabaseService _db;
+
+        public Trace(IDatabaseService db)
+        {
+            _db = db;
+        }
+
         [Command("trace")]
         [Summary("Traces an image by link")]
         public async Task TraceImage(string url)

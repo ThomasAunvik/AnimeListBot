@@ -13,7 +13,7 @@ namespace AnimeListBot.Handler
     {
         public override async Task<PreconditionResult> CheckPermissionsAsync(ICommandContext context, CommandInfo command, IServiceProvider services)
         {
-            DatabaseService db = services.GetRequiredService<DatabaseService>();
+            IDatabaseService db = services.GetRequiredService<IDatabaseService>();
             DiscordUser user = await db.GetUserById(context.User.Id);
             if (!user.HasValidAnimelist())
             {

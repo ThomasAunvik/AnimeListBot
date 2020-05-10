@@ -33,7 +33,12 @@ namespace AnimeListBot.Modules
 {
     public class AutoAdder : ModuleBase<ShardedCommandContext>
     {
-        public DatabaseService _db { get; set; }
+        private IDatabaseService _db;
+
+        public AutoAdder(IDatabaseService db)
+        {
+            _db = db;
+        }
 
         [Command("autolist")]
         [RequireUserPermission(GuildPermission.ManageRoles)]

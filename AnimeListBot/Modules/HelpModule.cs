@@ -30,9 +30,9 @@ namespace AnimeListBot.Modules
     {
         private CommandService _service;
         private readonly IServiceProvider _services;
-        private DatabaseService _db;
+        private IDatabaseService _db;
 
-        public HelpModule(CommandService service, IServiceProvider services, DatabaseService db)
+        public HelpModule(CommandService service, IServiceProvider services, IDatabaseService db)
         {
             _service = service;
             _services = services;

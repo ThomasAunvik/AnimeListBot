@@ -626,7 +626,7 @@ namespace AnimeListBot.Modules
             {
                 MangaSearchEntry indexEntry = searchList[resultIndex];
                 Emoji emote = new Emoji(Emotes.NUMBERS_EMOTES[resultIndex - startPage + 1]);
-                favListMessage += emote + " " + indexEntry.Title + "\n";
+                favListMessage += emote + " (" + indexEntry.Type + ") " + indexEntry.Title + "\n";
                 embed.AddEmojiAction(emote, async () =>
                 {
                     embed.Title = "Searching for " + indexEntry.Title + "...";

@@ -159,7 +159,7 @@ namespace AnimeListBot
                 .AddSingleton(new DiscordShardedClient(cluster.GetShardIds(), shard_config))
                 .AddSingleton<CommandService>()
                 .AddSingleton<CommandHandlingService>()
-                .AddDbContext<DatabaseService>(ServiceLifetime.Transient)
+                .AddDbContext<DatabaseService>()
                 .BuildServiceProvider();
         }
 

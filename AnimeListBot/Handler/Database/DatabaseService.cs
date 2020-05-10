@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace AnimeListBot.Handler.Database
 {
-    public class DatabaseService : DatabaseConnection
+    public class DatabaseService : DatabaseConnection, IDisposable
     {
         public List<DiscordServer> GetAllServers()
         {

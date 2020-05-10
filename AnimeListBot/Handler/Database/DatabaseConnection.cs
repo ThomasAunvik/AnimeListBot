@@ -25,18 +25,12 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
+using System.Transactions;
 
 namespace AnimeListBot.Handler
 {
-    public partial class DatabaseConnection : DbContext
+    public partial class DatabaseConnection : DbContext, IDisposable
     {
-        /*
-        private static DatabaseConnection _db;
-        public static DatabaseConnection db { get {
-                if (_db == null) _db = new DatabaseConnection();
-                return _db;
-            } }*/
-
         public virtual DbSet<DiscordServer> DiscordServer { get; set; }
         public virtual DbSet<DiscordUser> DiscordUser { get; set; }
         public virtual DbSet<Cluster> Cluster { get; set; }

@@ -60,9 +60,9 @@ Ranks in this bot are setup this way if you have enough days you gain a role.
 
 ## Trace
 
-Thanks to [soruly/trace.moe](https://github.com/soruly/trace.moe/)!
+Thanks to [SauceNAO](https://saucenao.com/)!
 
-`al!trace <image-link>` searches that image for what anime that image is from.
+`al!trace <image-link>` searches that image for what anime or manga that image is from.
 
 `al!trace (with image as attachment)` same as above, but you have to upload the image as attachment while you do the command.
 

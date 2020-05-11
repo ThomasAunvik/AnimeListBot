@@ -132,30 +132,28 @@ namespace AnimeListBot.Modules
                     await Search.GetAnime(embed, user, (long)sauce.Media.MyAnimeListId);
                 });
             }
-            else
-            {
-                IEmote tvEmote = new Emoji("📺");
-                embed.AddEmojiAction(tvEmote, async () =>
-                {
-                    embed.Title = "Searching for " + sauce.Media.Title;
-                    embed.Fields.Clear();
-                    await embed.RemoveAllEmojiActions();
-                    await embed.RemoveAllEmotes();
-                    await embed.UpdateEmbed();
-                    await Search.SearchAnime(embed, user, sauce.Media.Title);
-                });
 
-                IEmote bookEmote = new Emoji("📖");
-                embed.AddEmojiAction(bookEmote, async () =>
-                {
-                    embed.Title = "Searching for " + sauce.Media.Title;
-                    embed.Fields.Clear();
-                    await embed.RemoveAllEmojiActions();
-                    await embed.RemoveAllEmotes();
-                    await embed.UpdateEmbed();
-                    await Search.SearchManga(embed, user, sauce.Media.Title);
-                });
-            }
+            IEmote tvEmote = new Emoji("📺");
+            embed.AddEmojiAction(tvEmote, async () =>
+            {
+                embed.Title = "Searching for " + sauce.Media.Title;
+                embed.Fields.Clear();
+                await embed.RemoveAllEmojiActions();
+                await embed.RemoveAllEmotes();
+                await embed.UpdateEmbed();
+                await Search.SearchAnime(embed, user, sauce.Media.Title);
+            });
+
+            IEmote bookEmote = new Emoji("📖");
+            embed.AddEmojiAction(bookEmote, async () =>
+            {
+                embed.Title = "Searching for " + sauce.Media.Title;
+                embed.Fields.Clear();
+                await embed.RemoveAllEmojiActions();
+                await embed.RemoveAllEmotes();
+                await embed.UpdateEmbed();
+                await Search.SearchManga(embed, user, sauce.Media.Title);
+            });
             await embed.UpdateEmbed();
             await PermissionWrapper.DeleteMessage(Context.Message);
         }

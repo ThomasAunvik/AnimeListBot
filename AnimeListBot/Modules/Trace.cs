@@ -25,6 +25,10 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Linq;
 using AnimeListBot.Handler.Database;
+using Discord.WebSocket;
+using AnimeListBot.Handler.API.SauceNAO;
+using JikanDotNet;
+using AnimeListBot.Handler.Misc;
 
 namespace AnimeListBot.Modules
 {
@@ -42,6 +46,7 @@ namespace AnimeListBot.Modules
         public async Task TraceImage(string url)
         {
             EmbedHandler embed = new EmbedHandler(Context.User, "Tracing Image...");
+            embed.SetOwner(Context.User);
 
             Uri imgLink = null;
             if (!Uri.TryCreate(url, UriKind.Absolute, out imgLink))
@@ -54,46 +59,102 @@ namespace AnimeListBot.Modules
             embed.ThumbnailUrl = imgLink.AbsoluteUri;
             await embed.SendMessage(Context.Channel);
 
-            ITraceResult response = await TraceMoe.Search(imgLink);
-            if (!response.failed)
+            SauceNao wrapper = Program._sauceNao;
+            SauceHttpResult result = await wrapper.Trace(url);
+           
+            if(result == null)
             {
-                ITraceImage trace = response.trace;
-                List<TraceDoc> validDocs = trace.docs.Where(x => x.similarity > (decimal)0.8).ToList();
+                embed.Title = "Trace failed";
+                await embed.UpdateEmbed();
+                await PermissionWrapper.DeleteMessage(Context.Message);
+                return;
+            }
 
-                if(validDocs.Count > 0)
+            if(result.Results.Length <= 0)
+            {
+                embed.Title = "No Traces found";
+                await embed.UpdateEmbed();
+                await PermissionWrapper.DeleteMessage(Context.Message);
+                return;
+            }
+
+            SauceResult sauce = result.Results[0];
+            SauceSourceRating rating = await sauce.GetRating();
+
+            SocketTextChannel textChannel = (SocketTextChannel)Context.Channel;
+            if(rating == SauceSourceRating.Nsfw && !textChannel.IsNsfw)
+            {
+                embed.Title = "Media is NSFW, please use the command with the image on an NSFW channel.";
+                embed.ThumbnailUrl = "";
+                await embed.UpdateEmbed();
+                await PermissionWrapper.DeleteMessage(Context.Message);
+                return;
+            }
+            string siteIndex = Enum.GetName(typeof(SauceSiteIndex), sauce.Header.IndexId);
+            
+            embed.Title = "";
+            embed.AddFieldSecure(sauce.Media.Title,
+                "Title: " + sauce.Media.Title + (string.IsNullOrEmpty(sauce.Media.Part) ? "" : " " + sauce.Media.Part) +
+                "\n" + (string.IsNullOrEmpty(sauce.Media.Author) ? "" : "Author: " + sauce.Media.Author) +
+                "\nSimilarity: " + sauce.Header.Similarity
+            );
+
+            List<string> mediaUrls = sauce.Media.ExternalUrl.ToList();
+            embed.AddFieldSecure("Sources", string.Join("\n", sauce.Media.ExternalUrl));
+
+            DiscordUser user = await _db.GetUserById(Context.User.Id);
+            bool foundMalMangaURL = mediaUrls.Find(x => x.Contains("myanimelist.net/manga/")) != null;
+            bool foundMalAnimeURL = mediaUrls.Find(x => x.Contains("myanimelist.net/anime/")) != null;
+
+            if (foundMalMangaURL)
+            {
+                IEmote emote = Emote.Parse("<:mal_icon:709458138356514897>");
+                embed.AddEmojiAction(emote, async () =>
                 {
-                    TraceDoc doc = validDocs[0];
-
-                    double atValue = Math.Round((double)doc.at.GetValueOrDefault());
-                    double toValue = Math.Round((double)doc.to.GetValueOrDefault());
-
-                    TimeSpan atTime = TimeSpan.FromSeconds(atValue);
-                    TimeSpan toTime = TimeSpan.FromSeconds(toValue);
-
-                    embed.Title = "";
-                    embed.AddFieldSecure(
-                        doc.title_english,
-
-                        "Native Title: " + doc.title_native + "\n" +
-
-                        "Episode: " + doc.episode + "\n" +
-                        "At: " + GetTraceTime(atTime) + "\n" +
-                        (atTime.TotalSeconds == toTime.TotalSeconds ? "" :("To: " + GetTraceTime(atTime) + "\n")) +
-                        "Similarity: " + (doc.similarity.GetValueOrDefault() * 100).ToString("N2") + "%\n" +
-                        
-                        "MAL Id: " + doc.mal_id + "\n" +
-                        "Anilist Id: " + doc.anilist_id + "\n"
-                    );
-                }
-                else
+                    await embed.RemoveAllEmojiActions();
+                    await embed.RemoveAllEmotes();
+                    embed.Fields.Clear();
+                    embed.Title = "Getting manga: " + sauce.Media.Title;
+                    await embed.UpdateEmbed();
+                    await Search.GetManga(embed, user, (long)sauce.Media.MyAnimeListId);
+                });
+            }
+            else if (foundMalAnimeURL)
+            {
+                IEmote emote = Emote.Parse("<:mal_icon:709458138356514897>");
+                embed.AddEmojiAction(emote, async () =>
                 {
-                    embed.Title = "None Found";
-                }
+                    await embed.RemoveAllEmojiActions();
+                    await embed.RemoveAllEmotes();
+                    embed.Fields.Clear();
+                    embed.Title = "Getting anime: " + sauce.Media.Title;
+                    await embed.UpdateEmbed();
+                    await Search.GetAnime(embed, user, (long)sauce.Media.MyAnimeListId);
+                });
             }
             else
             {
-                embed.Title = response.errorMessage;
-                embed.Description = response.errorDescription;
+                IEmote tvEmote = new Emoji("📺");
+                embed.AddEmojiAction(tvEmote, async () =>
+                {
+                    embed.Title = "Searching for " + sauce.Media.Title;
+                    embed.Fields.Clear();
+                    await embed.RemoveAllEmojiActions();
+                    await embed.RemoveAllEmotes();
+                    await embed.UpdateEmbed();
+                    await Search.SearchAnime(embed, user, sauce.Media.Title);
+                });
+
+                IEmote bookEmote = new Emoji("📖");
+                embed.AddEmojiAction(bookEmote, async () =>
+                {
+                    embed.Title = "Searching for " + sauce.Media.Title;
+                    embed.Fields.Clear();
+                    await embed.RemoveAllEmojiActions();
+                    await embed.RemoveAllEmotes();
+                    await embed.UpdateEmbed();
+                    await Search.SearchManga(embed, user, sauce.Media.Title);
+                });
             }
             await embed.UpdateEmbed();
             await PermissionWrapper.DeleteMessage(Context.Message);

@@ -35,6 +35,7 @@ namespace AnimeListBot.Handler
         public HashSet<string> ignoredExceptionMessages = new HashSet<string>();
 
         public string dbl_token;
+        public string saucenao_token;
 
         public ulong error_channel;
         public ulong test_error_channel;

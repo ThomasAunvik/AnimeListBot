@@ -98,7 +98,6 @@ namespace AnimeListBot.Modules
         {
             embed.Title = "Searching for " + search + "...";
             await embed.UpdateEmbed();
-
             AnimeSearchResult searchResult = await Program._jikan.SearchAnime(search);
             IAniMedia media = await AniMediaQuery.SearchMedia(search, AniMediaType.ANIME);
 
@@ -375,7 +374,7 @@ namespace AnimeListBot.Modules
             await embed.UpdateEmbed();
         }
 
-        private static async Task SetAnimeMalInfo(AnimeSearchEntry entry, EmbedHandler embed, DiscordUser globalUser)
+        public static async Task SetAnimeMalInfo(AnimeSearchEntry entry, EmbedHandler embed, DiscordUser globalUser)
         {
             embed.Title = entry.Title;
             embed.Description = EmbedHandler.SecureEmbedText(entry.Description);
@@ -430,7 +429,7 @@ namespace AnimeListBot.Modules
             }
         }
 
-        private static async Task SetAnimeAniInfo(IAniMedia media, EmbedHandler embed, DiscordUser globalUser)
+        public static async Task SetAnimeAniInfo(IAniMedia media, EmbedHandler embed, DiscordUser globalUser)
         {
             if (media == null) return;
             embed.Title = media.title.english;
@@ -484,7 +483,7 @@ namespace AnimeListBot.Modules
             }
         }
 
-        private static async Task SetMangaMalInfo(MangaSearchEntry entry, EmbedHandler embed, DiscordUser globalUser)
+        public static async Task SetMangaMalInfo(MangaSearchEntry entry, EmbedHandler embed, DiscordUser globalUser)
         {
             if (entry == null) return;
             embed.Title = entry.Title;
@@ -542,7 +541,7 @@ namespace AnimeListBot.Modules
             }
         }
 
-        private static async Task SetMangaAniInfo(IAniMedia media, EmbedHandler embed, DiscordUser globalUser)
+        public static async Task SetMangaAniInfo(IAniMedia media, EmbedHandler embed, DiscordUser globalUser)
         {
             embed.Title = media.title.english;
             embed.Description = EmbedHandler.SecureEmbedText(media.description);

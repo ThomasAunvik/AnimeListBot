@@ -34,6 +34,7 @@ using AnimeListBot.Handler.Database;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
 using Microsoft.Extensions.Options;
+using AnimeListBot.Handler.API.SauceNAO;
 
 namespace AnimeListBot
 {
@@ -53,6 +54,7 @@ namespace AnimeListBot
         public static Logger _logger;
 
         public static IJikan _jikan;
+        public static SauceNao _sauceNao;
 
         public static AuthDiscordBotListApi _dbl;
 
@@ -98,6 +100,7 @@ namespace AnimeListBot
             }
 
             _jikan = new Jikan(true);
+            _sauceNao  = new SauceNao(bot_config.saucenao_token);
             _dbl = new AuthDiscordBotListApi(botID, bot_config.dbl_token);
 
             var shard_config = new DiscordSocketConfig

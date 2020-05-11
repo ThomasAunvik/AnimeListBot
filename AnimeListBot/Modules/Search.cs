@@ -262,7 +262,7 @@ namespace AnimeListBot.Modules
         [Command("midmanga")]
         public static async Task GetManga(EmbedHandler embed, DiscordUser targetUser, long id, AnimeListPreference listOverride = AnimeListPreference.None)
         {
-            if (id != 0)
+            if (id == 0)
             {
                 embed.Title = "No Manga Found";
                 await embed.UpdateEmbed();

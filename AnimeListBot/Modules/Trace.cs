@@ -79,6 +79,14 @@ namespace AnimeListBot.Modules
             }
 
             SauceResult sauce = result.Results[0];
+            if(sauce.Header.Similarity < 70)
+            {
+                embed.Title = "Similarity level too low (" + sauce.Header.Similarity + "%). It must be above 70%";
+                await embed.UpdateEmbed();
+                await PermissionWrapper.DeleteMessage(Context.Message);
+                return;
+            }
+
             SauceSourceRating rating = await sauce.GetRating();
 
             SocketTextChannel textChannel = (SocketTextChannel)Context.Channel;
@@ -93,7 +101,8 @@ namespace AnimeListBot.Modules
             string siteIndex = Enum.GetName(typeof(SauceSiteIndex), sauce.Header.IndexId);
             
             embed.Title = "";
-            embed.AddFieldSecure(sauce.Media.Title,
+            string fieldTitle = string.IsNullOrEmpty(sauce.Media.Title) ? "No Name" : sauce.Media.Title;
+            embed.AddFieldSecure(fieldTitle,
                 "Title: " + sauce.Media.Title + (string.IsNullOrEmpty(sauce.Media.Part) ? "" : " " + sauce.Media.Part) +
                 "\n" + (string.IsNullOrEmpty(sauce.Media.Author) ? "" : "Author: " + sauce.Media.Author) +
                 "\nSimilarity: " + sauce.Header.Similarity
@@ -103,6 +112,7 @@ namespace AnimeListBot.Modules
             embed.AddFieldSecure("Sources", string.Join("\n", sauce.Media.ExternalUrl));
 
             DiscordUser user = await _db.GetUserById(Context.User.Id);
+
             bool foundMalMangaURL = mediaUrls.Find(x => x.Contains("myanimelist.net/manga/")) != null;
             bool foundMalAnimeURL = mediaUrls.Find(x => x.Contains("myanimelist.net/anime/")) != null;
 
@@ -133,29 +143,32 @@ namespace AnimeListBot.Modules
                 });
             }
 
-            IEmote tvEmote = new Emoji("📺");
-            embed.AddEmojiAction(tvEmote, async () =>
+            if (!string.IsNullOrEmpty(sauce.Media.Title))
             {
-                embed.Title = "Searching for " + sauce.Media.Title;
-                embed.Fields.Clear();
-                await embed.RemoveAllEmojiActions();
-                await embed.RemoveAllEmotes();
-                await embed.UpdateEmbed();
-                await Search.SearchAnime(embed, user, sauce.Media.Title);
-            });
+                IEmote tvEmote = new Emoji("📺");
+                embed.AddEmojiAction(tvEmote, async () =>
+                {
+                    embed.Title = "Searching for " + sauce.Media.Title;
+                    embed.Fields.Clear();
+                    await embed.RemoveAllEmojiActions();
+                    await embed.RemoveAllEmotes();
+                    await embed.UpdateEmbed();
+                    await Search.SearchAnime(embed, user, sauce.Media.Title);
+                });
 
-            IEmote bookEmote = new Emoji("📖");
-            embed.AddEmojiAction(bookEmote, async () =>
-            {
-                embed.Title = "Searching for " + sauce.Media.Title;
-                embed.Fields.Clear();
-                await embed.RemoveAllEmojiActions();
-                await embed.RemoveAllEmotes();
+                IEmote bookEmote = new Emoji("📖");
+                embed.AddEmojiAction(bookEmote, async () =>
+                {
+                    embed.Title = "Searching for " + sauce.Media.Title;
+                    embed.Fields.Clear();
+                    await embed.RemoveAllEmojiActions();
+                    await embed.RemoveAllEmotes();
+                    await embed.UpdateEmbed();
+                    await Search.SearchManga(embed, user, sauce.Media.Title);
+                });
                 await embed.UpdateEmbed();
-                await Search.SearchManga(embed, user, sauce.Media.Title);
-            });
-            await embed.UpdateEmbed();
-            await PermissionWrapper.DeleteMessage(Context.Message);
+                await PermissionWrapper.DeleteMessage(Context.Message);
+            }
         }
 
         [Command("trace")]

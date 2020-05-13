@@ -43,7 +43,7 @@ namespace AnimeListBot.Modules
 
         [Command("trace")]
         [Summary("Traces an image by link")]
-        public async Task TraceImage(string url)
+        public async Task TraceImage(string url, bool override_trace = false)
         {
             EmbedHandler embed = new EmbedHandler(Context.User, "Tracing Image...");
             embed.SetOwner(Context.User);
@@ -79,21 +79,23 @@ namespace AnimeListBot.Modules
             }
 
             SauceResult sauce = result.Results[0];
-            if(sauce.Header.Similarity < 70)
+            SauceSourceRating rating = await sauce.GetRating();
+
+            SocketTextChannel textChannel = (SocketTextChannel)Context.Channel;
+            if (rating == SauceSourceRating.Nsfw && !textChannel.IsNsfw)
             {
-                embed.Title = "Similarity level too low (" + sauce.Header.Similarity + "%). It must be above 70%";
+                embed.Title = "The most similar media is NSFW, please use the command with the image on an NSFW channel.";
+                if(sauce.Header.Similarity < 50) embed.Description = "Similarity Level is under 50% (at " + sauce.Header.Similarity + "%)., it might not be the result you want.";
+                embed.ThumbnailUrl = "";
                 await embed.UpdateEmbed();
                 await PermissionWrapper.DeleteMessage(Context.Message);
                 return;
             }
 
-            SauceSourceRating rating = await sauce.GetRating();
-
-            SocketTextChannel textChannel = (SocketTextChannel)Context.Channel;
-            if(rating == SauceSourceRating.Nsfw && !textChannel.IsNsfw)
+            if(sauce.Header.Similarity < 50 && !override_trace)
             {
-                embed.Title = "Media is NSFW, please use the command with the image on an NSFW channel.";
-                embed.ThumbnailUrl = "";
+                embed.Title = "Similarity level too low (" + sauce.Header.Similarity + "%). It must be above 50%";
+                embed.Description = "Override?, Add 'true' as the last parameter.";
                 await embed.UpdateEmbed();
                 await PermissionWrapper.DeleteMessage(Context.Message);
                 return;
@@ -173,13 +175,13 @@ namespace AnimeListBot.Modules
 
         [Command("trace")]
         [Summary("Traces an image by uploading an image as an attachment while you do this command.")]
-        public async Task TraceImage()
+        public async Task TraceImage(bool override_trace = false)
         {
             var attachements = Context.Message.Attachments;
             if(attachements.Count > 0)
             {
                 IAttachment attachment = attachements.ElementAt(0);
-                await TraceImage(attachment.Url);
+                await TraceImage(attachment.Url, override_trace);
             }
             else
             {

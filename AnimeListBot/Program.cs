@@ -201,6 +201,7 @@ namespace AnimeListBot
 
             await _logger.Log("Updated guild count: " + _client.Guilds.Count);
             await _dbl.UpdateStats(_client.Guilds.Count);
+            await db.SaveChangesAsync();
         }
 
         private async Task OnLeftGuild(SocketGuild arg)
@@ -214,6 +215,7 @@ namespace AnimeListBot
 
             await _logger.Log("Updated guild count: " + _client.Guilds.Count);
             await _dbl.UpdateStats(_client.Guilds.Count);
+            await db.SaveChangesAsync();
         }
 
         private async Task OnUserBanned(SocketUser arg1, SocketGuild arg2)
@@ -224,6 +226,7 @@ namespace AnimeListBot
                 DiscordUser user = await db.GetUserById(arg1.Id);
                 user.Servers.RemoveAll(x => x.ServerId == arg2.Id.ToString());
             }
+            await db.SaveChangesAsync();
         }
 
         private async Task OnUserLeft(SocketGuildUser arg)
@@ -234,6 +237,7 @@ namespace AnimeListBot
                 DiscordUser user = await db.GetUserById(arg.Id);
                 user.Servers.RemoveAll(x => x.ServerId == arg.Guild.Id.ToString());
             }
+            await db.SaveChangesAsync();
         }
 
         private async Task OnRoleUpdated(SocketRole arg1, SocketRole arg2)
@@ -242,6 +246,7 @@ namespace AnimeListBot
             DiscordServer server = await db.GetServerById(arg2.Guild.Id);
             server.UpdateGuildRoles();
             server.ranks.UpdateRankPermission(arg2.Id, arg2.Permissions.RawValue);
+            await db.SaveChangesAsync();
         }
 
         private async Task OnRoleAdded(SocketRole arg1)
@@ -249,6 +254,7 @@ namespace AnimeListBot
             IDatabaseService db = _services.GetRequiredService<IDatabaseService>();
             DiscordServer server = await db.GetServerById(arg1.Guild.Id);
             server.UpdateGuildRoles();
+            await db.SaveChangesAsync();
         }
 
         private async Task OnRoleDeleted(SocketRole arg1)
@@ -256,6 +262,7 @@ namespace AnimeListBot
             IDatabaseService db = _services.GetRequiredService<IDatabaseService>();
             DiscordServer server = await db.GetServerById(arg1.Guild.Id);
             server.UpdateGuildRoles();
+            await db.SaveChangesAsync();
         }
 
         private Task OnReactionAdded(Cacheable<IUserMessage, ulong> arg1, ISocketMessageChannel arg2, SocketReaction arg3)

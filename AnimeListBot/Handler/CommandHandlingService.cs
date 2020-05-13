@@ -81,7 +81,7 @@ namespace AnimeListBot.Handler
                 if (guildChannel.Id == Config.cached.test_channel) return;
             }
 
-            IDatabaseTrancientService db = _services.GetRequiredService<IDatabaseTrancientService>();
+            IDatabaseService db = _services.GetRequiredService<IDatabaseService>();
 
             DiscordServer server = await db.GetServerById(guildChannel.GuildId);
             server.UpdateGuildInfo(guildChannel.Guild);

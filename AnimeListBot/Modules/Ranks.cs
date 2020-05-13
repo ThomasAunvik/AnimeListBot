@@ -32,9 +32,9 @@ namespace AnimeListBot.Modules
 {
     public class Ranks : ModuleBase<ShardedCommandContext>
     {
-        private IDatabaseTrancientService _db;
+        private IDatabaseService _db;
 
-        public Ranks(IDatabaseTrancientService db)
+        public Ranks(IDatabaseService db)
         {
             _db = db;
         }

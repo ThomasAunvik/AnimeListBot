@@ -129,7 +129,10 @@ namespace AnimeListBot
                 _client.LeftGuild += OnLeftGuild;
                 _client.UserLeft += OnUserLeft;
                 _client.UserBanned += OnUserBanned;
+
                 _client.RoleUpdated += OnRoleUpdated;
+                _client.RoleCreated += OnRoleAdded;
+                _client.RoleDeleted += OnRoleDeleted;
 
                 _client.ReactionAdded += OnReactionAdded;
 
@@ -237,7 +240,22 @@ namespace AnimeListBot
         {
             IDatabaseService db = _services.GetRequiredService<IDatabaseService>();
             DiscordServer server = await db.GetServerById(arg2.Guild.Id);
+            server.UpdateGuildRoles();
             server.ranks.UpdateRankPermission(arg2.Id, arg2.Permissions.RawValue);
+        }
+
+        private async Task OnRoleAdded(SocketRole arg1)
+        {
+            IDatabaseService db = _services.GetRequiredService<IDatabaseService>();
+            DiscordServer server = await db.GetServerById(arg1.Guild.Id);
+            server.UpdateGuildRoles();
+        }
+
+        private async Task OnRoleDeleted(SocketRole arg1)
+        {
+            IDatabaseService db = _services.GetRequiredService<IDatabaseService>();
+            DiscordServer server = await db.GetServerById(arg1.Guild.Id);
+            server.UpdateGuildRoles();
         }
 
         private Task OnReactionAdded(Cacheable<IUserMessage, ulong> arg1, ISocketMessageChannel arg2, SocketReaction arg3)

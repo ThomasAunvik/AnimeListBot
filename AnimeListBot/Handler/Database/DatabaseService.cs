@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace AnimeListBot.Handler.Database
 {
-    public class DatabaseService : IDatabaseService
+    public class DatabaseService : IDatabaseService, IDisposable
     {
         protected readonly DatabaseConnection dbConn;
 

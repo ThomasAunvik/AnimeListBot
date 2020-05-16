@@ -168,8 +168,8 @@ namespace AnimeListBot
                 .AddSingleton<CommandService>()
                 .AddSingleton<CommandHandlingService>()
 
-                .AddDbContext<DatabaseConnection>(options => options.UseNpgsql(DatabaseConnection.GetConnectionString()), ServiceLifetime.Transient)
-                .AddTransient<IDatabaseService, DatabaseService>()
+                .AddDbContext<DatabaseConnection>(options => options.UseNpgsql(DatabaseConnection.GetConnectionString()), ServiceLifetime.Scoped)
+                .AddScoped<IDatabaseService, DatabaseService>()
                 .BuildServiceProvider();
         }
 

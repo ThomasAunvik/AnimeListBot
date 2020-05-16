@@ -80,8 +80,8 @@ namespace AnimeListBot.Handler
             {
                 if (guildChannel.Id == Config.cached.test_channel) return;
             }
-
-            IDatabaseService db = _services.GetRequiredService<IDatabaseService>();
+            using var serviceScope = _services.CreateScope();
+            var db = serviceScope.ServiceProvider.GetRequiredService<IDatabaseService>();
 
             DiscordServer server = await db.GetServerById(guildChannel.GuildId);
             server.UpdateGuildInfo(guildChannel.Guild);
@@ -109,7 +109,7 @@ namespace AnimeListBot.Handler
 
             // A new kind of command context, ShardedCommandContext can be utilized with the commands framework
             var context = new ShardedCommandContext(_discord, message);
-            await _commands.ExecuteAsync(context, argPos, _services);
+            await _commands.ExecuteAsync(context, argPos, serviceScope.ServiceProvider);
         }
 
         public async Task CommandExecutedAsync(Optional<CommandInfo> command, ICommandContext context, IResult result)

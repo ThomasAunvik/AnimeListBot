@@ -30,6 +30,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using JikanDotNet;
 using AnimeListBot.Handler.Database;
+using Microsoft.Extensions.Logging;
 
 namespace AnimeListBot.Modules
 {
@@ -37,10 +38,12 @@ namespace AnimeListBot.Modules
     public class Administrator : ModuleBase<ShardedCommandContext>
     {
         private IDatabaseService _db;
+        private ILogger<BotLogger> _logger;
 
-        public Administrator(IDatabaseService db)
+        public Administrator(IDatabaseService db, ILogger<BotLogger> logger)
         {
             _db = db;
+            _logger = logger;
         }
 
         [Command("stop")]
@@ -222,6 +225,8 @@ namespace AnimeListBot.Modules
 
             DiscordServer server = await _db.GetServerById(Context.Guild.Id);
             embed.Description = server.Prefix;
+
+            _logger.LogError("Test");
 
             await _db.SaveChangesAsync();
             await embed.SendMessage(Context.Channel);

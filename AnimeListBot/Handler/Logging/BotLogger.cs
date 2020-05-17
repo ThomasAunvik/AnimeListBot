@@ -28,88 +28,20 @@ using AnimeListBot.Handler.Logging;
 
 namespace AnimeListBot.Handler
 {
-    public class Logger
+    public class BotLogger : ILogger
     {
         const int MAX_FIELD_VALUE_LENGTH = 1024;
 
-        string logPath;
-        int logLines = 0;
+        private readonly string _name;
+        private readonly BotLoggerConfiguration _config;
 
-        public Logger()
+        public BotLogger(string name, BotLoggerConfiguration config)
         {
-            if (!Directory.Exists("logs"))
-            {
-                Directory.CreateDirectory("logs");
-            }
-            if (Directory.Exists("logs"))
-            {
-                DateTime localTime = DateTime.Now;
-                string logPath = "logs/" + localTime.Year + "-" + localTime.Month + "-" + localTime.Day + "-" + localTime.Hour + "-" + localTime.Minute + "-" + localTime.Second + ".log";
-                this.logPath = logPath;
-                using (FileStream logStream = File.Create(logPath))
-                {
-                    logStream.Close();
-                }
-            }
+            _name = name;
+            _config = config;
         }
 
-        public async Task ReplaceLine(int line, string text)
-        {
-            if (line < 0)
-            {
-                await Log(text);
-                return;
-            }
-
-            int cursorPos = Console.CursorTop;
-            Console.SetCursorPosition(0, line);
-            Console.Write(text);
-            Console.SetCursorPosition(0, cursorPos);
-        }
-
-        public async Task Log(string message)
-        {
-            try
-            {
-                DateTime localTime = DateTime.Now;
-                string dateTimeMessage = "[" + localTime.ToString("T", DateTimeFormatInfo.InvariantInfo) + "] " + message;
-
-                StreamWriter writer = new StreamWriter(logPath, true);
-                await writer.WriteAsync((logLines == 0 ? "" : writer.NewLine) + dateTimeMessage);
-                writer.Close();
-
-                Console.WriteLine(dateTimeMessage);
-                logLines++;
-            }catch(IOException e)
-            {
-                Console.WriteLine(e);   
-            }
-        }
-
-        public async Task LogError(string errorMessage, EmbedBuilder sendEmbed)
-        {
-            await Log(errorMessage);
-            if (Program._client == null) return;
-
-            const ulong ownerId = 96580514021912576;
-            ulong channelId = Program.TestingMode ? Config.cached.test_error_channel : Config.cached.error_channel;
-            SocketUser owner = Program._client.GetUser(ownerId);
-
-            SocketTextChannel channel = (SocketTextChannel)Program._client.GetChannel(channelId);
-
-            if (owner != null)
-            {
-                await owner?.GetOrCreateDMChannelAsync();
-                await owner.SendMessageAsync("", false, sendEmbed.Build());
-            }
-
-            if(channel != null)
-            {
-                await channel.SendMessageAsync("", false, sendEmbed.Build());
-            }
-        }
-
-        public async Task LogError(string errorMessage, IUser user = null, IGuildChannel guildChannel = null)
+        public void LogDiscordError(string errorMessage, IUser user = null, IGuildChannel guildChannel = null)
         {
             EmbedHandler embed = new EmbedHandler(user, "Error", string.Empty, true);
             if (guildChannel != null)
@@ -121,16 +53,9 @@ namespace AnimeListBot.Handler
                 );
             }
             embed.AddFieldSecure("ErrorMessage", errorMessage);
-            await LogError(errorMessage, embed);
         }
 
-        public async Task LogError(Exception exception, EmbedBuilder embed)
-        {
-            string errorMessage = exception.Message + "\n" + exception.StackTrace;
-            await LogError(errorMessage, embed);
-        }
-
-        public async Task LogError(LogMessage message)
+        public void LogDiscordError(LogMessage message)
         {
             EmbedHandler embed = new EmbedHandler(null, "Exception", string.Empty, true);
             embed.AddFieldSecure("Severity", Enum.GetName(typeof(LogSeverity), message.Severity));
@@ -141,10 +66,9 @@ namespace AnimeListBot.Handler
                 embed.AddFieldSecure("Type", message.Exception.GetType().FullName);
                 embed.AddFieldSecure("Stacktrace", TrancuateStacktrace(message.Exception.StackTrace));
             }
-            await LogError(message.Exception, embed);
         }
 
-        public async Task LogError(Exception exception, IUser user = null, IGuildChannel guildChannel = null)
+        public void LogDiscordError(Exception exception, IUser user = null, IGuildChannel guildChannel = null)
         {
             EmbedHandler embed = new EmbedHandler(user, "Exception", string.Empty, true);
             if (guildChannel != null)
@@ -158,12 +82,11 @@ namespace AnimeListBot.Handler
             embed.AddFieldSecure("Exception Message", exception.Message);
             embed.AddFieldSecure("Type", exception.GetType().FullName);
             embed.AddFieldSecure("Stacktrace", TrancuateStacktrace(exception.StackTrace));
-            await LogError(exception, embed);
         }
 
-        public async Task LogError(CommandInfo info, ICommandContext context, IResult result)
+        public void LogDiscordError(CommandInfo info, ICommandContext context, IResult result)
         {
-            if(result is ExecuteResult)
+            if (result is ExecuteResult)
             {
                 Exception e = ((ExecuteResult)result).Exception;
 
@@ -177,7 +100,6 @@ namespace AnimeListBot.Handler
                 embed.AddFieldSecure("Exception Message", e.Message);
                 embed.AddFieldSecure("Type", e.GetType().FullName);
                 embed.AddFieldSecure("Stacktrace", TrancuateStacktrace(e.StackTrace));
-                await LogError(e, embed);
             }
         }
 
@@ -186,11 +108,90 @@ namespace AnimeListBot.Handler
             if (input == null) return "";
 
             input = Format.Sanitize(input);
-            if(input.Length > MAX_FIELD_VALUE_LENGTH)
+            if (input.Length > MAX_FIELD_VALUE_LENGTH)
             {
                 input = input.Substring(0, MAX_FIELD_VALUE_LENGTH);
             }
             return input;
+        }
+
+        public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
+        {
+            if (!IsEnabled(logLevel))
+            {
+                return;
+            }
+            EmbedHandler embed = new EmbedHandler(null);
+            embed.Title = state.ToString();
+            formatter.Invoke(state, exception);
+
+
+            LogToFile(state.ToString());
+
+            if (_config.SendToOwner)
+            {
+                if (Program._client == null) return;
+
+                const ulong ownerId = 96580514021912576;
+                ulong channelId = Program.TestingMode ? Config.cached.test_error_channel : Config.cached.error_channel;
+                SocketUser owner = Program._client.GetUser(ownerId);
+
+                SocketTextChannel channel = (SocketTextChannel)Program._client.GetChannel(channelId);
+
+                if (owner != null)
+                {
+                    owner?.GetOrCreateDMChannelAsync();
+                    owner.SendMessageAsync("", false, embed.Build());
+                }
+
+                if (channel != null)
+                {
+                    channel.SendMessageAsync("", false, embed.Build());
+                }
+            }
+        }
+
+        public void TryCreateLogFile()
+        {
+            if (!Directory.Exists(_config.FileDirectory))
+            {
+                Directory.CreateDirectory(_config.FileDirectory);
+            }
+            if (Directory.Exists(_config.FileDirectory))
+            {
+                using (FileStream logStream = File.Create(_config.FileDirectory + "/" + _config.FileName))
+                {
+                    logStream.Close();
+                }
+            }
+        }
+
+        public void LogToFile(string message)
+        {
+            try
+            {
+                DateTime localTime = DateTime.Now;
+                string dateTimeMessage = "[" + localTime.ToString("T", DateTimeFormatInfo.InvariantInfo) + "] " + message;
+                string path = _config.FileDirectory + "/" + _config.FileName;
+                Console.WriteLine(dateTimeMessage);
+
+                using StreamWriter writer = new StreamWriter(path, true);
+                writer.WriteLine(dateTimeMessage);
+            }
+            catch (IOException e)
+            {
+                Console.WriteLine(e);
+            }
+        }
+
+        public bool IsEnabled(LogLevel logLevel)
+        {
+            return logLevel == _config.LogLevel;
+        }
+
+        public IDisposable BeginScope<TState>(TState state)
+        {
+            return null;
         }
     }
 }

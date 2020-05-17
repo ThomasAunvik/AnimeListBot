@@ -35,6 +35,8 @@ using Microsoft.EntityFrameworkCore;
 using Npgsql;
 using Microsoft.Extensions.Options;
 using AnimeListBot.Handler.API.SauceNAO;
+using Microsoft.Extensions.Logging;
+using AnimeListBot.Handler.Logging;
 
 namespace AnimeListBot
 {
@@ -50,6 +52,7 @@ namespace AnimeListBot
         public static DiscordShardedClient _client;
         public static IServiceProvider _services;
         public static IDatabaseService db;
+        public static LoggerFactory _loggerfactory;
 
         public static Logger _logger;
 
@@ -76,6 +79,7 @@ namespace AnimeListBot
         public async Task RunBotAsync(string[] args)
         {
             if (args.Contains("-testing")) TestingMode = true;
+            _loggerfactory = new LoggerFactory();
 
             BOT_START_TIME = DateTime.Now;
 
@@ -84,10 +88,9 @@ namespace AnimeListBot
             Config bot_config = Config.GetConfig();
             botOwners = bot_config.bot_owners;
 
-            //db = new DatabaseService(new DatabaseConnection();
-            //Cluster cluster = db.GetCluster(bot_config.cluster_id);
-
-            Cluster cluster = new Cluster() { Id = 0, ShardIdStart = 0, ShardIdEnd = 0 };
+            var dbContext = new DbContextOptionsBuilder<DatabaseConnection>().UseNpgsql(DatabaseConnection.GetConnectionString());
+            db = new DatabaseService(new DatabaseConnection(dbContext.Options));
+            Cluster cluster = db.GetCluster(bot_config.cluster_id);
 
             if (File.Exists("current_commit.txt"))
             {
@@ -103,9 +106,13 @@ namespace AnimeListBot
             _sauceNao  = new SauceNao(bot_config.saucenao_token);
             _dbl = new AuthDiscordBotListApi(botID, bot_config.dbl_token);
 
+            int total = 0;
+            if (Config.cached.override_shard_amount > 0) total = Config.cached.override_shard_amount;
+            else db.GetAllClusters().ForEach(x => total += x.GetShardCount());
+
             var shard_config = new DiscordSocketConfig
             {
-                TotalShards = GetTotalShards(), 
+                TotalShards = total, 
             };
 
             int[] shardIds = cluster.GetShardIds();
@@ -117,7 +124,7 @@ namespace AnimeListBot
                 + "\nShardEnd: " + cluster.ShardIdEnd
                 + "\nShards: " + shardIdstring);
 
-            using (var services = ConfigureServices(shard_config, cluster))
+            using (var services = ConfigureServices(shard_config, cluster, _loggerfactory))
             {
                 _services = services;
                 _client?.Dispose();
@@ -151,22 +158,45 @@ namespace AnimeListBot
             return;
         }
 
-        public int GetTotalShards()
+        private ServiceProvider ConfigureServices(DiscordSocketConfig shard_config, Cluster cluster, ILoggerFactory loggerFactory)
         {
-            if (Config.cached.override_shard_amount > 0) return Config.cached.override_shard_amount;
+            DateTime localTime = DateTime.Now;
+            string logPath = localTime.Year + "-" + localTime.Month + "-" + localTime.Day + "-" + localTime.Hour + "-" + localTime.Minute + "-" + localTime.Second + ".log";
 
-            int total = 0;
-            
-            db.GetAllClusters().ForEach(x => total += x.GetShardCount());
-            return total;
-        }
+            _loggerfactory.AddBotLogger(new BotLoggerConfiguration(){
+                LogLevel = LogLevel.Error,
+                SendToOwner = true,
+                FileName = logPath,
+                FileDirectory = "logs"
+            });
+            _loggerfactory.AddBotLogger(new BotLoggerConfiguration(){
+                LogLevel = LogLevel.Warning,
+                SendToOwner = true,
+                FileName = logPath,
+                FileDirectory = "logs"
+            });
+            _loggerfactory.AddBotLogger(new BotLoggerConfiguration(){
+                LogLevel = LogLevel.Debug,
+                SendToOwner = true,
+                FileName = logPath,
+                FileDirectory = "logs"
+            });
+            _loggerfactory.AddBotLogger(new BotLoggerConfiguration(){
+                LogLevel = LogLevel.Information,
+                SendToOwner = false,
+                FileName = logPath,
+                FileDirectory = "logs"
+            });
 
-        private ServiceProvider ConfigureServices(DiscordSocketConfig shard_config, Cluster cluster)
-        {
+            ILogger<BotLogger> botLogger = _loggerfactory.CreateLogger<BotLogger>();
+
             return new ServiceCollection()
                 .AddSingleton(new DiscordShardedClient(cluster.GetShardIds(), shard_config))
                 .AddSingleton<CommandService>()
                 .AddSingleton<CommandHandlingService>()
+
+                .AddLogging()
+                .AddSingleton(botLogger)
 
                 .AddDbContext<DatabaseConnection>(options => options.UseNpgsql(DatabaseConnection.GetConnectionString()), ServiceLifetime.Scoped)
                 .AddScoped<IDatabaseService, DatabaseService>()

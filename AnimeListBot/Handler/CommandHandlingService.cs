@@ -57,59 +57,65 @@ namespace AnimeListBot.Handler
             return Task.CompletedTask;
         }
 
-        public async Task MessageReceivedAsync(SocketMessage rawMessage)
+        public Task MessageReceivedAsync(SocketMessage rawMessage)
         {
             // Ignore system messages, or messages from other bots
             if (!(rawMessage is SocketUserMessage message))
-                return;
+                return Task.CompletedTask;
             if (!(message.Channel is IGuildChannel guildChannel))
-                return;
+                return Task.CompletedTask;
             if (message.Source != MessageSource.User)
-                return;
+                return Task.CompletedTask;
 
             if (Program.TestingMode)
             {
-                if (guildChannel.Id != Config.cached.test_channel) return;
+                if (guildChannel.Id != Config.cached.test_channel)
+                    return Task.CompletedTask;
 
                 if (!Program.botOwners.Contains(message.Author.Id))
                 {
-                    return;
+                    return Task.CompletedTask;
                 }
             }
             else
             {
-                if (guildChannel.Id == Config.cached.test_channel) return;
+                if (guildChannel.Id == Config.cached.test_channel)
+                    return Task.CompletedTask;
             }
-            using var serviceScope = _services.CreateScope();
-            var db = serviceScope.ServiceProvider.GetRequiredService<IDatabaseService>();
+            Task.Run(async () => {
+                using var serviceScope = _services.CreateScope();
+                var db = serviceScope.ServiceProvider.GetRequiredService<IDatabaseService>();
 
-            DiscordServer server = await db.GetServerById(guildChannel.GuildId);
-            server.UpdateGuildInfo(guildChannel.Guild);
+                DiscordServer server = await db.GetServerById(guildChannel.GuildId);
+                server.UpdateGuildInfo(guildChannel.Guild);
 
-            if (server.stats == null) server.stats = new ServerStatistics();
-            if (server.ranks == null) server.ranks = new ServerRanks();
+                if (server.stats == null) server.stats = new ServerStatistics();
+                if (server.ranks == null) server.ranks = new ServerRanks();
 
-            if (guildChannel.Id.ToString() == server.ranks.RegisterChannelId)
-            {
-                DiscordUser user = await db.GetUserById(message.Author.Id);
-                await AutoAdder.AddUser(message, user, server);
-                return;
-            }
+                if (guildChannel.Id.ToString() == server.ranks.RegisterChannelId)
+                {
+                    DiscordUser user = await db.GetUserById(message.Author.Id);
+                    await AutoAdder.AddUser(message, user, server);
+                    return;
+                }
 
-            // This value holds the offset where the prefix ends
-            var argPos = 0;
+                // This value holds the offset where the prefix ends
+                var argPos = 0;
             
-            if (!(message.HasStringPrefix(server.Prefix, ref argPos) || message.HasMentionPrefix(Program._client.CurrentUser, ref argPos)))
-                return;
+                if (!(message.HasStringPrefix(server.Prefix, ref argPos) || message.HasMentionPrefix(Program._client.CurrentUser, ref argPos)))
+                    return;
 
-            IGuildUser botUser = await guildChannel.Guild.GetCurrentUserAsync();
-            ChannelPermissions perm = botUser.GetPermissions(guildChannel);
-            if (!perm.SendMessages)
-                return;
+                IGuildUser botUser = await guildChannel.Guild.GetCurrentUserAsync();
+                ChannelPermissions perm = botUser.GetPermissions(guildChannel);
+                if (!perm.SendMessages)
+                    return;
 
-            // A new kind of command context, ShardedCommandContext can be utilized with the commands framework
-            var context = new ShardedCommandContext(_discord, message);
-            await _commands.ExecuteAsync(context, argPos, serviceScope.ServiceProvider);
+                // A new kind of command context, ShardedCommandContext can be utilized with the commands framework
+                var context = new ShardedCommandContext(_discord, message);
+                await _commands.ExecuteAsync(context, argPos, serviceScope.ServiceProvider);
+            });
+
+            return Task.CompletedTask;
         }
 
         public async Task CommandExecutedAsync(Optional<CommandInfo> command, ICommandContext context, IResult result)

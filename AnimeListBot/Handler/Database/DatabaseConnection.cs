@@ -39,7 +39,7 @@ namespace AnimeListBot.Handler
         {
             Config login = Config.GetConfig();
             return string.Format("Server={0};Port={1};" +
-                    "User Id={2};Password={3};Database={4};",
+                    "User Id={2};Password={3};Database={4};SSL Mode=Require;Trust Server Certificate=true",
                     login.ip, login.port, login.userid,
                     login.password, login.catalog);
         }

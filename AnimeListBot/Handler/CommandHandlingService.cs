@@ -96,6 +96,7 @@ namespace AnimeListBot.Handler
                 {
                     DiscordUser user = await db.GetUserById(message.Author.Id);
                     await AutoAdder.AddUser(message, user, server);
+                    await db.SaveChangesAsync();
                     return;
                 }
 

@@ -71,7 +71,7 @@ namespace AnimeListBot.Modules
         }
 
         [RequireUserPermission(GuildPermission.ManageRoles)]
-        [Command("autolistupdate", RunMode = RunMode.Async)]
+        [Command("autolistupdate")]
         public async Task AutoListUpdate()
         {
             DiscordServer server = await _db.GetServerById(Context.Guild.Id);
@@ -117,7 +117,7 @@ namespace AnimeListBot.Modules
         }
 
         [RequireOwner]
-        [Command("autolistupdate", RunMode = RunMode.Async)]
+        [Command("autolistupdate")]
         public async Task AutoListUpdateOwner()
         {
             await AutoListUpdate();

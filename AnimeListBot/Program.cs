@@ -102,7 +102,7 @@ namespace AnimeListBot
                 gitStatus = File.ReadAllText("git_status.txt");
             }
 
-            _jikan = new Jikan(true);
+            _jikan = new Jikan(true, surpressException: false);
             _sauceNao  = new SauceNao(bot_config.saucenao_token);
             _dbl = new AuthDiscordBotListApi(botID, bot_config.dbl_token);
 
@@ -309,7 +309,10 @@ namespace AnimeListBot
         {
             if (log.Exception != null && !Config.cached.ignoredExceptionMessages.Contains(log.Exception.Message))
             {
-                await _logger.LogError(log);
+                if (log.Source != "Command")
+                {
+                    await _logger.LogError(log);
+                }
                 return;
             }
             await _logger.Log(log.Message);

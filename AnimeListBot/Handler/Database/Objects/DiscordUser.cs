@@ -29,6 +29,7 @@ using System.Data;
 using System.Data.SqlClient;
 using System.ComponentModel.DataAnnotations.Schema;
 using AnimeListBot.Modules;
+using JikanDotNet.Exceptions;
 
 namespace AnimeListBot.Handler
 {
@@ -463,29 +464,29 @@ namespace AnimeListBot.Handler
 
         public async Task<bool> UpdateMALInfo(string username)
         {
-            UserProfile testUser = await Program._jikan.GetUserProfile("Thaun_");
-            if (testUser == null)
+            try
             {
-                throw new Exception("MyAnimeList is having troubles, try again later. Join support server for status updates: https://discord.gg/Q9cf46R");
-            }
+                MalUsername = username;
+                malProfile = await Program._jikan.GetUserProfile(username);
+                if (malProfile == null)
+                {
+                    MalUsername = string.Empty;
+                    return false;
+                }
 
-            MalUsername = username;
-            malProfile = await Program._jikan.GetUserProfile(username);
-            if (malProfile == null)
+                if (ListPreference == AnimeListPreference.MAL)
+                {
+                    decimal? malMangaDays = malProfile.MangaStatistics?.DaysRead.GetValueOrDefault();
+                    MangaDays = (double)decimal.Round(malMangaDays.GetValueOrDefault(), 1);
+
+                    decimal mal_days = malProfile.AnimeStatistics.DaysWatched.GetValueOrDefault();
+                    AnimeDays = (double)decimal.Round(mal_days, 1);
+                }
+                return malProfile != null;
+            }catch(JikanRequestException e)
             {
-                MalUsername = string.Empty;
-                return false;
+                throw new Exception("MyAnimeList is having troubles, try again later. Join support server for status updates: https://discord.gg/Q9cf46R \nError ResponseCode: " + e.ResponseCode + "");
             }
-
-            if (ListPreference == AnimeListPreference.MAL)
-            {
-                decimal? malMangaDays = malProfile.MangaStatistics?.DaysRead.GetValueOrDefault();
-                MangaDays = (double)decimal.Round(malMangaDays.GetValueOrDefault(), 1);
-
-                decimal mal_days = malProfile.AnimeStatistics.DaysWatched.GetValueOrDefault();
-                AnimeDays = (double)decimal.Round(mal_days, 1);
-            }
-            return malProfile != null;
         }
 
         public async Task<bool> UpdateAnilistInfo(string username)

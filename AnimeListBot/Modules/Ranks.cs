@@ -174,7 +174,7 @@ namespace AnimeListBot.Modules
             await _db.SaveChangesAsync();
         }
 
-        [Command("updateranks", RunMode = RunMode.Async)]
+        [Command("updateranks")]
         [Summary("Requires ManageRoles on both User and Bot")]
         [RequireBotPermission(GuildPermission.ManageRoles)]
         [RequireUserPermission(GuildPermission.ManageRoles)]
@@ -198,7 +198,7 @@ namespace AnimeListBot.Modules
                 IGuild guild = server.GetGuild();
 
                 List<DiscordUser> users = _db.GetAllUsers();
-                List<DiscordUser> serverUsers = users.FindAll(x => x.Servers.Find(x => x.ServerId == server.ServerId.ToString()) != null);
+                List<DiscordUser> serverUsers = users.FindAll(x => x.Servers?.Find(x => x.ServerId == server.ServerId.ToString()) != null);
 
                 await UpdateUserRoles(server, serverUsers, embed);
                 DiscordServer.rolesUpdating.Remove(server.ServerId);

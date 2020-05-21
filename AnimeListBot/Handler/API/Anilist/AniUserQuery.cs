@@ -131,9 +131,9 @@ namespace AnimeListBot.Handler.Anilist
                 var response = await graphQLClient.SendQueryAsync<AniUserResponse>(userRequest);
                 return response.Data.User;
             }
-            catch (GraphQLHttpException http)
+            catch (GraphQLHttpRequestException http)
             {
-                if (http.HttpResponseMessage.StatusCode == HttpStatusCode.NotFound) return null;
+                if (http.StatusCode == HttpStatusCode.NotFound) return null;
                 await Program._logger.LogError(http);
                 return null;
             }

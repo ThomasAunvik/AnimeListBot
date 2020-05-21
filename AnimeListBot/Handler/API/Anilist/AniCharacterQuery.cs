@@ -71,9 +71,9 @@ namespace AnimeListBot.Handler.Anilist
                     return character;
                 }
             }
-            catch (GraphQLHttpException http)
+            catch (GraphQLHttpRequestException http)
             {
-                if (http.HttpResponseMessage.StatusCode == HttpStatusCode.NotFound) return null;
+                if (http.StatusCode == HttpStatusCode.NotFound) return null;
                 await Program._logger.LogError(http);
                 return null;
             }

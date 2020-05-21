@@ -55,8 +55,9 @@ namespace AnimeListBot.Handler.trace.moe
 
                 using (Stream imgStream = imgResponse.GetResponseStream())
                 {
-                    searchImage = Image.Load(imgStream);
-                    imgStream.Close();
+                    byte[] imgData = new byte[imgStream.Length];
+                    await imgStream.ReadAsync(imgData, 0, (int)imgStream.Length);
+                    searchImage = Image.Load(imgData);
                 }
             }catch(Exception e)
             {

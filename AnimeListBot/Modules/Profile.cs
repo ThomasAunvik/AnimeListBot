@@ -52,10 +52,7 @@ namespace AnimeListBot.Modules
             await embed.SendMessage(Context.Channel);
 
             DiscordServer server = await _db.GetServerById(Context.Guild.Id);
-            DiscordUser user;
-            if (!_db.DoesUserIdExist(Context.User.Id))
-                await _db.CreateUser(user = new DiscordUser(Context.User));
-            else user = await _db.GetUserById(Context.User.Id);
+            DiscordUser user = await _db.GetUserById(Context.User.Id);
 
             Uri link = null;
             bool isValidLink = Uri.TryCreate(username, UriKind.Absolute, out link);

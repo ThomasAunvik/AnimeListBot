@@ -28,6 +28,7 @@ using System.Linq;
 using System.Data;
 using System.Data.SqlClient;
 using System.ComponentModel.DataAnnotations.Schema;
+using AnimeListBot.Modules;
 
 namespace AnimeListBot.Handler
 {
@@ -462,27 +463,27 @@ namespace AnimeListBot.Handler
 
         public async Task<bool> UpdateMALInfo(string username)
         {
-            try
+            UserProfile testUser = await Program._jikan.GetUserProfile("Thaun_");
+            if (testUser == null)
             {
-                MalUsername = username;
-                malProfile = await Program._jikan.GetUserProfile(username);
-                if (malProfile == null)
-                {
-                    MalUsername = string.Empty;
-                    return false;
-                }
+                throw new Exception("MyAnimeList is having troubles, try again later. Join support server for status updates: https://discord.gg/Q9cf46R");
+            }
 
-                if (ListPreference == AnimeListPreference.MAL)
-                {
-                    decimal? malMangaDays = malProfile.MangaStatistics?.DaysRead.GetValueOrDefault();
-                    MangaDays = (double)decimal.Round(malMangaDays.GetValueOrDefault(), 1);
-
-                    decimal mal_days = malProfile.AnimeStatistics.DaysWatched.GetValueOrDefault();
-                    AnimeDays = (double)decimal.Round(mal_days, 1);
-                }
-            } catch(Exception e)
+            MalUsername = username;
+            malProfile = await Program._jikan.GetUserProfile(username);
+            if (malProfile == null)
             {
-                await Program._logger.LogError(e);
+                MalUsername = string.Empty;
+                return false;
+            }
+
+            if (ListPreference == AnimeListPreference.MAL)
+            {
+                decimal? malMangaDays = malProfile.MangaStatistics?.DaysRead.GetValueOrDefault();
+                MangaDays = (double)decimal.Round(malMangaDays.GetValueOrDefault(), 1);
+
+                decimal mal_days = malProfile.AnimeStatistics.DaysWatched.GetValueOrDefault();
+                AnimeDays = (double)decimal.Round(mal_days, 1);
             }
             return malProfile != null;
         }

@@ -84,15 +84,11 @@ namespace AnimeListBot.Handler
 
         public void RefreshMutualGuilds()
         {
-            SocketUser user = GetUser();
-            if (user == null) return;
-            if (Servers == null) Servers = new List<GuildUserInfo>();
-
-            List<SocketGuild> mutualGuilds = user.MutualGuilds.ToList();
-            for(int guildIndex = 0; guildIndex < mutualGuilds.Count; guildIndex++)
+            List<SocketGuild> mutualGuilds = Program._client.Guilds.Where(g => g.Users.Any(u => u.Id == UserId)).ToList();
+            for (int guildIndex = 0; guildIndex < mutualGuilds.Count; guildIndex++)
             {
                 SocketGuild guild = mutualGuilds[guildIndex];
-                SocketGuildUser guildUser = guild.GetUser(user.Id);
+                SocketGuildUser guildUser = guild.GetUser(UserId);
                 GuildUserInfo userInfo = Servers.Find(x => x.ServerId == guild.Id.ToString());
 
                 if (userInfo == null) Servers.Add(new GuildUserInfo(guildUser));

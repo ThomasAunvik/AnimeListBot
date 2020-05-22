@@ -37,6 +37,7 @@ using Microsoft.Extensions.Options;
 using AnimeListBot.Handler.API.SauceNAO;
 using Microsoft.Extensions.Logging;
 using AnimeListBot.Handler.Logging;
+using System.Diagnostics.CodeAnalysis;
 
 namespace AnimeListBot
 {
@@ -113,7 +114,8 @@ namespace AnimeListBot
             var shard_config = new DiscordSocketConfig
             {
                 TotalShards = total,
-                LogLevel = LogSeverity.Verbose
+                LogLevel = LogSeverity.Verbose,
+                AlwaysDownloadUsers = true
             };
 
             int[] shardIds = cluster.GetShardIds();
@@ -208,6 +210,7 @@ namespace AnimeListBot
         public async Task OnReadyAsync(DiscordSocketClient shard)
         {
             await _logger.Log($"Shard Number {shard.ShardId} is connected and ready!");
+            await _logger.Log("Boot Time: " + (DateTime.Now - BOT_START_TIME).TotalMilliseconds + "ms");
             await BotInfo.LoadStats();
 
             current_ready_shards++;

@@ -114,8 +114,7 @@ namespace AnimeListBot
             var shard_config = new DiscordSocketConfig
             {
                 TotalShards = total,
-                LogLevel = LogSeverity.Verbose,
-                AlwaysDownloadUsers = true
+                LogLevel = LogSeverity.Verbose
             };
 
             int[] shardIds = cluster.GetShardIds();

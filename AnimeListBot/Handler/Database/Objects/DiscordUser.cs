@@ -84,7 +84,7 @@ namespace AnimeListBot.Handler
 
         public void RefreshMutualGuilds()
         {
-            List<SocketGuild> mutualGuilds = Program._client.Guilds.Where(g => g.Users.Any(u => u.Id == UserId)).ToList();
+            List<SocketGuild> mutualGuilds = Program._client.Guilds.Where(g => g.GetUser(UserId) != null).ToList();
             for (int guildIndex = 0; guildIndex < mutualGuilds.Count; guildIndex++)
             {
                 SocketGuild guild = mutualGuilds[guildIndex];

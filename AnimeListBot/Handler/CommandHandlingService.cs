@@ -131,6 +131,7 @@ namespace AnimeListBot.Handler
             if (context.Message.Channel is IGuildChannel)
             {
                 user.RefreshMutualGuilds();
+                await db.SaveChangesAsync();
             }
 
             DiscordServer server = await db.GetServerById(context.Guild.Id);

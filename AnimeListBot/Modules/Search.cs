@@ -28,6 +28,7 @@ using AnimeListBot.Handler.Anilist;
 using AnimeListBot.Handler.Misc;
 using AnimeListBot.Handler.Database;
 using System.Xml.Schema;
+using JikanDotNet.Exceptions;
 
 namespace AnimeListBot.Modules
 {
@@ -74,7 +75,12 @@ namespace AnimeListBot.Modules
             switch (preference)
             {
                 case AnimeListPreference.MAL:
-                    Anime malAnime = await Program._jikan.GetAnime(id);
+                    Anime malAnime = null;
+                    try
+                    {
+                        malAnime = await Program._jikan.GetAnime(id);
+                    }
+                    catch (JikanRequestException) { }
 
                     if (malAnime != null)
                     {
@@ -98,7 +104,13 @@ namespace AnimeListBot.Modules
         {
             embed.Title = "Searching for " + search + "...";
             await embed.UpdateEmbed();
-            AnimeSearchResult searchResult = await Program._jikan.SearchAnime(search);
+
+            AnimeSearchResult searchResult = null;
+            try
+            {
+                searchResult = await Program._jikan.SearchAnime(search);
+            }
+            catch (JikanRequestException) { }
             IAniMedia media = await AniMediaQuery.SearchMedia(search, AniMediaType.ANIME);
 
             embed.Title = "No Anime Found";
@@ -216,7 +228,12 @@ namespace AnimeListBot.Modules
 
         public static async Task SearchManga(EmbedHandler embed, DiscordUser targetUser, [Remainder]string search)
         {
-            MangaSearchResult searchResult = await Program._jikan.SearchManga(search);
+            MangaSearchResult searchResult = null;
+            try
+            {
+                searchResult = await Program._jikan.SearchManga(search);
+            }
+            catch (JikanRequestException) { }
             IAniMedia media = await AniMediaQuery.SearchMedia(search, AniMediaType.MANGA);
 
             embed.Title = "No Manga Found";
@@ -276,7 +293,12 @@ namespace AnimeListBot.Modules
             switch (preference)
             {
                 case AnimeListPreference.MAL:
-                    Manga malManga = await Program._jikan.GetManga(id);
+                    Manga malManga = null;
+                    try
+                    {
+                        malManga = await Program._jikan.GetManga(id);
+                    }
+                    catch (JikanRequestException) { }
 
                     if (malManga != null)
                     {
@@ -306,7 +328,12 @@ namespace AnimeListBot.Modules
 
             DiscordUser globalUser = await _db.GetUserById(Context.User.Id);
 
-            CharacterSearchResult result = await Program._jikan.SearchCharacter(search);
+            CharacterSearchResult result = null;
+            try
+            {
+                result = await Program._jikan.SearchCharacter(search);
+            }
+            catch (JikanRequestException) { }
             IAniCharacter character = await AniCharacterQuery.SearchCharacter(search);
 
             bool mal = globalUser.ListPreference == AnimeListPreference.MAL;
@@ -348,7 +375,12 @@ namespace AnimeListBot.Modules
 
             DiscordUser globalUser = await _db.GetUserById(Context.User.Id);
 
-            PersonSearchResult result = await Program._jikan.SearchPerson(search);
+            PersonSearchResult result = null;
+            try
+            {
+                result = await Program._jikan.SearchPerson(search);
+            }
+            catch (JikanRequestException) { }
             IAniStaff staff = await AniStaffQuery.SearchStaff(search);
             bool mal = globalUser.ListPreference == AnimeListPreference.MAL;
             if (mal && result != null && result.Results.Count > 0)

@@ -28,6 +28,7 @@ using JikanDotNet;
 using AnimeListBot.Handler.Anilist;
 using Discord.WebSocket;
 using AnimeListBot.Handler.Database;
+using JikanDotNet.Exceptions;
 
 namespace AnimeListBot.Modules
 {
@@ -200,12 +201,16 @@ namespace AnimeListBot.Modules
 
                 if (isValidLink && containsMAL && string.IsNullOrWhiteSpace(user?.malProfile?.Username))
                 {
-                    UserProfile profile = await Program._jikan.GetUserProfile(usernamePart);
-                    if (profile != null)
+                    try
                     {
-                        user.ListPreference = AnimeListPreference.MAL;
-                        await user.UpdateMALInfo(usernamePart);
+                        UserProfile profile = await Program._jikan.GetUserProfile(usernamePart);
+                        if (profile != null)
+                        {
+                            user.ListPreference = AnimeListPreference.MAL;
+                            await user.UpdateMALInfo(usernamePart);
+                        }
                     }
+                    catch (JikanRequestException) { }
                 }
                 else if (isValidLink && containsAnilist && string.IsNullOrWhiteSpace(user?.anilistProfile?.name))
                 {

@@ -26,6 +26,7 @@ using AnimeListBot.Modules;
 using System.Linq;
 using System.Collections.Generic;
 using AnimeListBot.Handler.Database;
+using GraphQL;
 
 namespace AnimeListBot.Handler
 {

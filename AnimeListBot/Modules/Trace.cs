@@ -43,6 +43,7 @@ namespace AnimeListBot.Modules
 
         [Command("trace")]
         [Summary("Traces an image by link")]
+        [RequireBotPermission(GuildPermission.AddReactions)]
         public async Task TraceImage(string url, bool override_trace = false)
         {
             EmbedHandler embed = new EmbedHandler(Context.User, "Tracing Image...");
@@ -70,7 +71,7 @@ namespace AnimeListBot.Modules
                 return;
             }
 
-            if(result.Results.Length <= 0)
+            if(result.Results == null || result.Results.Length <= 0)
             {
                 embed.Title = "No Traces found";
                 await embed.UpdateEmbed();

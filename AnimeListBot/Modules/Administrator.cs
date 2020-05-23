@@ -226,8 +226,6 @@ namespace AnimeListBot.Modules
             DiscordServer server = await _db.GetServerById(Context.Guild.Id);
             embed.Description = server.Prefix;
 
-            _logger.LogError("Test");
-
             await _db.SaveChangesAsync();
             await embed.SendMessage(Context.Channel);
         }

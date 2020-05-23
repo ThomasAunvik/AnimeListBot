@@ -481,6 +481,7 @@ namespace AnimeListBot.Handler
                 return malProfile != null;
             }catch(JikanRequestException e)
             {
+                if (e.ResponseCode == System.Net.HttpStatusCode.NotFound) return false;
                 throw new Exception("MyAnimeList is having troubles, try again later. Join support server for status updates: https://discord.gg/Q9cf46R \nError ResponseCode: " + e.ResponseCode + "");
             }
         }

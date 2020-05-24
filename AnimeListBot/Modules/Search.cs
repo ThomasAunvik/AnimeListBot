@@ -429,24 +429,28 @@ namespace AnimeListBot.Modules
             {
                 if (!string.IsNullOrWhiteSpace(globalUser.malProfile.Username))
                 {
-                    await globalUser.UpdateUserInfo();
-                    UserListAnimeSearchConfig config = new UserListAnimeSearchConfig();
-                    config.Query = entry.Title;
-                    UserAnimeList animeList = await Program._jikan.GetUserAnimeList(globalUser.malProfile.Username, config);
-                    AnimeListEntry malEntry = animeList?.Anime?.ToList().Find(x => x.MalId == entry.MalId);
-                    if (malEntry != null)
+                    try
                     {
-                        embed.AddFieldSecure(
-                            Format.Sanitize(globalUser.malProfile.Username) + " Stats",
-                            (malEntry.Days.GetValueOrDefault() == 0 ? "" : "\nDays watched: " + malEntry.Days.GetValueOrDefault()) +
-                            "\nEpisodes watched: " + malEntry.WatchedEpisodes +
-                            "\nRating: " + malEntry.Score
-                        );
+                        await globalUser.UpdateUserInfo();
+                        UserListAnimeSearchConfig config = new UserListAnimeSearchConfig();
+                        config.Query = entry.Title;
+                        UserAnimeList animeList = await Program._jikan.GetUserAnimeList(globalUser.malProfile.Username, config);
+                        AnimeListEntry malEntry = animeList?.Anime?.ToList().Find(x => x.MalId == entry.MalId);
+                        if (malEntry != null)
+                        {
+                            embed.AddFieldSecure(
+                                Format.Sanitize(globalUser.malProfile.Username) + " Stats",
+                                (malEntry.Days.GetValueOrDefault() == 0 ? "" : "\nDays watched: " + malEntry.Days.GetValueOrDefault()) +
+                                "\nEpisodes watched: " + malEntry.WatchedEpisodes +
+                                "\nRating: " + malEntry.Score
+                            );
+                        }
+                        else
+                        {
+                            embed.AddFieldSecure(Format.Sanitize(globalUser.malProfile.Username) + " Stats", "Has not watched this anime.");
+                        }
                     }
-                    else
-                    {
-                        embed.AddFieldSecure(Format.Sanitize(globalUser.malProfile.Username) + " Stats", "Has not watched this anime.");
-                    }
+                    catch (JikanRequestException) { }
                 }
                 else
                 {
@@ -540,25 +544,29 @@ namespace AnimeListBot.Modules
             {
                 if (!string.IsNullOrWhiteSpace(globalUser.malProfile.Username))
                 {
-                    await globalUser.UpdateUserInfo();
-                    UserListMangaSearchConfig config = new UserListMangaSearchConfig();
-                    config.Query = entry.Title;
-                    UserMangaList mangaList = await Program._jikan.GetUserMangaList(globalUser.malProfile.Username, config);
-                    MangaListEntry malEntry = mangaList?.Manga?.ToList().Find(x => x.MalId == entry.MalId);
-                    if (malEntry != null)
+                    try
                     {
-                        embed.AddFieldSecure(
-                            Format.Sanitize(globalUser.malProfile.Username) + " Stats",
-                            (malEntry.Days.GetValueOrDefault() == 0 ? "" : "\nDays read: " + malEntry.Days.GetValueOrDefault()) +
-                            "\nVolumes read: " + malEntry.ReadVolumes +
-                            "\nChapters read: " + malEntry.ReadChapters +
-                            "\nRating: " + malEntry.Score
-                        );
+                        await globalUser.UpdateUserInfo();
+                        UserListMangaSearchConfig config = new UserListMangaSearchConfig();
+                        config.Query = entry.Title;
+                        UserMangaList mangaList = await Program._jikan.GetUserMangaList(globalUser.malProfile.Username, config);
+                        MangaListEntry malEntry = mangaList?.Manga?.ToList().Find(x => x.MalId == entry.MalId);
+                        if (malEntry != null)
+                        {
+                            embed.AddFieldSecure(
+                                Format.Sanitize(globalUser.malProfile.Username) + " Stats",
+                                (malEntry.Days.GetValueOrDefault() == 0 ? "" : "\nDays read: " + malEntry.Days.GetValueOrDefault()) +
+                                "\nVolumes read: " + malEntry.ReadVolumes +
+                                "\nChapters read: " + malEntry.ReadChapters +
+                                "\nRating: " + malEntry.Score
+                            );
+                        }
+                        else
+                        {
+                            embed.AddFieldSecure(Format.Sanitize(globalUser.malProfile.Username) + " Stats", "Has not read this manga.");
+                        }
                     }
-                    else
-                    {
-                        embed.AddFieldSecure(Format.Sanitize(globalUser.malProfile.Username) + " Stats", "Has not read this manga.");
-                    }
+                    catch (JikanRequestException) { }
                 }
                 else
                 {

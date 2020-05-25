@@ -21,6 +21,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 using System.Linq;
+using System.Threading;
 
 namespace AnimeListBot.Handler
 {
@@ -35,6 +36,7 @@ namespace AnimeListBot.Handler
         private static List<EmbedHandler> activatedEmoteActions;
         private List<(IEmote, Action)> emojiActions = new List<(IEmote, Action)>();
         private DateTime emoteTimeout;
+        private bool cancelEmotes = false;
 
         public EmbedHandler(IUser user, string title = "", string description = "", bool debug = false)
         {
@@ -64,10 +66,29 @@ namespace AnimeListBot.Handler
         public async Task SendMessage(IMessageChannel channel, string message = "")
         {
             embedMessage = await channel.SendMessageAsync(message, false, Build());
-            
-            await embedMessage.AddReactionsAsync(emojiActions.Select(x => x.Item1).ToArray());
+
             emoteTimeout = DateTime.Now.AddSeconds(120);
             CheckTimeouts();
+            await UpdateReactions();
+        }
+
+        public async Task UpdateReactions()
+        {
+            List<IEmote> allEmotes = embedMessage.Reactions.Keys.ToList();
+            List<(IEmote, Action)> newEmotes = emojiActions.FindAll(x => allEmotes.Find(y => y.Name == x.Item1.Name) == null);
+            if (newEmotes.Count > 0 && embedMessage.Reactions.Select(x => x.Key) != newEmotes)
+            {
+                for (int emoteIndex = 0; emoteIndex < newEmotes.Count; emoteIndex++)
+                {
+                    if (cancelEmotes)
+                    {
+                        cancelEmotes = false;
+                        return;
+                    }
+                    await embedMessage.AddReactionAsync(newEmotes[emoteIndex].Item1);
+                    await Task.Delay(300);
+                }
+            }
         }
 
         public async Task UpdateEmbed()
@@ -76,15 +97,7 @@ namespace AnimeListBot.Handler
 
             await embedMessage.ModifyAsync(x => x.Embed = Build());
 
-            List<IEmote> allEmotes = embedMessage.Reactions.Keys.ToList();
-            List<(IEmote, Action)> newEmotes = emojiActions.FindAll(x => allEmotes.Find(y=> y.Name == x.Item1.Name) == null);
-            if (newEmotes.Count > 0 && embedMessage.Reactions.Select(x => x.Key) != newEmotes)
-            {
-                if(newEmotes.Count > 0) await embedMessage.AddReactionsAsync(newEmotes.Select(x => x.Item1).ToArray());
-                emoteTimeout = DateTime.Now.AddSeconds(120);
-
-                CheckTimeouts();
-            }
+            await UpdateReactions();
         }
 
         public async Task RemoveAllEmotes()
@@ -96,7 +109,6 @@ namespace AnimeListBot.Handler
         {
             if (embedMessage == null) throw new Exception("Unable to edit embed message, there is no message set.");
             await embedMessage.ModifyAsync(x => x.Content = message);
-           
         }
 
         public int AddFieldSecure(string name, object value, bool inline = false)
@@ -137,7 +149,7 @@ namespace AnimeListBot.Handler
             return value;
         }
 
-        public async Task AddEmojiActions(List<(IEmote, Action)> actions)
+        public void AddEmojiActions(List<(IEmote, Action)> actions)
         {
             if (activatedEmoteActions == null) activatedEmoteActions = new List<EmbedHandler>();
 
@@ -146,8 +158,6 @@ namespace AnimeListBot.Handler
                 activatedEmoteActions.Add(this);
             }
             emojiActions.AddRange(actions);
-
-            if (embedMessage != null) await UpdateEmbed();
         }
 
         public void AddEmojiAction(IEmote emote, Action action)
@@ -181,6 +191,7 @@ namespace AnimeListBot.Handler
             (IEmote, Action) actionEmote = embed.emojiActions.Find(x => x.Item1.Name == socketReaction.Emote.Name);
             if(actionEmote != (null, null))
             {
+                embed.cancelEmotes = true;
                 actionEmote.Item2();
             }
         }

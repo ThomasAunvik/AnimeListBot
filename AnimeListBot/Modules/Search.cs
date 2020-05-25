@@ -104,9 +104,6 @@ namespace AnimeListBot.Modules
 
         public static async Task SearchAnime(EmbedHandler embed, DiscordUser targetUser, string search)
         {
-            embed.Title = "Searching for " + search + "...";
-            await embed.UpdateEmbed();
-
             AnimeSearchResult searchResult = null;
             try
             {

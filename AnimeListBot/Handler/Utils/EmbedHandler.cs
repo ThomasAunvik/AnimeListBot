@@ -37,6 +37,7 @@ namespace AnimeListBot.Handler
         private List<(IEmote, Action)> emojiActions = new List<(IEmote, Action)>();
         private DateTime emoteTimeout;
         private bool cancelEmotes = false;
+        private bool addingEmotes = false;
 
         public EmbedHandler(IUser user, string title = "", string description = "", bool debug = false)
         {
@@ -78,16 +79,19 @@ namespace AnimeListBot.Handler
             List<(IEmote, Action)> newEmotes = emojiActions.FindAll(x => allEmotes.Find(y => y.Name == x.Item1.Name) == null);
             if (newEmotes.Count > 0 && embedMessage.Reactions.Select(x => x.Key) != newEmotes)
             {
+                addingEmotes = true;
                 for (int emoteIndex = 0; emoteIndex < newEmotes.Count; emoteIndex++)
                 {
                     if (cancelEmotes)
                     {
+                        addingEmotes = false;
                         cancelEmotes = false;
                         return;
                     }
                     await embedMessage.AddReactionAsync(newEmotes[emoteIndex].Item1);
                     await Task.Delay(300);
                 }
+                addingEmotes = false;
             }
         }
 
@@ -191,7 +195,7 @@ namespace AnimeListBot.Handler
             (IEmote, Action) actionEmote = embed.emojiActions.Find(x => x.Item1.Name == socketReaction.Emote.Name);
             if(actionEmote != (null, null))
             {
-                embed.cancelEmotes = true;
+                if(embed.addingEmotes) embed.cancelEmotes = true;
                 actionEmote.Item2();
             }
         }

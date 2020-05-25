@@ -163,6 +163,7 @@ namespace AnimeListBot.Modules
                 await embed.UpdateEmbed();
                 return;
             }
+            await _db.SaveChangesAsync();
             await embed.UpdateEmbed();
             await Ranks.UpdateUserRole(server, user, embed);
         }

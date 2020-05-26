@@ -240,6 +240,17 @@ namespace AnimeListBot.Modules
         public static async Task<bool> UpdateUserRole(DiscordServer server, DiscordUser user, EmbedBuilder embed)
         {
             IGuild guild = server.GetGuild();
+            IGuildUser botUser = await guild.GetUserAsync(Program._client.CurrentUser.Id);
+
+            if (!botUser.GuildPermissions.ManageRoles)
+            {
+                if (embed != null && (server.ranks.AnimeRanks.Count > 0 || server.ranks.MangaRanks.Count > 0))
+                {
+                    embed.AddField("Warning: Unable to update user roles", "Bot requires ManageRoles Permissions!\nTo remove this message, either add the permissions, or remove all ranks.");
+                }
+                return false;
+            }
+
             IGuildUser guildUser = await DiscordServer.GetGuildUser(guild, user.UserId);
             if (guildUser == null) return false;
 

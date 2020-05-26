@@ -109,6 +109,16 @@ namespace AnimeListBot.Handler
             }
         }
 
+        public bool HasValidMal()
+        {
+            return malProfile != null;
+        }
+
+        public bool HasValidAnilist()
+        {
+            return anilistProfile != null;
+        }
+
         public string GetAnimelistUsername()
         {
             switch (ListPreference)

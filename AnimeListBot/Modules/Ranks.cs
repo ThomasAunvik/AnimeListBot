@@ -280,7 +280,6 @@ namespace AnimeListBot.Modules
                         await Program._logger.Log("User: " + guildUser.Username + " lost these manga ranks: " + mangaString);
                         await guildUser.RemoveRolesAsync(mangaRoles);
                     }
-
                 }
 
                 // ADDING ROLES

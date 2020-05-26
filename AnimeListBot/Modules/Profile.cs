@@ -42,7 +42,7 @@ namespace AnimeListBot.Modules
         }
 
         [Command("setup"), Summary(
-            "Registers your discord account with MAL. Possible options: [mal, anilist]\n" +
+            "Registers your discord account with MAL or Anilist. Possible options: [mal, anilist]\n" +
             "MAL = 0\n" +
             "Anilist = 1"
         )]
@@ -57,63 +57,92 @@ namespace AnimeListBot.Modules
             Uri link = null;
             bool isValidLink = Uri.TryCreate(username, UriKind.Absolute, out link);
 
-            if(animeList == AnimeListPreference.MAL)
+            switch (animeList)
             {
-                if (isValidLink && username.Contains("myanimelist.net"))
-                {
-                    string usernamePart = link.Segments[link.Segments.Length - 1];
-                    username = usernamePart;
-                }
-
-                if (!await user.UpdateMALInfo(username))
-                {
-                    embed.Title = "Invalid Username.";
-                    user.MalUsername = string.Empty;
-                    await embed.UpdateEmbed();
-                    return;
-                }
-                embed.Title = "";
-                embed.Description = "";
-                embed.AddFieldSecure(new EmbedFieldBuilder()
-                {
-                    Name = "MAL Account Setup",
-                    Value = "User registered " + username
-                });
-
-                user.ListPreference = AnimeListPreference.MAL;
+                case AnimeListPreference.MAL:
+                    if (isValidLink && username.Contains("myanimelist.net"))
+                    {
+                        string usernamePart = link.Segments[link.Segments.Length - 1];
+                        username = usernamePart;
+                    }
+                    await SetupMalProfile(embed, user, username);
+                    break;
+                case AnimeListPreference.Anilist:
+                    if (isValidLink && username.Contains("anilist.co"))
+                    {
+                        string usernamePart = link.Segments[link.Segments.Length - 1];
+                        username = usernamePart;
+                    }
+                    await SetupAnilistProfile(embed, user, username);
+                    break;
+                default:
+                    embed.Title = "Incorrect mode (Must be MAL or Anilist)";
+                    break;
             }
-            else if(animeList == AnimeListPreference.Anilist)
-            {
-                if (isValidLink && username.Contains("anilist.co"))
-                {
-                    string usernamePart = link.Segments[link.Segments.Length - 1];
-                    username = usernamePart;
-                }
 
-                if (!await user.UpdateAnilistInfo(username))
-                {
-                    embed.Title = "Invalid Username.";
-                    user.AnilistUsername = string.Empty;
-                    await embed.UpdateEmbed();
-                    return;
-                }
-                embed.Title = "";
-                embed.Description = "";
-                embed.AddFieldSecure(new EmbedFieldBuilder()
-                {
-                    Name = "Anilist Account Setup",
-                    Value = "User registered: " + username
-                });
-                user.ListPreference = AnimeListPreference.Anilist;
-            }
-            else
-            {
-                embed.Title = "Incorrect mode (Must be MAL or Anilist)";
-                await embed.UpdateEmbed();
-            }
+            await PermissionWrapper.DeleteMessage(Context.Message);
             await embed.UpdateEmbed();
             await Ranks.UpdateUserRole(server, user, embed);
             await _db.SaveChangesAsync();
+        }
+
+        [Command("setup"), Summary(
+            "Registers your discord account with MAL or Anilist trough parsing URL."
+        )]
+
+        public async Task SetupProfile(string url)
+        {
+            AnimeListPreference setup;
+            if (url.Contains("myanimelist.net")) setup = AnimeListPreference.MAL;
+            else if (url.Contains("anilist.co")) setup = AnimeListPreference.Anilist;
+            else
+            {
+                EmbedHandler embed = new EmbedHandler(Context.User, "Invalid URL, must be from 'myanimelist.net' or 'anilist.co'");
+                await embed.SendMessage(Context.Channel);
+                await PermissionWrapper.DeleteMessage(Context.Message);
+                return;
+            }
+
+            await SetupProfile(setup, url);
+        }
+
+        public async Task SetupMalProfile(EmbedHandler embed, DiscordUser user, string username)
+        {
+            if (!await user.UpdateMALInfo(username))
+            {
+                embed.Title = "Invalid Username.";
+                user.MalUsername = string.Empty;
+                await embed.UpdateEmbed();
+                return;
+            }
+            embed.Title = "";
+            embed.Description = "";
+            embed.AddFieldSecure(new EmbedFieldBuilder()
+            {
+                Name = "MAL Account Setup",
+                Value = "User registered " + username
+            });
+
+            user.ListPreference = AnimeListPreference.MAL;
+        }
+
+        public async Task SetupAnilistProfile(EmbedHandler embed, DiscordUser user, string username)
+        {
+            if (!await user.UpdateAnilistInfo(username))
+            {
+                embed.Title = "Invalid Username.";
+                user.AnilistUsername = string.Empty;
+                await embed.UpdateEmbed();
+                return;
+            }
+            embed.Title = "";
+            embed.Description = "";
+            embed.AddFieldSecure(new EmbedFieldBuilder()
+            {
+                Name = "Anilist Account Setup",
+                Value = "User registered: " + username
+            });
+            user.ListPreference = AnimeListPreference.Anilist;
         }
 
         [RequireValidAnimelist]
@@ -181,100 +210,41 @@ namespace AnimeListBot.Modules
 
             option = option.ToLower();
 
-            if (user.HasValidAnimelist())
-            {
-                embed.ThumbnailUrl = user.GetAnimelistThumbnail();
-                embed.Url = user.GetAnimelistLink();
-
-                if (option == "anime")
-                {
-                    embed.Title = user.GetAnimelistUsername() + " Anime Statistics";
-                    embed.Fields.Clear();
-
-                    RoleRank animeRank = user.GetAnimeServerRank(server);
-                    if (animeRank != null) embed.AddFieldSecure("Rank", animeRank.Name, false);
-
-                    embed.AddFieldSecure("Days", user.GetAnimeWatchDays(), true);
-                    embed.AddFieldSecure("Mean Score", user.GetAnimeMeanScore(), true);
-                    embed.AddFieldSecure("Total Entries", user.GetAnimeTotalEntries(), true);
-                    embed.AddFieldSecure("Episodes", user.GetAnimeEpisodesWatched(), true);
-                    embed.AddFieldSecure("Rewatched", user.GetAnimeRewatched(), false);
-
-                    embed.AddFieldSecure("Watching", user.GetAnimeWatching(), true);
-                    embed.AddFieldSecure("Completed", user.GetAnimeCompleted(), true);
-                    embed.AddFieldSecure("On-Hold", user.GetAnimeOnHold(), true);
-                    embed.AddFieldSecure("Dropped", user.GetAnimeDropped(), true);
-                    embed.AddFieldSecure("Plan to Watch", user.GetAnimePlanToWatch(), true);
-                }
-                else if(option == "manga")
-                {
-                    embed.Title = user.GetAnimelistUsername() + " Manga Statistics";
-                    embed.Fields.Clear();
-
-                    RoleRank mangaRank = user.GetMangaServerRank(server);
-                    if (mangaRank != null) embed.AddFieldSecure("Rank", mangaRank.Name, false);
-
-                    embed.AddFieldSecure("Days", user.GetMangaReadDays(), true);
-                    embed.AddFieldSecure("Mean Score", user.GetMangaMeanScore(), true);
-                    embed.AddFieldSecure("Total Entries", user.GetMangaTotalEntries(), true);
-                    embed.AddFieldSecure("Chapters", user.GetMangaChaptersRead(), true);
-                    embed.AddFieldSecure("Volumes", user.GetMangaVolumesRead(), true);
-                    embed.AddFieldSecure("Reread", user.GetMangaReread(), true);
-
-                    embed.AddFieldSecure("Reading", user.GetMangaReading(), true);
-                    embed.AddFieldSecure("Completed", user.GetMangaCompleted(), true);
-                    embed.AddFieldSecure("On-Hold", user.GetMangaOnHold(), true);
-                    embed.AddFieldSecure("Dropped", user.GetMangaDropped(), true);
-                    embed.AddFieldSecure("Plan to Read", user.GetMangaPlanToRead(), true);
-                }
-                else if(option == "cache")
-                {
-                    if (user.ListPreference == AnimeListPreference.MAL)
-                    {
-                        CultureInfo en_US = new CultureInfo("en-US");
-
-                        embed.Title = user.GetAnimelistUsername() + " Profile Cache";
-                        embed.AddFieldSecure(
-                            "Cache",
-                            "Is Cached: " + user.malProfile.RequestCached.ToString() + (
-                            user.malProfile.RequestCached ?
-                            "\nCache Expiry In: " + new DateTime().AddSeconds(user.malProfile.RequestCacheExpiry).ToString("mm:ss", en_US) : "")
-                        );
-                    }
-                    else if(user.ListPreference == AnimeListPreference.Anilist)
-                    {
-                        embed.Title = user.GetAnimelistUsername() + " Profile Cache";
-                        embed.Description = "There is no cache option yet for Anilist";
-                    }
-                }
-                else
-                {
-                    embed.Title = user.GetAnimelistUsername() + " Profile";
-
-                    RoleRank animeRank = user.GetAnimeServerRank(server);
-                    RoleRank mangaRank = user.GetMangaServerRank(server);
-
-                    embed.AddFieldSecure("Anime:", (animeRank == null ? "No Rank" : "**Rank:** " + animeRank.Name) +
-                                             "\n**Days:** " + user.GetAnimeWatchDays());
-                    embed.AddFieldSecure("Manga:", (mangaRank == null ? "No Rank" : "**Rank:** " + mangaRank.Name) +
-                                             "\n**Days:** " + user.GetMangaReadDays());
-                            
-                }
-
-                if (Context.Channel is ITextChannel channel)
-                {
-                    IGuildUser currUser = await channel.Guild.GetCurrentUserAsync();
-                    ChannelPermissions perm = currUser.GetPermissions(channel);
-                    if (perm.ManageMessages)
-                    {
-                        await Ranks.UpdateUserRole(server, user, null);
-                    }
-                }
-            }
-            else
+            if (!user.HasValidAnimelist())
             {
                 string username = targetUser == null ? Context.User.Username : targetUser.Username;
                 embed.Title = username + " has not registered a MAL or Anilist account to his discord user.";
+                await embed.UpdateEmbed();
+                return;
+            }
+
+            embed.ThumbnailUrl = user.GetAnimelistThumbnail();
+            embed.Url = user.GetAnimelistLink();
+
+            switch (option)
+            {
+                case "anime":
+                    SetAnimeProfileInfo(embed, user, server);
+                    break;
+                case "manga":
+                    SetMangaProfileInfo(embed, user, server);
+                    break;
+                case "cache":
+                    SetProfileCacheInfo(embed, user, server);
+                    break;
+                default:
+                    SetProfileInfo(embed, user, server);
+                    break;
+            }
+
+            if (Context.Channel is ITextChannel channel)
+            {
+                IGuildUser currUser = await channel.Guild.GetCurrentUserAsync();
+                ChannelPermissions perm = currUser.GetPermissions(channel);
+                if (perm.ManageMessages)
+                {
+                    await Ranks.UpdateUserRole(server, user, null);
+                }
             }
             await embed.UpdateEmbed();
         }
@@ -308,6 +278,83 @@ namespace AnimeListBot.Modules
         public async Task GetMangaProfile(IUser user = null)
         {
             await GetProfile(user, "manga");
+        }
+
+        public static void SetProfileInfo(EmbedHandler embed, DiscordUser user, DiscordServer server)
+        {
+            embed.Title = user.GetAnimelistUsername() + " Profile";
+
+            RoleRank animeRank = user.GetAnimeServerRank(server);
+            RoleRank mangaRank = user.GetMangaServerRank(server);
+
+            embed.AddFieldSecure("Anime:", (animeRank == null ? "No Rank" : "**Rank:** " + animeRank.Name) +
+                                     "\n**Days:** " + user.GetAnimeWatchDays());
+            embed.AddFieldSecure("Manga:", (mangaRank == null ? "No Rank" : "**Rank:** " + mangaRank.Name) +
+                                     "\n**Days:** " + user.GetMangaReadDays());
+        }
+
+        public static void SetAnimeProfileInfo(EmbedHandler embed, DiscordUser user, DiscordServer server)
+        {
+            embed.Title = user.GetAnimelistUsername() + " Anime Statistics";
+            embed.Fields.Clear();
+
+            RoleRank animeRank = user.GetAnimeServerRank(server);
+            if (animeRank != null) embed.AddFieldSecure("Rank", animeRank.Name, false);
+
+            embed.AddFieldSecure("Days", user.GetAnimeWatchDays(), true);
+            embed.AddFieldSecure("Mean Score", user.GetAnimeMeanScore(), true);
+            embed.AddFieldSecure("Total Entries", user.GetAnimeTotalEntries(), true);
+            embed.AddFieldSecure("Episodes", user.GetAnimeEpisodesWatched(), true);
+            embed.AddFieldSecure("Rewatched", user.GetAnimeRewatched(), false);
+
+            embed.AddFieldSecure("Watching", user.GetAnimeWatching(), true);
+            embed.AddFieldSecure("Completed", user.GetAnimeCompleted(), true);
+            embed.AddFieldSecure("On-Hold", user.GetAnimeOnHold(), true);
+            embed.AddFieldSecure("Dropped", user.GetAnimeDropped(), true);
+            embed.AddFieldSecure("Plan to Watch", user.GetAnimePlanToWatch(), true);
+        }
+
+        public static void SetMangaProfileInfo(EmbedHandler embed, DiscordUser user, DiscordServer server)
+        {
+            embed.Title = user.GetAnimelistUsername() + " Manga Statistics";
+            embed.Fields.Clear();
+
+            RoleRank mangaRank = user.GetMangaServerRank(server);
+            if (mangaRank != null) embed.AddFieldSecure("Rank", mangaRank.Name, false);
+
+            embed.AddFieldSecure("Days", user.GetMangaReadDays(), true);
+            embed.AddFieldSecure("Mean Score", user.GetMangaMeanScore(), true);
+            embed.AddFieldSecure("Total Entries", user.GetMangaTotalEntries(), true);
+            embed.AddFieldSecure("Chapters", user.GetMangaChaptersRead(), true);
+            embed.AddFieldSecure("Volumes", user.GetMangaVolumesRead(), true);
+            embed.AddFieldSecure("Reread", user.GetMangaReread(), true);
+
+            embed.AddFieldSecure("Reading", user.GetMangaReading(), true);
+            embed.AddFieldSecure("Completed", user.GetMangaCompleted(), true);
+            embed.AddFieldSecure("On-Hold", user.GetMangaOnHold(), true);
+            embed.AddFieldSecure("Dropped", user.GetMangaDropped(), true);
+            embed.AddFieldSecure("Plan to Read", user.GetMangaPlanToRead(), true);
+        }
+
+        public static void SetProfileCacheInfo(EmbedHandler embed, DiscordUser user, DiscordServer sever)
+        {
+            if (user.ListPreference == AnimeListPreference.MAL)
+            {
+                CultureInfo en_US = new CultureInfo("en-US");
+
+                embed.Title = user.GetAnimelistUsername() + " Profile Cache";
+                embed.AddFieldSecure(
+                    "Cache",
+                    "Is Cached: " + user.malProfile.RequestCached.ToString() + (
+                    user.malProfile.RequestCached ?
+                    "\nCache Expiry In: " + new DateTime().AddSeconds(user.malProfile.RequestCacheExpiry).ToString("mm:ss", en_US) : "")
+                );
+            }
+            else if (user.ListPreference == AnimeListPreference.Anilist)
+            {
+                embed.Title = user.GetAnimelistUsername() + " Profile Cache";
+                embed.Description = "There is no cache option yet for Anilist";
+            }
         }
 
         [Command("Leaderboard")]

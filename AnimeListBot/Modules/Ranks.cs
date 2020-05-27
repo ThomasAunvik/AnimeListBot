@@ -267,7 +267,7 @@ namespace AnimeListBot.Modules
                 // DELETING ROLES
 
                 List<RoleRank> delAnimeRoles = server.ranks.AnimeRanks.ToList();
-                if(mangaRank != null) delAnimeRoles.RemoveAll(x => x.Id == animeRank.Id);
+                if(animeRank != null) delAnimeRoles.RemoveAll(x => x.Id == animeRank.Id);
                 delAnimeRoles.RemoveAll(x => !guildUser.RoleIds.Contains(x.GetRoleID()));
 
                 List<RoleRank> delMangaRoles = server.ranks.MangaRanks.ToList();

@@ -170,6 +170,7 @@ namespace AnimeListBot.Handler
             if (roleIndex == -1) roleIndex = roles.Count - 1;
             else roleIndex--;
 
+            if (roleIndex < 0) return null;
             if (roles.Count <= roleIndex) return null;
 
             return roles[roleIndex];
@@ -311,6 +312,7 @@ namespace AnimeListBot.Handler
             if (roleIndex == -1) roleIndex = roles.Count - 1;
             else roleIndex--;
 
+            if (roleIndex < 0) return null;
             if (roles.Count <= roleIndex) return null;
 
             return roles[roleIndex];

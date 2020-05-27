@@ -256,7 +256,7 @@ namespace AnimeListBot.Modules
 
             try
             {
-                if (!user.HasValidAnimelist()) return true;
+                if (!user.HasValidAnimelist()) return false;
 
                 // CALCULATING USER INFO
                 await user.UpdateUserInfo();

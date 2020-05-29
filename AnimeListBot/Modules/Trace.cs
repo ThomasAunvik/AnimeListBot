@@ -170,13 +170,15 @@ namespace AnimeListBot.Modules
                     await embed.UpdateEmbed();
                     await Search.SearchManga(embed, user, sauce.Media.Title);
                 });
-                await embed.UpdateEmbed();
                 await PermissionWrapper.DeleteMessage(Context.Message);
             }
+            await embed.UpdateEmbed();
         }
 
         [Command("trace")]
         [Summary("Traces an image by uploading an image as an attachment while you do this command.")]
+        [RequireBotPermission(GuildPermission.AddReactions)]
+        [RequireBotPermission(ChannelPermission.AddReactions)]
         public async Task TraceImage(bool override_trace = false)
         {
             var attachements = Context.Message.Attachments;

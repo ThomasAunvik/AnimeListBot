@@ -191,7 +191,7 @@ namespace AnimeListBot.Modules
                     IDMChannel dmChannel = await message.Author.GetOrCreateDMChannelAsync();
                     string returnMessage = "Invalid Profile Link: " + message.Content;
                     await dmChannel.SendMessageAsync(returnMessage +
-                        "Channel: <#" + message.Channel.Id + ">" +
+                        "\nChannel: <#" + message.Channel.Id + ">" +
                         "\nPlease use the following link formats:\n" +
                         "MAL: `https://myanimelist.net/profile/[username]` \n" +
                         "Anilist: `https://anilist.co/user/[username]`");
@@ -226,11 +226,6 @@ namespace AnimeListBot.Modules
             }
             catch(Exception e)
             {
-                /*if(message.Author is Discord.Rest.RestUser)
-                {
-                    await Program._logger.LogError(e, message.Author);
-                    return;
-                }*/
                 await Program._logger.LogError(e, message.Author, (IGuildChannel)message.Channel);
             }
         }

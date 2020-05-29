@@ -71,7 +71,8 @@ namespace AnimeListBot.Modules
         {
             EmbedHandler embed = new EmbedHandler(Context.User);
             Config config = Config.GetConfig();
-            switch (option) {
+            switch (option)
+            {
                 case "add":
                     if (string.IsNullOrEmpty(ignore))
                     {
@@ -161,7 +162,7 @@ namespace AnimeListBot.Modules
         {
             EmbedHandler embed = new EmbedHandler(Context.User, "Retrieving Anilist Headers...");
             await embed.SendMessage(Context.Channel);
-            
+
             AniHeaderResult result = await AniHeaderCheck.CheckHeaders();
 
             CultureInfo en_US = new CultureInfo("en-US");
@@ -216,18 +217,6 @@ namespace AnimeListBot.Modules
             await _db.SaveChangesAsync();
             embed.Title = "All users are updated";
             await embed.UpdateEmbed();
-        }
-
-        [Command("testcommand")]
-        public async Task TestCommand()
-        {
-            EmbedHandler embed = new EmbedHandler(Context.User, "Current Prefix");
-
-            DiscordServer server = await _db.GetServerById(Context.Guild.Id);
-            embed.Description = server.Prefix;
-
-            await _db.SaveChangesAsync();
-            await embed.SendMessage(Context.Channel);
         }
     }
 }

@@ -21,6 +21,7 @@ using AnimeListBot.Handler.Anilist;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
+using System.Net;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
@@ -493,7 +494,12 @@ namespace AnimeListBot.Handler
                 return malProfile != null;
             }catch(JikanRequestException e)
             {
-                if (e.ResponseCode == System.Net.HttpStatusCode.NotFound) return false;
+                switch (e.ResponseCode)
+                {
+                    case HttpStatusCode.NotFound:
+                    case HttpStatusCode.BadRequest:
+                        return false;
+                }
                 throw new Exception("MyAnimeList is having troubles, try again later. Join support server for status updates: https://discord.gg/Q9cf46R \nError ResponseCode: " + e.ResponseCode + "");
             }
         }

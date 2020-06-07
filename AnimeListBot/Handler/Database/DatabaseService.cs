@@ -81,7 +81,7 @@ namespace AnimeListBot.Handler.Database
 
         public bool DoesUserIdExist(ulong id)
         {
-            return dbConn.DiscordUser.Find(id) != null;
+            return dbConn.DiscordUser.ToList().Find(x => x.UserId == id) != null;
         }
 
         public async Task<bool> CreateUser(DiscordUser user)

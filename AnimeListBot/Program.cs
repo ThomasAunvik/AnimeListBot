@@ -103,7 +103,12 @@ namespace AnimeListBot
                 gitStatus = File.ReadAllText("git_status.txt");
             }
 
-            _jikan = new Jikan(true, surpressException: false);
+            if (!string.IsNullOrEmpty(bot_config.jikan_api)) {
+                _jikan = new Jikan(bot_config.jikan_api, surpressException: false);
+            }else
+            {
+                _jikan = new Jikan(true, surpressException: false);
+            }
             _sauceNao  = new SauceNao(bot_config.saucenao_token);
             _dbl = new AuthDiscordBotListApi(botID, bot_config.dbl_token);
 

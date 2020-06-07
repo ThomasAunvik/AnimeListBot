@@ -41,6 +41,9 @@ namespace AnimeListBot.Handler
         public ulong test_error_channel;
         public ulong test_channel;
 
+        // Jikan
+        public string jikan_api;
+
         // Database
         public string ip;
         public int port;

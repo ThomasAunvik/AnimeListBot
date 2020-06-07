@@ -195,7 +195,8 @@ namespace AnimeListBot.Modules
                         "\nPlease use the following link formats:\n" +
                         "MAL: `https://myanimelist.net/profile/[username]` \n" +
                         "Anilist: `https://anilist.co/user/[username]`");
-                    await message.DeleteAsync();
+                    
+                    await PermissionWrapper.DeleteMessage((IUserMessage)message);
                     return;
                 }
 

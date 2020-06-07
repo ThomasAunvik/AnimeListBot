@@ -4,10 +4,12 @@
 
   "cluster_id": 0,
   "override_shard_amount": 0,
-  
-  "ignoredExceptionMessages": ["Server requested a reconnect", "WebSocket connection was closed"],
-  
+
+  "ignoredExceptionMessages": [ "Server requested a reconnect", "WebSocket connection was closed" ],
+
   "dbl_token": "Discord Bot List Token",
+
+  "jikan_api": "http://localhost:8000/v3/",
 
   "ip": "localhost",
   "port": 5432,

@@ -9,7 +9,7 @@
 
   "dbl_token": "Discord Bot List Token",
 
-  "jikan_api": "http://localhost:8000/v3/",
+  "jikan_api": "http://84.214.237.52/v3/",
 
   "ip": "localhost",
   "port": 5432,

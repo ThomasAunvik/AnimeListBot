@@ -111,7 +111,6 @@ namespace AnimeListBot.Modules
             if (!await user.UpdateMALInfo(username))
             {
                 embed.Title = "Invalid Username/URL.";
-                user.MalUsername = string.Empty;
                 await embed.UpdateEmbed();
                 return;
             }
@@ -131,7 +130,6 @@ namespace AnimeListBot.Modules
             if (!await user.UpdateAnilistInfo(username))
             {
                 embed.Title = "Invalid Username/URL.";
-                user.AnilistUsername = string.Empty;
                 await embed.UpdateEmbed();
                 return;
             }

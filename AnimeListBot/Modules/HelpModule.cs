@@ -20,8 +20,10 @@ using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.Design;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 
 namespace AnimeListBot.Modules
@@ -81,6 +83,43 @@ namespace AnimeListBot.Modules
                              $"{cmd.Remarks}";
                     x.IsInline = false;
                 });
+
+                if (cmd.Preconditions.Count > 0)
+                {
+                    List<PreconditionAttribute> preconditions = cmd.Preconditions.ToList();
+                    List<PreconditionAttribute> sameGroup = new List<PreconditionAttribute>();
+                    string preconditionString = string.Empty;
+                    for (int i = 0; i < preconditions.Count; i++)
+                    {
+                        PreconditionAttribute attrib = cmd.Preconditions[i];
+                        var same = preconditions.FindAll(x => x.Group == attrib.Group && x.Group != null);
+                        if (same.Count != 0)
+                        {
+                            sameGroup.AddRange(same);
+                            i += same.Count - 1;
+                        }
+                        else sameGroup.Add(attrib);
+
+                        preconditionString += string.Join("\n**Or**\n", sameGroup.Select(x =>
+                        {
+                            if (x is RequireUserPermissionAttribute userPerm) return userPerm.ChannelPermission != null ? ("User Channel Permission: " + userPerm.ChannelPermission.ToString()) : ("User Guild Permission: " + userPerm.GuildPermission.ToString());
+                            if (x is RequireBotPermissionAttribute botPerm) return botPerm.ChannelPermission != null ? ("Bot Channel Permission: " + botPerm.ChannelPermission.ToString()) : ("Bot Guild Permission: " + botPerm.GuildPermission.ToString());
+                            if (x is RequireValidAnimelistAttribute) return "Valid Animelist Profile";
+                            if (x is RequireOwnerAttribute) return "Bot Owner Permission";
+                            return x.GetType().Name;
+                        })
+                        ) + "\n";
+
+                        sameGroup = new List<PreconditionAttribute>();
+                    }
+
+                    builder.AddField(x =>
+                    {
+                        x.Name = "Preconditions";
+                        x.Value = preconditionString;
+                        x.IsInline = false;
+                    });
+                }
             }
             if (builder.Fields.Count <= 0)
             {
@@ -205,20 +244,12 @@ namespace AnimeListBot.Modules
         }
 
         [Command("prefix")]
+        [RequireUserPermission(GuildPermission.Administrator, Group = "Admin")]
+        [RequireOwner(Group = "Admin")]
         public async Task Prefix(string newPrefix = "")
         {
             EmbedHandler embed = new EmbedHandler(Context.User);
             DiscordServer server = await _db.GetServerById(Context.Guild.Id);
-
-            IGuildUser user = Context.Guild.GetUser(Context.User.Id);
-            if (!user.GuildPermissions.Administrator)
-            {
-                if (!Program.botOwners.Contains(Context.User.Id))
-                {
-                    newPrefix = string.Empty;
-                }
-            }
-
             if (string.IsNullOrEmpty(newPrefix))
             {
                 embed.Title = "Current Prefix";

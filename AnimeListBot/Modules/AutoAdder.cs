@@ -71,8 +71,9 @@ namespace AnimeListBot.Modules
             await embed.SendMessage(Context.Channel);
         }
 
-        [RequireUserPermission(GuildPermission.ManageRoles)]
         [Command("autolistupdate")]
+        [RequireUserPermission(GuildPermission.ManageRoles, Group = "Admin")]
+        [RequireOwner(Group = "Admin")]
         public async Task AutoListUpdate()
         {
             DiscordServer server = await _db.GetServerById(Context.Guild.Id);
@@ -115,13 +116,6 @@ namespace AnimeListBot.Modules
 
             embed.Title = "Anime Lists Updated.";
             await embed.UpdateEmbed();
-        }
-
-        [RequireOwner]
-        [Command("autolistupdate")]
-        public async Task AutoListUpdateOwner()
-        {
-            await AutoListUpdate();
         }
 
         [Command("autolistchannel")]

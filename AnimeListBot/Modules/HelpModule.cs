@@ -23,6 +23,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.Design;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 
@@ -42,12 +43,13 @@ namespace AnimeListBot.Modules
         }
 
         [Command("help")]
-        [Summary("Displays basic help command.")]
+        [Summary("Displays basic help command.\nOption: [Command] or 'all' for all possible commands")]
         public virtual async Task HelpAsync([Remainder]string command = null)
         {
-            if (command == null)
+            bool isAll = command.ToLower() == "all";
+            if (command == null || isAll)
             {
-                await HelpAsync();
+                await HelpAsync(isAll);
                 return;
             }
 
@@ -84,14 +86,16 @@ namespace AnimeListBot.Modules
                     x.IsInline = false;
                 });
 
-                if (cmd.Preconditions.Count > 0)
+                if (cmd.Preconditions.Count > 0 || cmd.Module.Preconditions.Count > 0)
                 {
                     List<PreconditionAttribute> preconditions = cmd.Preconditions.ToList();
+                    preconditions.AddRange(cmd.Module.Preconditions);
+
                     List<PreconditionAttribute> sameGroup = new List<PreconditionAttribute>();
                     string preconditionString = string.Empty;
                     for (int i = 0; i < preconditions.Count; i++)
                     {
-                        PreconditionAttribute attrib = cmd.Preconditions[i];
+                        PreconditionAttribute attrib = preconditions[i];
                         var same = preconditions.FindAll(x => x.Group == attrib.Group && x.Group != null);
                         if (same.Count != 0)
                         {
@@ -167,13 +171,13 @@ namespace AnimeListBot.Modules
         [Summary("Get an invite for this bot, to let it join other servers")]
         public async Task Invite() => await ReplyAsync($"{Program.inviteURL}");
 
-        private async Task HelpAsync()
+        private async Task HelpAsync(bool getAll = false)
         {
             var foo = await Context.Client.GetApplicationInfoAsync();
 
             DiscordServer server = await _db.GetServerById(Context.Guild.Id);
 
-            var builder = GetHelpEmbed();
+            var builder = GetHelpEmbed(getAll);
             builder.Description = $"These are the commands you can use \nFor more detailed command explanations type `{server.Prefix}help <command>`";
 
             await builder.SendMessage(Context.Channel);
@@ -188,15 +192,19 @@ namespace AnimeListBot.Modules
             await channel.SendMessageAsync("", false, builder.Build());
         }
         
-        public EmbedHandler GetHelpEmbed()
+        public EmbedHandler GetHelpEmbed(bool all = false)
         {
             IUser contextUser = Context?.User;
 
             var builder = new EmbedHandler(contextUser);
-            builder.Description = $"These are the commands you can use \nFor more detailed command explanations type `{Program.botPrefix}help <command>`";
+            builder.Description = $"These are the commands you can use \nFor more detailed command explanations type `{Program.botPrefix}help <command>`" +
+                (all ? "\nor if there are missing permissions." : "\nAdd 'all' argument to get all possible commands without the permission check.");
 
             foreach (var module in _service.Modules)
             {
+                var name = module.Name.Contains("Module") ? module.Name.Substring(0, module.Name.Length - "Module".Length) : module.Name;
+                if (name == typeof(Administrator).Name && !Program.botOwners.Contains(Context.User.Id)) continue;
+
                 string description = string.Join(", ", module.Commands
                      .Select(x => x)
                      .Where(x => x.CheckPreconditionsAsync(Context, _services).Result.IsSuccess)
@@ -204,14 +212,25 @@ namespace AnimeListBot.Modules
                      .Distinct()
                  );
 
-                if (!string.IsNullOrWhiteSpace(description))
+                string notSuccess = string.Empty;
+                if (all)
                 {
-                    var name = module.Name.Contains("Module") ? module.Name.Substring(0, module.Name.Length - "Module".Length) : module.Name;
-                    if (name == typeof(Administrator).Name && !Program.botOwners.Contains(Context.User.Id)) continue;
+                    notSuccess = string.Join(", ", module.Commands
+                         .Select(x => x)
+                         .Where(x => !x.CheckPreconditionsAsync(Context, _services).Result.IsSuccess)
+                         .Select(x => $"`'{x.Aliases.First()}'`")
+                         .Distinct()
+                    );
+                }
+
+                if (!string.IsNullOrWhiteSpace(description) || !string.IsNullOrWhiteSpace(notSuccess))
+                {
                     builder.AddField(x =>
                     {
                         x.Name = name;
-                        x.Value = description;
+                        x.Value = 
+                            (description != string.Empty ? description + "\n" : "") +
+                            (notSuccess != string.Empty ? "Missing Permissions:\n" + notSuccess : "");
                         x.IsInline = false;
                     });
                 }

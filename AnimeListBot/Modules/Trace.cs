@@ -43,8 +43,9 @@ namespace AnimeListBot.Modules
 
         [Command("trace")]
         [Summary("Traces an image by link")]
-        [RequireBotPermission(GuildPermission.AddReactions)]
         [RequireBotPermission(ChannelPermission.AddReactions)]
+        [RequireBotPermission(ChannelPermission.UseExternalEmojis)]
+        [RequireBotPermission(ChannelPermission.ManageMessages)]
         public async Task TraceImage(string url, bool override_trace = false)
         {
             EmbedHandler embed = new EmbedHandler(Context.User, "Tracing Image...");
@@ -177,8 +178,9 @@ namespace AnimeListBot.Modules
 
         [Command("trace")]
         [Summary("Traces an image by uploading an image as an attachment while you do this command.")]
-        [RequireBotPermission(GuildPermission.AddReactions)]
         [RequireBotPermission(ChannelPermission.AddReactions)]
+        [RequireBotPermission(ChannelPermission.UseExternalEmojis)]
+        [RequireBotPermission(ChannelPermission.ManageMessages)]
         public async Task TraceImage(bool override_trace = false)
         {
             var attachements = Context.Message.Attachments;

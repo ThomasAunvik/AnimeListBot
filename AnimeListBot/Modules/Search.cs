@@ -43,6 +43,8 @@ namespace AnimeListBot.Modules
 
         [Command("anime")]
         [RequireBotPermission(ChannelPermission.AddReactions)]
+        [RequireBotPermission(ChannelPermission.UseExternalEmojis)]
+        [RequireBotPermission(ChannelPermission.ManageMessages)]
         public async Task SearchAnime(IUser targetUser, [Remainder]string search)
         {
             EmbedHandler embed = new EmbedHandler(targetUser, "Searching for " + search + "...");
@@ -55,6 +57,8 @@ namespace AnimeListBot.Modules
         
         [Command("anime")]
         [RequireBotPermission(ChannelPermission.AddReactions)]
+        [RequireBotPermission(ChannelPermission.UseExternalEmojis)]
+        [RequireBotPermission(ChannelPermission.ManageMessages)]
         public async Task SearchAnime([Remainder]string search)
         {
             await SearchAnime(Context.User, search);
@@ -210,6 +214,8 @@ namespace AnimeListBot.Modules
 
         [Command("manga")]
         [RequireBotPermission(ChannelPermission.AddReactions)]
+        [RequireBotPermission(ChannelPermission.UseExternalEmojis)]
+        [RequireBotPermission(ChannelPermission.ManageMessages)]
         public async Task SearchManga(IUser targetUser, [Remainder]string search)
         {
             EmbedHandler embed = new EmbedHandler(targetUser, "Searching for " + search + "...");
@@ -222,6 +228,8 @@ namespace AnimeListBot.Modules
 
         [Command("manga")]
         [RequireBotPermission(ChannelPermission.AddReactions)]
+        [RequireBotPermission(ChannelPermission.UseExternalEmojis)]
+        [RequireBotPermission(ChannelPermission.ManageMessages)]
         public async Task SearchManga([Remainder]string search)
         {
             await SearchManga(Context.User, search);

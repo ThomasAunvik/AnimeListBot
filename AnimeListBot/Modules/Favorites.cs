@@ -26,6 +26,9 @@ using System.Threading.Tasks;
 
 namespace AnimeListBot.Modules
 {
+    [RequireBotPermission(ChannelPermission.AddReactions)]
+    [RequireBotPermission(ChannelPermission.UseExternalEmojis)]
+    [RequireBotPermission(ChannelPermission.ManageMessages)]
     public class Favorites : ModuleBase<ShardedCommandContext>
     {
         private IDatabaseService _db;

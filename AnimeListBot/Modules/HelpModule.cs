@@ -46,7 +46,7 @@ namespace AnimeListBot.Modules
         [Summary("Displays basic help command.\nOption: [Command] or 'all' for all possible commands")]
         public virtual async Task HelpAsync([Remainder]string command = null)
         {
-            bool isAll = command.ToLower() == "all";
+            bool isAll = command != null && command.ToLower() == "all";
             if (command == null || isAll)
             {
                 await HelpAsync(isAll);

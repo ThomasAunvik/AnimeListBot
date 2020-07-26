@@ -104,10 +104,10 @@ namespace AnimeListBot
             }
 
             if (!string.IsNullOrEmpty(bot_config.jikan_api)) {
-                _jikan = new Jikan(bot_config.jikan_api, surpressException: false);
+                _jikan = new Jikan(bot_config.jikan_api);
             }else
             {
-                _jikan = new Jikan(true, surpressException: false);
+                _jikan = new Jikan(true);
             }
             _sauceNao  = new SauceNao(bot_config.saucenao_token);
             _dbl = new AuthDiscordBotListApi(botID, bot_config.dbl_token);

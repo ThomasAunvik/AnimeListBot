@@ -67,13 +67,19 @@ namespace AnimeListBot.Handler.Database
             if (user.MalUsername != string.Empty && (user.malCachedTime < DateTime.Now || forceUpdate))
             {
                 user.malCachedTime = DateTime.Now.AddMinutes(15);
-                await user.UpdateMALInfo(user.MalUsername);
+                try
+                {
+                    await user.UpdateMALInfo(user.MalUsername);
+                }catch(Exception) {}
             }
 
             if (user.AnilistUsername != string.Empty && (user.anilistCachedTime < DateTime.Now || forceUpdate))
             {
                 user.anilistCachedTime = DateTime.Now.AddMinutes(15);
-                await user.UpdateAnilistInfo(user.AnilistUsername);
+                try
+                {
+                    await user.UpdateAnilistInfo(user.AnilistUsername);
+                }catch(Exception) { }
             }
 
             return user;
